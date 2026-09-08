@@ -380,9 +380,55 @@ class SoundManager {
         this.playNoiseSwoosh(0.35);
     }
 
-    // Sonic Skill Boost Sound: Plays skillboost.mp3
+    // Vayu Divine Wind Rush / Howling Tornado Vortex Sound FX
+    playVayuWindRush(duration = 0.65) {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+            const now = this.ctx.currentTime;
+            const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                // Pink noise filter for deeper wind rumble & atmospheric vortex roar
+                lastOut = (lastOut * 0.93) + (white * 0.07);
+                data[i] = lastOut * 2.2;
+            }
+
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            // Sweeping cyclone resonant bandpass filter
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.Q.setValueAtTime(3.8, now);
+            filter.frequency.setValueAtTime(280, now);
+            filter.frequency.exponentialRampToValueAtTime(1600, now + duration * 0.35);
+            filter.frequency.exponentialRampToValueAtTime(360, now + duration);
+
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(this.sfxVolume * 0.95, now + 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.sfxMasterGain || this.ctx.destination);
+
+            noise.start(now);
+            noise.stop(now + duration);
+        } catch (e) {
+            console.warn('Vayu wind rush sound error:', e);
+        }
+    }
+
+    // Sonic Skill Boost Sound: Plays skillboost.mp3 with divine Vayu wind howl
     playBoost() {
         if (this.isMuted) return;
+        this.playVayuWindRush(0.7);
         try {
             if (this.boostAudio) {
                 this.boostAudio.volume = this.sfxVolume;

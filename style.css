@@ -208,53 +208,165 @@ body, html {
     text-shadow: 1px 1px 0 #000;
 }
 
-/* Boost & Speedometer HUD */
+/* Vayu Wind Gauge & Speedometer HUD */
 #bottom-hud {
     position: absolute;
     bottom: 24px;
-    left: 28px;
-    z-index: 10;
+    left: 24px;
+    z-index: 100;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     pointer-events: none;
 }
 
-.boost-container {
+.vayu-gauge-card {
+    background: rgba(3, 14, 34, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(0, 240, 255, 0.45);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), inset 0 0 16px rgba(0, 229, 255, 0.12);
+    min-width: 250px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vayu-gauge-card.vayu-full-charge {
+    border-color: #ffd700 !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.65), 0 0 35px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.25) !important;
+    animation: vayuPulseFull 1.2s ease-in-out infinite alternate;
+}
+
+.vayu-header-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 7px;
+    gap: 8px;
 }
 
-.boost-label {
-    font-size: 14px;
-    color: var(--sonic-cyan);
-    text-shadow: 2px 2px 0 #005070;
+.vayu-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.boost-bar-track {
-    width: 220px;
-    height: 18px;
-    background: rgba(0, 20, 40, 0.7);
-    border: 3px solid #ffffff;
-    border-radius: 9px;
+.vayu-icon {
+    font-size: 15px;
+    filter: drop-shadow(0 0 6px #00f0ff);
+    animation: vayuIconSpin 4s linear infinite;
+    display: inline-block;
+}
+
+.vayu-main-label {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+}
+
+.vayu-sub-label {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+    margin-left: 2px;
+}
+
+.vayu-pct-val {
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: #00f0ff;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.9);
+    transition: color 0.2s ease;
+}
+
+.vayu-bar-track {
+    position: relative;
+    width: 100%;
+    height: 16px;
+    background: rgba(1, 8, 20, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
 #boost-fill {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #0099ff, var(--sonic-cyan));
-    box-shadow: 0 0 12px var(--sonic-cyan);
+    background: linear-gradient(90deg, #0077ff 0%, #00e5ff 65%, #ffffff 100%);
+    box-shadow: 0 0 16px #00e5ff;
+    border-radius: 6px;
     transition: width 0.08s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.vayu-stream-fx {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(60deg, transparent, transparent 10px, rgba(255, 255, 255, 0.45) 10px, rgba(255, 255, 255, 0.45) 20px);
+    animation: vayuStreamMove 1s linear infinite;
+}
+
+.vayu-speed-card {
+    background: rgba(3, 14, 34, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255, 215, 0, 0.45);
+    border-radius: 10px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+    max-width: 250px;
+}
+
+.speed-label-icon {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
 }
 
 .speed-meter {
-    font-size: 14px;
+    font-family: 'Press Start 2P', monospace, sans-serif;
+    font-size: 11px;
     color: #ffffff;
-    text-shadow: 2px 2px 0 #000;
     letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes vayuIconSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes vayuStreamMove {
+    from { background-position: 0 0; }
+    to { background-position: 40px 0; }
+}
+
+@keyframes vayuPulseFull {
+    0% {
+        box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.4);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 28px rgba(255, 215, 0, 0.9), 0 0 45px rgba(0, 240, 255, 0.7);
+        transform: scale(1.02);
+    }
 }
 
 /* Top Right Action Buttons */

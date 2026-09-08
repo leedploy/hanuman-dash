@@ -400,27 +400,95 @@ class SonicPlayer {
     }
 
     buildBoostAura() {
-        // Cyan Glowing Energy Sphere & Rings for Sonic Boost
+        // Vayu Divine Tornado Vortex (White & Celestial Cyan Whirlwind of the Wind God)
         const auraGroup = new THREE.Group();
 
-        const auraGeo = new THREE.SphereGeometry(1.2, 16, 16);
-        const auraMat = new THREE.MeshBasicMaterial({
-            color: 0x00e5ff,
+        // 1. Outer Inverted Tornado Cone (Flares wide as it rises)
+        const outerGeo = new THREE.CylinderGeometry(1.55, 0.45, 2.7, 18, 6, true);
+        const outerMat = new THREE.MeshBasicMaterial({
+            color: 0x64d2ff,
             transparent: true,
             opacity: 0.35,
-            wireframe: true
+            wireframe: true,
+            side: THREE.DoubleSide
         });
-        const auraMesh = new THREE.Mesh(auraGeo, auraMat);
-        auraGroup.add(auraMesh);
+        const outerFunnel = new THREE.Mesh(outerGeo, outerMat);
+        outerFunnel.position.y = 1.35;
+        auraGroup.add(outerFunnel);
+        this.vayuOuterFunnel = outerFunnel;
 
-        // Swirling Energy Ring
-        const ringGeo = new THREE.TorusGeometry(1.35, 0.05, 8, 32);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x66f5ff, transparent: true, opacity: 0.6 });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        ringMesh.rotation.x = Math.PI / 2;
-        auraGroup.add(ringMesh);
+        // 2. Inner Counter-Rotating Wind Current (Ethereal White-Cyan)
+        const innerGeo = new THREE.CylinderGeometry(1.25, 0.35, 2.5, 14, 4, true);
+        const innerMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.28,
+            wireframe: true,
+            side: THREE.DoubleSide
+        });
+        const innerFunnel = new THREE.Mesh(innerGeo, innerMat);
+        innerFunnel.position.y = 1.35;
+        auraGroup.add(innerFunnel);
+        this.vayuInnerFunnel = innerFunnel;
 
-        auraGroup.position.y = 1.0;
+        // 3. Ascending Spiral Vortex Ribbons (4 ascending celestial rings)
+        this.vayuSpiralRings = [];
+        const ringColors = [0x00f0ff, 0xffffff, 0x80e5ff, 0xffe066];
+        for (let i = 0; i < 4; i++) {
+            const rGeo = new THREE.TorusGeometry(0.7 + i * 0.25, 0.042, 6, 28);
+            const rMat = new THREE.MeshBasicMaterial({
+                color: ringColors[i % ringColors.length],
+                transparent: true,
+                opacity: 0.65
+            });
+            const rMesh = new THREE.Mesh(rGeo, rMat);
+            rMesh.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.25;
+            rMesh.position.y = 0.3 + i * 0.65;
+            rMesh.userData = {
+                baseY: rMesh.position.y,
+                phase: (i / 4) * Math.PI * 2,
+                speedY: 2.2 + i * 0.3
+            };
+            auraGroup.add(rMesh);
+            this.vayuSpiralRings.push(rMesh);
+        }
+
+        // 4. Ground Whirlwind Shockwave Ring (At feet kicking up wind currents)
+        const groundGeo = new THREE.RingGeometry(0.35, 1.5, 24);
+        const groundMat = new THREE.MeshBasicMaterial({
+            color: 0x00e5ff,
+            transparent: true,
+            opacity: 0.55,
+            side: THREE.DoubleSide
+        });
+        const groundRing = new THREE.Mesh(groundGeo, groundMat);
+        groundRing.rotation.x = -Math.PI / 2;
+        groundRing.position.y = 0.06;
+        auraGroup.add(groundRing);
+        this.vayuGroundRing = groundRing;
+
+        // 5. Swirling Wind Sparkle Particles (24 particles orbiting in vertical vortex)
+        this.vayuWindParticles = [];
+        const pGeo = new THREE.SphereGeometry(0.065, 5, 5);
+        for (let i = 0; i < 24; i++) {
+            const isGold = (i % 5 === 0);
+            const pMat = new THREE.MeshBasicMaterial({
+                color: isGold ? 0xffd700 : (i % 2 === 0 ? 0xffffff : 0x00f0ff),
+                transparent: true,
+                opacity: 0.75
+            });
+            const p = new THREE.Mesh(pGeo, pMat);
+            p.userData = {
+                angle: (i / 24) * Math.PI * 2,
+                height: (i / 24) * 2.6 + 0.1,
+                speed: 9.0 + (i % 6) * 1.5,
+                ySpeed: 2.0 + (i % 4) * 0.5
+            };
+            auraGroup.add(p);
+            this.vayuWindParticles.push(p);
+        }
+
+        auraGroup.position.set(0, 0, 0);
         auraGroup.visible = false;
         this.boostAura = auraGroup;
         this.group.add(auraGroup);
@@ -1103,15 +1171,64 @@ class SonicPlayer {
             }
         }
 
-        // 3. Boost / Spin Energy Aura
+        // 3. Vayu Divine Tornado Vortex Aura
         if (this.boostAura) {
             const showAura = (this.isBoosting || this.isChargingSpinDash) && (this.renderMode === 'mesh3d' || this.renderMode === 'hanuman');
             this.boostAura.visible = showAura;
             if (showAura) {
-                this.boostAura.rotation.y += dt * 8.0;
-                this.boostAura.rotation.z += dt * 4.0;
-                const auraScale = 1.0 + Math.sin(this.animTime * 20.0) * 0.08;
-                this.boostAura.scale.set(auraScale, auraScale, auraScale);
+                // High-speed whirlwind funnel rotation
+                if (this.vayuOuterFunnel) {
+                    this.vayuOuterFunnel.rotation.y += dt * 14.0;
+                    const breath = 1.0 + Math.sin(this.animTime * 24.0) * 0.08;
+                    this.vayuOuterFunnel.scale.set(breath, 1.0, breath);
+                }
+                if (this.vayuInnerFunnel) {
+                    this.vayuInnerFunnel.rotation.y -= dt * 18.0; // Counter-rotating vortex
+                    const breath2 = 1.0 + Math.cos(this.animTime * 20.0) * 0.06;
+                    this.vayuInnerFunnel.scale.set(breath2, 1.0, breath2);
+                }
+                if (this.vayuGroundRing) {
+                    this.vayuGroundRing.rotation.z += dt * 12.0;
+                    const gPulse = 1.0 + Math.sin(this.animTime * 18.0) * 0.12;
+                    this.vayuGroundRing.scale.set(gPulse, gPulse, 1.0);
+                }
+
+                // Ascending spiral rings
+                if (this.vayuSpiralRings) {
+                    for (let i = 0; i < this.vayuSpiralRings.length; i++) {
+                        const ring = this.vayuSpiralRings[i];
+                        ring.position.y += dt * ring.userData.speedY;
+                        if (ring.position.y > 2.7) {
+                            ring.position.y = 0.2;
+                        }
+                        // Flare wider as it ascends
+                        const flare = 0.45 + (ring.position.y / 2.7) * 0.85;
+                        ring.scale.set(flare, flare, flare);
+                        ring.rotation.z += dt * (10.0 + i * 2.0);
+                    }
+                }
+
+                // Swirling wind particles in logarithmic conical vortex
+                if (this.vayuWindParticles) {
+                    for (let i = 0; i < this.vayuWindParticles.length; i++) {
+                        const p = this.vayuWindParticles[i];
+                        p.userData.angle += dt * p.userData.speed;
+                        p.userData.height += dt * p.userData.ySpeed;
+                        if (p.userData.height > 2.7) {
+                            p.userData.height = 0.1;
+                        }
+                        // Radius expands with height (vortex funnel profile)
+                        const radius = 0.35 + (p.userData.height / 2.7) * 1.15 + Math.sin(p.userData.angle * 3.0) * 0.08;
+                        p.position.x = Math.cos(p.userData.angle) * radius;
+                        p.position.z = Math.sin(p.userData.angle) * radius;
+                        p.position.y = p.userData.height;
+                    }
+                }
+
+                // Aerodynamic forward lean into the wind stream
+                const forwardLean = Math.min(0.28, (horizSpeed / this.maxSpeed) * 0.28);
+                this.boostAura.rotation.x = forwardLean;
+                this.boostAura.rotation.z = this.bankingAngle * 0.7;
             }
         }
 

@@ -11,6 +11,8 @@ class SonicGame {
         this.timeEl = document.getElementById('hud-time');
         this.ringsEl = document.getElementById('hud-rings');
         this.boostBarEl = document.getElementById('boost-fill');
+        this.vayuCardEl = document.getElementById('vayu-gauge-card');
+        this.vayuPctTextEl = document.getElementById('vayu-pct-text');
         this.speedEl = document.getElementById('hud-speed');
         this.progressBarEl = document.getElementById('stage-progress-fill');
         this.progressTextEl = document.getElementById('stage-progress-text');
@@ -1613,15 +1615,32 @@ class SonicGame {
             this.lastHundredRings = hundredRings;
         }
         if (this.boostBarEl) {
-            const pct = (this.sonic.boostEnergy / this.sonic.maxBoostEnergy) * 100;
+            const pct = Math.max(0, Math.min(100, (this.sonic.boostEnergy / this.sonic.maxBoostEnergy) * 100));
             this.boostBarEl.style.width = `${pct}%`;
+            if (this.vayuPctTextEl) {
+                this.vayuPctTextEl.textContent = `${Math.floor(pct)}%`;
+                if (pct >= 99) {
+                    this.vayuPctTextEl.style.color = '#ffd700';
+                } else if (pct <= 20) {
+                    this.vayuPctTextEl.style.color = '#ff4d4d';
+                } else {
+                    this.vayuPctTextEl.style.color = '#00f0ff';
+                }
+            }
+            if (this.vayuCardEl) {
+                if (pct >= 99) {
+                    this.vayuCardEl.classList.add('vayu-full-charge');
+                } else {
+                    this.vayuCardEl.classList.remove('vayu-full-charge');
+                }
+            }
         }
         if (this.speedEl) {
             // Speedometer in KM/H (speed * 3.6 for realistic platformer scaling)
             const kmh = Math.floor(this.sonic.currentSpeed * 3.6);
             this.speedEl.textContent = `${kmh} KM/H`;
             if (kmh > 170) {
-                this.speedEl.style.color = '#ffde00';
+                this.speedEl.style.color = '#ffd700';
             } else {
                 this.speedEl.style.color = '#ffffff';
             }

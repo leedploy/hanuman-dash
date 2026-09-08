@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Hanuman Dash 3D - วายุบุตรพญาพานร • Himavanta Speed Runner</title>
-    <link rel="stylesheet" href="style.css?v=7.6">
+    <link rel="stylesheet" href="style.css?v=8.3">
     <style>
         /* Modals & Screens Critical Fixed Overlay Styles */
         .modal-overlay {
@@ -616,15 +616,27 @@
     <!-- Respawn Alert Banner -->
     <div id="respawn-toast" class="hidden">💥 RESPAWN! KEEP RUNNING!</div>
 
-    <!-- Bottom Boost & Speed HUD -->
+    <!-- Bottom Boost & Speed HUD (Vayu Wind Gauge) -->
     <div id="bottom-hud">
-        <div class="boost-container">
-            <span class="boost-label">VAYU 💨</span>
-            <div class="boost-bar-track">
-                <div id="boost-fill"></div>
+        <div id="vayu-gauge-card" class="vayu-gauge-card">
+            <div class="vayu-header-row">
+                <div class="vayu-title-wrap">
+                    <span class="vayu-icon">🌪️</span>
+                    <span class="vayu-main-label">พลังลมพระพาย</span>
+                    <span class="vayu-sub-label">VAYU GAUGE</span>
+                </div>
+                <div id="vayu-pct-text" class="vayu-pct-val">100%</div>
+            </div>
+            <div class="vayu-bar-track" id="vayu-bar-container">
+                <div id="boost-fill" class="vayu-bar-fill">
+                    <div class="vayu-stream-fx"></div>
+                </div>
             </div>
         </div>
-        <div id="hud-speed" class="speed-meter">0 KM/H</div>
+        <div class="vayu-speed-card">
+            <span class="speed-label-icon">⚡ วายุสปีด</span>
+            <div id="hud-speed" class="speed-meter">0 KM/H</div>
+        </div>
     </div>
 
     <!-- 3... 2... 1... GO! Rocket Start Countdown Overlay -->
@@ -1019,13 +1031,13 @@
     </script>
     <script src="js/GLTFLoader.js"></script>
 
-    <!-- Game Scripts (v=8.2 cache busting) -->
-    <script src="js/audio.js?v=8.2"></script>
-    <script src="js/spritesheet.js?v=8.2"></script>
-    <script src="js/sonic.js?v=8.2"></script>
-    <script src="js/world.js?v=8.2"></script>
-    <script src="js/objects.js?v=8.2"></script>
-    <script src="js/leaderboard.js?v=8.2"></script>
-    <script src="js/game.js?v=8.2"></script>
+    <!-- Game Scripts (v=8.3 cache busting) -->
+    <script src="js/audio.js?v=8.3"></script>
+    <script src="js/spritesheet.js?v=8.3"></script>
+    <script src="js/sonic.js?v=8.3"></script>
+    <script src="js/world.js?v=8.3"></script>
+    <script src="js/objects.js?v=8.3"></script>
+    <script src="js/leaderboard.js?v=8.3"></script>
+    <script src="js/game.js?v=8.3"></script>
 </body>
 </html>
