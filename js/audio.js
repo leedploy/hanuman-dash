@@ -204,6 +204,35 @@ class SoundManager {
         osc.stop(t + 0.36);
     }
 
+    // Celestial Crescent Moon Chime (5-note radiant arpeggio)
+    playMoonPickup() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const t = this.ctx.currentTime;
+        const notes = [1046.5, 1318.5, 1567.9, 1975.5, 2093.0]; // C6, E6, G6, B6, C7
+        notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const noteTime = t + idx * 0.052;
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, noteTime);
+
+            const vol = 0.38 * (this.sfxVolume || 0.8);
+            gain.gain.setValueAtTime(0, noteTime);
+            gain.gain.linearRampToValueAtTime(vol, noteTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.52);
+
+            osc.connect(gain);
+            gain.connect(this.sfxMasterGain || this.ctx.destination);
+
+            osc.start(noteTime);
+            osc.stop(noteTime + 0.54);
+        });
+    }
+
     // Classic Sonic Jump / Spin Sweep Sound
     playJump() {
         if (this.isMuted) return;

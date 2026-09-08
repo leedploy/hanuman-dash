@@ -1529,6 +1529,27 @@ class SonicPlayer {
         }
     }
 
+    addMoon() {
+        this.rings += 20;
+        this.totalRingsCollected = (this.totalRingsCollected || 0) + 20;
+        this.score += 5000;
+        // 100% full Vayu Wind Boost!
+        this.boostEnergy = this.maxBoostEnergy;
+        this.boostDepleted = false;
+
+        if (window.soundManager && window.soundManager.playMoonPickup) {
+            window.soundManager.playMoonPickup();
+        } else if (window.soundManager) {
+            window.soundManager.playRing();
+        }
+        if (window.game && window.game.triggerHudRingBounce) {
+            window.game.triggerHudRingBounce();
+        }
+        if (window.game && window.game.showToast) {
+            window.game.showToast('🌙 หาวเป็นเดือน! วายุบูสต์ 100% +5,000 PTS!', true, 2400);
+        }
+    }
+
     startLoop(loop) {
         this.isLooping = true;
         this.currentLoop = loop;

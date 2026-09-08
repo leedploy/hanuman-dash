@@ -5,6 +5,7 @@ class ObjectManager {
         this.scene = scene;
         this.world = world;
         this.rings = [];
+        this.moons = [];
         this.springs = [];
         this.dashPads = [];
         this.spikes = [];
@@ -19,11 +20,36 @@ class ObjectManager {
     }
 
     initMaterials() {
+        // Celestial Golden Star Materials
         this.goldMat = new THREE.MeshStandardMaterial({
-            color: 0xffd000,
-            metalness: 0.85,
-            roughness: 0.2,
-            emissive: 0x443000
+            color: 0xffea38,
+            metalness: 0.88,
+            roughness: 0.16,
+            emissive: 0xffaa00,
+            emissiveIntensity: 0.42
+        });
+        this.starMat = this.goldMat;
+        this.starCoreMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.95
+        });
+
+        // Radiant Crescent Moon Materials
+        this.moonMat = new THREE.MeshStandardMaterial({
+            color: 0xfffae6,
+            metalness: 0.65,
+            roughness: 0.14,
+            emissive: 0xffd700,
+            emissiveIntensity: 0.65
+        });
+        this.moonHaloMat = new THREE.MeshBasicMaterial({
+            color: 0xfff070,
+            transparent: true,
+            opacity: 0.35,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
         });
 
         this.springRedMat = new THREE.MeshLambertMaterial({ color: 0xee2222 });
@@ -54,6 +80,47 @@ class ObjectManager {
             metalness: 0.8,
             roughness: 0.2
         });
+    }
+
+    createStarGeometry(points = 5, outerRadius = 0.52, innerRadius = 0.24, depth = 0.16) {
+        const shape = new THREE.Shape();
+        const step = Math.PI / points;
+        for (let i = 0; i < 2 * points; i++) {
+            const r = (i % 2 === 0) ? outerRadius : innerRadius;
+            const a = i * step - Math.PI / 2;
+            const x = Math.cos(a) * r;
+            const y = Math.sin(a) * r;
+            if (i === 0) shape.moveTo(x, y);
+            else shape.lineTo(x, y);
+        }
+        shape.closePath();
+        const geo = new THREE.ExtrudeGeometry(shape, {
+            depth: depth,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 1,
+            bevelSize: 0.05,
+            bevelThickness: 0.05
+        });
+        geo.center();
+        return geo;
+    }
+
+    createCrescentMoonGeometry(outerRadius = 0.95, innerRadius = 0.78, depth = 0.22) {
+        const shape = new THREE.Shape();
+        shape.absarc(0, 0, outerRadius, -Math.PI * 0.45, Math.PI * 0.45, false);
+        shape.absarc(-0.32, 0, innerRadius, Math.PI * 0.42, -Math.PI * 0.42, true);
+        shape.closePath();
+        const geo = new THREE.ExtrudeGeometry(shape, {
+            depth: depth,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 1,
+            bevelSize: 0.07,
+            bevelThickness: 0.07
+        });
+        geo.center();
+        return geo;
     }
 
     initRingFXPools() {
@@ -262,12 +329,14 @@ class ObjectManager {
         removeGroup(this.spikes);
         removeGroup(this.starPosts);
         removeGroup(this.scatteredRings);
+        removeGroup(this.moons);
 
         if (this.goalRing && this.goalRing.group) {
             this.scene.remove(this.goalRing.group);
         }
 
         this.rings = [];
+        this.moons = [];
         this.springs = [];
         this.dashPads = [];
         this.spikes = [];
@@ -410,6 +479,13 @@ class ObjectManager {
         this.spawnLoopRings(-880, 16, 4);
         this.spawnLoopRings(-1080, 18, 4);
         this.spawnLoopRings(-4160, 18, 4);
+
+        // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง) ---
+        this.createMoon(0, 24, -390);     // Ramp above Mega Mack
+        this.createMoon(0, 38, -610);     // High Skyway Catwalk
+        this.createMoon(0, 36, -1900);    // Glass Booster Tube #2 Exit
+        this.createMoon(0, 26, -3550);    // Highway Leap
+        this.createMoon(0, 24, -4600);    // Finish Colosseum Sprint
 
         // --- 2. DASH BOOSTER PADS ---
         const chemDashPads = [
@@ -613,6 +689,12 @@ class ObjectManager {
         // 360° Water Loop 1 & Loop 2 Ring Arcs
         this.spawnLoopRings(-1450, 16, 4, 10);
         this.spawnLoopRings(-3650, 18, 18, 10);
+
+        // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง) ---
+        this.createMoon(0, 30, -420);     // Water Aqueduct Leap
+        this.createMoon(0, 36, -1550);    // Temple Waterfall Lookout
+        this.createMoon(0, 28, -3100);    // Undersea Ruins Apex
+        this.createMoon(0, 24, -4800);    // Final Lagoon Ascent
 
         // --- 2. HYDRO BOOSTERS (Cyan Water Jet Accelerators) ---
         const hydroBoosters = [
@@ -834,6 +916,18 @@ class ObjectManager {
         this.createLoopRings(0, 10, -3530, 20, -2.5, 2.5, 14); // Inside Giant Loop #3 360° Ring Arc!
         this.createRingArc(0, 16, -5570, 8, 14); // Final Ring Arc leading into Giant Goal Ring!
 
+        // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง หาวเป็นดาวเป็นเดือน) ---
+        this.createMoon(0, 32, -95);      // Apex of Spring Launch #1
+        this.createMoon(-18, 26, -140);   // Secret Left Sky Platform
+        this.createMoon(0, 30, -345);     // High Plateau Lookout
+        this.createMoon(0, 34, -1200);    // Above Corkscrew Ridge Checkpoint
+        this.createMoon(0, 42, -1630);    // Over Sky Island Gap
+        this.createMoon(0, 30, -2260);    // Peak of Emerald Canyon Checkpoint
+        this.createMoon(0, 38, -3360);    // Sky Cloud Launch
+        this.createMoon(0, 24, -3900);    // Coastal Lagoon Vista
+        this.createMoon(0, 26, -5050);    // Grand Speedway Apex
+        this.createMoon(0, 22, -5570);    // Final Triumph before Giant Goal Ring!
+
         // --- 2. STAR POST CHECKPOINTS (5 Milestone Checkpoints along 5,600m Course) ---
         this.createStarPost(-3.8, 4, -470, 0);   // Checkpoint 1: Loop 1 Valley Floor (z: -470)
         this.createStarPost(-3.8, 26, -1200, 1); // Checkpoint 2: Corkscrew Ridge
@@ -915,13 +1009,11 @@ class ObjectManager {
 
     createRing(x, y, z) {
         // Automatic Ground Elevation Safeguard:
-        // Ensure ring is NEVER buried underground on sloped hills, dips, or platforms
+        // Ensure star is NEVER buried underground on sloped hills, dips, or platforms
         const world = this.world || (window.game && window.game.world);
         if (world && world.getGroundHeight) {
             const groundY = world.getGroundHeight(x, z);
             if (groundY > -40) {
-                // If y is lower than ground surface + 1.0m (i.e. submerged or embedded),
-                // automatically lift it to float at perfect 1.35m height above the road
                 if (y < groundY + 1.0) {
                     y = groundY + 1.35;
                 }
@@ -929,10 +1021,19 @@ class ObjectManager {
         }
 
         const group = new THREE.Group();
-        const geo = new THREE.TorusGeometry(0.55, 0.12, 10, 24);
-        const mesh = new THREE.Mesh(geo, this.goldMat);
+        if (!this.starGeo) {
+            this.starGeo = this.createStarGeometry();
+        }
+        const mesh = new THREE.Mesh(this.starGeo, this.starMat);
         mesh.castShadow = true;
         group.add(mesh);
+
+        // Core Sparkling Diamond Glint
+        if (!this.starCoreGeo) {
+            this.starCoreGeo = new THREE.OctahedronGeometry(0.16, 0);
+        }
+        const coreMesh = new THREE.Mesh(this.starCoreGeo, this.starCoreMat);
+        group.add(coreMesh);
 
         group.position.set(x, y, z);
         this.scene.add(group);
@@ -940,10 +1041,55 @@ class ObjectManager {
         this.rings.push({
             group: group,
             mesh: mesh,
+            coreMesh: coreMesh,
             baseY: y,
             collected: false,
-            radius: 1.0
+            radius: 1.1
         });
+    }
+
+    createMoon(x, y, z) {
+        const world = this.world || (window.game && window.game.world);
+        if (world && world.getGroundHeight) {
+            const groundY = world.getGroundHeight(x, z);
+            if (groundY > -40 && y < groundY + 1.5) {
+                y = groundY + 2.2;
+            }
+        }
+
+        const group = new THREE.Group();
+        if (!this.moonGeo) {
+            this.moonGeo = this.createCrescentMoonGeometry();
+        }
+        const mesh = new THREE.Mesh(this.moonGeo, this.moonMat);
+        mesh.castShadow = true;
+        group.add(mesh);
+
+        // Radiant Moon Halo Disc
+        if (!this.moonHaloGeo) {
+            this.moonHaloGeo = new THREE.CircleGeometry(1.35, 24);
+        }
+        const halo = new THREE.Mesh(this.moonHaloGeo, this.moonHaloMat);
+        group.add(halo);
+
+        group.position.set(x, y, z);
+        this.scene.add(group);
+
+        this.moons.push({
+            group: group,
+            mesh: mesh,
+            halo: halo,
+            baseY: y,
+            collected: false,
+            radius: 1.8
+        });
+    }
+
+    spawnMoonCollectFX(x, y, z) {
+        // Massive radiant shockwave + 30 sparkling star burst
+        for (let i = 0; i < 3; i++) {
+            this.spawnRingCollectFX(x + (Math.random() - 0.5) * 1.5, y + (Math.random() - 0.5) * 1.5, z + (Math.random() - 0.5) * 1.5);
+        }
     }
 
     createRingArc(centerX, baseY, centerZ, arcHeight, length) {
@@ -1376,12 +1522,14 @@ class ObjectManager {
 
     spawnScatteredRings(x, y, z, count = 12) {
         const actualCount = Math.min(count, 20);
-        const ringGeo = new THREE.TorusGeometry(0.42, 0.09, 8, 16);
+        if (!this.scatterStarGeo) {
+            this.scatterStarGeo = this.createStarGeometry(5, 0.38, 0.18, 0.12);
+        }
 
         for (let i = 0; i < actualCount; i++) {
             const angle = (i / actualCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
             const horizSpeed = 6.5 + Math.random() * 8.5;
-            const mesh = new THREE.Mesh(ringGeo, this.goldMat);
+            const mesh = new THREE.Mesh(this.scatterStarGeo, this.starMat);
             mesh.position.set(x, y + 0.8, z);
             this.scene.add(mesh);
 
@@ -1426,6 +1574,7 @@ class ObjectManager {
                 } else {
                     // Standard spin & hover bobbing when undisturbed
                     ring.mesh.rotation.y += dt * 3.8;
+                    ring.mesh.rotation.z = Math.sin(time * 2.0) * 0.15;
                     ring.group.position.y = ring.baseY + Math.sin(time + ring.group.position.z) * 0.18;
                 }
 
@@ -1435,6 +1584,45 @@ class ObjectManager {
                     ring.collected = true;
                     ring.group.visible = false;
                     sonic.addRing(1);
+                }
+            }
+        });
+
+        // 1.5 Update & Collect Radiant Crescent Moons (หาวเป็นดาวเป็นเดือน)
+        this.moons.forEach(moon => {
+            if (!moon.collected) {
+                const sonicCenter = sonic.position.clone();
+                sonicCenter.y += 0.85;
+                const dist = sonicCenter.distanceTo(moon.group.position);
+
+                // Moon gentle majestic rotation and floating bob
+                moon.mesh.rotation.y += dt * 2.4;
+                moon.mesh.rotation.z = Math.sin(time * 2.0) * 0.16;
+                moon.group.position.y = moon.baseY + Math.sin(time * 2.5 + moon.group.position.z * 0.05) * 0.35;
+
+                if (moon.halo) {
+                    moon.halo.rotation.z += dt * 1.2;
+                    const pulse = 1.0 + Math.sin(time * 3.5) * 0.12;
+                    moon.halo.scale.set(pulse, pulse, pulse);
+                }
+
+                // Vacuum pull when boosting or near
+                if (dist < 6.5 && !sonic.isDead) {
+                    moon.group.position.lerp(sonicCenter, Math.min(1.0, dt * 18.0));
+                }
+
+                // Collection
+                if (dist < moon.radius + 1.4 && !sonic.isDead) {
+                    moon.collected = true;
+                    moon.group.visible = false;
+                    this.spawnMoonCollectFX(moon.group.position.x, moon.group.position.y, moon.group.position.z);
+                    if (sonic.addMoon) {
+                        sonic.addMoon();
+                    } else {
+                        sonic.addRing(20);
+                        sonic.score += 5000;
+                        sonic.boostEnergy = sonic.maxBoostEnergy;
+                    }
                 }
             }
         });
