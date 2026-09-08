@@ -52,9 +52,43 @@ class ObjectManager {
             depthWrite: false
         });
 
-        this.springRedMat = new THREE.MeshLambertMaterial({ color: 0xee2222 });
-        this.springYellowMat = new THREE.MeshLambertMaterial({ color: 0xffd800 });
-        this.spikeMat = new THREE.MeshStandardMaterial({ color: 0xbbbbbb, metalness: 0.9, roughness: 0.3 });
+        // Bouncing Celestial Lotus Materials
+        this.lotusPadMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
+        this.lotusPetalMat = new THREE.MeshLambertMaterial({ color: 0xf472b6, side: THREE.DoubleSide });
+        this.lotusCoreMat = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            emissive: 0xca8a04,
+            emissiveIntensity: 0.5,
+            roughness: 0.25
+        });
+
+        // Vayu Wind Gale Pad Materials
+        this.vayuStoneMat = new THREE.MeshLambertMaterial({ color: 0x163324, roughness: 0.7 });
+        this.vayuGoldTrimMat = new THREE.MeshStandardMaterial({
+            color: 0xfbbf24,
+            metalness: 0.65,
+            roughness: 0.3
+        });
+        this.vayuWindArrowMat = new THREE.MeshStandardMaterial({
+            color: 0x00f0ff,
+            emissive: 0x00b4d8,
+            emissiveIntensity: 0.75,
+            roughness: 0.2
+        });
+
+        // Asura Thorn Bramble Materials
+        this.brambleMoundMat = new THREE.MeshLambertMaterial({ color: 0x142017, roughness: 0.85 });
+        this.brambleWoodMat = new THREE.MeshLambertMaterial({ color: 0x271425, roughness: 0.7 });
+        this.brambleTipMat = new THREE.MeshStandardMaterial({
+            color: 0xdc2626,
+            emissive: 0x991b1b,
+            emissiveIntensity: 0.55,
+            roughness: 0.25
+        });
+
+        this.springRedMat = this.lotusPetalMat;
+        this.springYellowMat = this.lotusCoreMat;
+        this.spikeMat = this.brambleTipMat;
 
         // Star Post Checkpoint Materials
         this.postPoleMat = new THREE.MeshStandardMaterial({
@@ -1120,40 +1154,63 @@ class ObjectManager {
         }
 
         const group = new THREE.Group();
-        
-        // Base plate (Yellow metallic)
-        const baseGeo = new THREE.CylinderGeometry(1.5, 1.7, 0.25, 16);
-        const baseMesh = new THREE.Mesh(baseGeo, this.springYellowMat);
-        baseMesh.position.y = 0.125;
-        group.add(baseMesh);
 
-        // Spring Coil (Metal spiral or cylinder)
-        const coilGeo = new THREE.CylinderGeometry(0.8, 0.8, 0.4, 12);
-        const coilMesh = new THREE.Mesh(coilGeo, this.spikeMat);
-        coilMesh.position.y = 0.35;
-        group.add(coilMesh);
+        // 1. Giant Sacred Lily Pad Base (ใบบัวทิพย์มรกตรองรับ)
+        const padGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.16, 16);
+        const padMesh = new THREE.Mesh(padGeo, this.lotusPadMat);
+        padMesh.position.y = 0.08;
+        padMesh.receiveShadow = true;
+        group.add(padMesh);
 
-        // Top Pad (Red rubber cushion with yellow star)
-        const topGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.25, 16);
-        const topMesh = new THREE.Mesh(topGeo, this.springRedMat);
-        topMesh.position.y = 0.65;
-        group.add(topMesh);
+        // Golden rim ring around lily pad base
+        const rimGeo = new THREE.TorusGeometry(1.65, 0.08, 6, 20);
+        const rim = new THREE.Mesh(rimGeo, this.vayuGoldTrimMat);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.12;
+        group.add(rim);
 
-        // Yellow Star Decal
-        const starGeo = new THREE.CylinderGeometry(0.6, 0.6, 0.28, 5);
-        const starMesh = new THREE.Mesh(starGeo, this.springYellowMat);
-        starMesh.position.y = 0.66;
-        group.add(starMesh);
+        // 2. Bouncing Celestial Lotus Blossom Group (กลุ่มดอกบัวสวรรค์ดีดตัว)
+        const lotusGroup = new THREE.Group();
+        lotusGroup.position.y = 0.35;
 
+        // Golden core pollen receptacle
+        const coreGeo = new THREE.CylinderGeometry(0.95, 0.75, 0.32, 16);
+        const core = new THREE.Mesh(coreGeo, this.lotusCoreMat);
+        core.position.y = 0.16;
+        core.castShadow = true;
+        lotusGroup.add(core);
+
+        // Radiant golden jewel in center
+        const seedGeo = new THREE.SphereGeometry(0.32, 8, 8);
+        const seed = new THREE.Mesh(seedGeo, this.goldMat);
+        seed.position.y = 0.34;
+        lotusGroup.add(seed);
+
+        // Layer of 10 blooming celestial pink lotus petals around core
+        const numPetals = 10;
+        for (let i = 0; i < numPetals; i++) {
+            const angle = (i / numPetals) * Math.PI * 2;
+            const petalGeo = new THREE.ConeGeometry(0.48, 1.35, 5);
+            petalGeo.scale(1, 0.2, 0.65);
+            petalGeo.translate(0, 0.65, 0);
+            const petal = new THREE.Mesh(petalGeo, this.lotusPetalMat);
+            petal.position.set(Math.cos(angle) * 0.78, 0.08, Math.sin(angle) * 0.78);
+            petal.rotation.y = -angle;
+            petal.rotation.x = 0.65;
+            petal.castShadow = true;
+            lotusGroup.add(petal);
+        }
+
+        group.add(lotusGroup);
         group.position.set(x, y, z);
         this.scene.add(group);
 
         this.springs.push({
             group: group,
-            topMesh: topMesh,
+            topMesh: lotusGroup,
             power: power,
             x: x, y: y, z: z,
-            radius: 1.7,
+            radius: 1.8,
             bounceTimer: 0
         });
     }
@@ -1171,33 +1228,51 @@ class ObjectManager {
 
         const group = new THREE.Group();
 
-        // Main Ramp Base
-        const padGeo = new THREE.BoxGeometry(3.6, 0.2, 5.0);
-        const padMat = new THREE.MeshLambertMaterial({ color: 0xff4500 }); // Neon Orange
-        const padMesh = new THREE.Mesh(padGeo, padMat);
-        padMesh.position.y = 0.1;
+        // 1. Octagonal Sacred Jade-Slate Base (แท่นศิลาศักดิ์สิทธิ์ยันต์พระพาย)
+        const padGeo = new THREE.CylinderGeometry(2.3, 2.5, 0.22, 8);
+        const padMesh = new THREE.Mesh(padGeo, this.vayuStoneMat);
+        padMesh.position.y = 0.11;
+        padMesh.receiveShadow = true;
         group.add(padMesh);
 
-        // Chevron Arrows (Glowing Yellow Chevrons pointing forward)
-        const arrowMat = new THREE.MeshBasicMaterial({ color: 0xffea00 });
-        for (let i = -1; i <= 1; i++) {
-            const arrowGeo = new THREE.ConeGeometry(0.7, 1.4, 3);
+        // Golden Trim Border Ring
+        const goldRingGeo = new THREE.TorusGeometry(2.4, 0.12, 6, 24);
+        const goldRing = new THREE.Mesh(goldRingGeo, this.vayuGoldTrimMat);
+        goldRing.rotation.x = Math.PI / 2;
+        goldRing.position.y = 0.18;
+        group.add(goldRing);
+
+        // 2. Glowing Cyan Wind Gale Runes (ลูกศรคลื่นลมพระพาย 3 ชั้น)
+        const windRunes = [];
+        [-1.1, 0, 1.1].forEach((offsetZ, i) => {
+            const arrowGeo = new THREE.ConeGeometry(0.85 - i * 0.1, 1.4 - i * 0.15, 3);
             arrowGeo.rotateX(Math.PI / 2);
-            const arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
-            arrowMesh.position.set(0, 0.22, i * 1.3);
+            const arrowMesh = new THREE.Mesh(arrowGeo, this.vayuWindArrowMat);
+            arrowMesh.position.set(0, 0.24, offsetZ);
             group.add(arrowMesh);
-        }
+            windRunes.push(arrowMesh);
+        });
+
+        // Side Wind Swirl Accents
+        [-1.3, 1.3].forEach(sideX => {
+            const swirlGeo = new THREE.TorusGeometry(0.55, 0.09, 6, 12, Math.PI * 1.3);
+            const swirl = new THREE.Mesh(swirlGeo, this.vayuWindArrowMat);
+            swirl.rotation.x = Math.PI / 2;
+            swirl.position.set(sideX, 0.23, 0);
+            group.add(swirl);
+        });
 
         group.position.set(x, y, z);
         this.scene.add(group);
 
         this.dashPads.push({
             group: group,
+            windRunes: windRunes,
             dirX: dirX,
             dirZ: dirZ,
             force: force,
             x: x, y: y, z: z,
-            width: 3.6, length: 5.0,
+            width: 4.2, length: 4.8,
             cooldown: 0
         });
     }
@@ -1211,23 +1286,52 @@ class ObjectManager {
 
         const group = new THREE.Group();
 
-        // Base Plate
-        const baseGeo = new THREE.BoxGeometry(3.0, 0.2, 3.0);
-        const baseMat = new THREE.MeshLambertMaterial({ color: 0x777777 });
-        const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-        baseMesh.position.y = 0.1;
+        // 1. Mossy Earth & Dark Root Mound Base (โคนกอหนามเถาวัลย์อสูร)
+        const baseGeo = new THREE.CylinderGeometry(1.6, 1.9, 0.24, 8);
+        const baseMesh = new THREE.Mesh(baseGeo, this.brambleMoundMat);
+        baseMesh.position.y = 0.12;
+        baseMesh.receiveShadow = true;
         group.add(baseMesh);
 
-        // 3x3 Grid of sharp spikes
-        const coneGeo = new THREE.ConeGeometry(0.26, 1.2, 6);
-        for (let ix = -1; ix <= 1; ix++) {
-            for (let iz = -1; iz <= 1; iz++) {
-                const spk = new THREE.Mesh(coneGeo, this.spikeMat);
-                spk.position.set(ix * 0.9, 0.7, iz * 0.9);
-                spk.castShadow = true;
-                group.add(spk);
-            }
-        }
+        // Creeping dark root rings
+        const rootGeo = new THREE.TorusGeometry(1.4, 0.12, 6, 16);
+        const root = new THREE.Mesh(rootGeo, this.brambleWoodMat);
+        root.rotation.x = Math.PI / 2;
+        root.position.y = 0.15;
+        group.add(root);
+
+        // 2. Menacing Gnarled Asura Bramble Thorns (หนามเถาวัลย์อสูรปลายแดงชาด)
+        const thornConfigs = [
+            { x: 0, z: 0, h: 1.45, r: 0.24, rotX: 0.05, rotZ: -0.05 },
+            { x: -0.75, z: -0.55, h: 1.3, r: 0.21, rotX: -0.12, rotZ: 0.18 },
+            { x: 0.8, z: -0.6, h: 1.35, r: 0.22, rotX: -0.15, rotZ: -0.15 },
+            { x: -0.85, z: 0.65, h: 1.25, r: 0.20, rotX: 0.16, rotZ: 0.14 },
+            { x: 0.75, z: 0.7, h: 1.3, r: 0.21, rotX: 0.14, rotZ: -0.16 },
+            { x: 0, z: -0.9, h: 1.15, r: 0.19, rotX: -0.22, rotZ: 0.02 },
+            { x: 0, z: 0.95, h: 1.15, r: 0.19, rotX: 0.22, rotZ: -0.02 }
+        ];
+
+        thornConfigs.forEach(tc => {
+            // Thorn body (Dark demonic wood)
+            const stalkGeo = new THREE.ConeGeometry(tc.r, tc.h, 6);
+            stalkGeo.translate(0, tc.h * 0.5, 0);
+            const stalk = new THREE.Mesh(stalkGeo, this.brambleWoodMat);
+            stalk.position.set(tc.x, 0.2, tc.z);
+            stalk.rotation.x = tc.rotX;
+            stalk.rotation.z = tc.rotZ;
+            stalk.castShadow = true;
+            group.add(stalk);
+
+            // Razor-sharp Crimson Poison Tip (ปลายหนามแหลมคมสีแดงชาดเรืองแสง)
+            const tipH = tc.h * 0.38;
+            const tipGeo = new THREE.ConeGeometry(tc.r * 0.55, tipH, 6);
+            tipGeo.translate(0, tipH * 0.5, 0);
+            const tip = new THREE.Mesh(tipGeo, this.brambleTipMat);
+            tip.position.set(tc.x + Math.sin(tc.rotZ) * (tc.h - tipH), 0.2 + (tc.h - tipH) * Math.cos(tc.rotX), tc.z - Math.sin(tc.rotX) * (tc.h - tipH));
+            tip.rotation.x = tc.rotX;
+            tip.rotation.z = tc.rotZ;
+            group.add(tip);
+        });
 
         group.position.set(x, y, z);
         this.scene.add(group);
@@ -1688,26 +1792,46 @@ class ObjectManager {
             }
         }
 
-        // 3. Update Springs
+        // 3. Update Bouncing Celestial Lotus Springs
         this.springs.forEach(sp => {
             if (sp.bounceTimer > 0) {
                 sp.bounceTimer -= dt;
-                sp.topMesh.position.y = 0.65 + Math.sin(sp.bounceTimer * 30) * 0.35;
-                if (sp.bounceTimer <= 0) sp.topMesh.position.y = 0.65;
+                const progress = Math.max(0, sp.bounceTimer / 0.35);
+                const bounce = Math.sin(progress * Math.PI * 3) * progress;
+                sp.topMesh.position.y = 0.35 + bounce * 0.45;
+                sp.topMesh.scale.set(1.0 - bounce * 0.25, 1.0 + bounce * 0.5, 1.0 - bounce * 0.25);
+                if (sp.bounceTimer <= 0) {
+                    sp.topMesh.position.y = 0.35;
+                    sp.topMesh.scale.set(1, 1, 1);
+                }
             }
 
-            // Check if Sonic lands on spring
+            // Check if Hanuman lands on lotus
             const horizDist = Math.hypot(sonic.position.x - sp.x, sonic.position.z - sp.z);
             const vertDist = Math.abs(sonic.position.y - sp.y);
-            if (horizDist < sp.radius && vertDist < 1.4 && sonic.velocity.y <= 2) {
+            if (horizDist < sp.radius && vertDist < 1.6 && sonic.velocity.y <= 2) {
                 sonic.bounceSpring(sp.power);
-                sp.bounceTimer = 0.25;
+                sp.bounceTimer = 0.35;
+                if (window.soundManager && window.soundManager.playSpring) {
+                    window.soundManager.playSpring();
+                }
             }
         });
 
-        // 4. Update Dash Pads
+        // 4. Update Vayu Wind Gale Dash Pads
         this.dashPads.forEach(dp => {
             if (dp.cooldown > 0) dp.cooldown -= dt;
+
+            // Gentle pulsing glow on the wind arrows
+            if (dp.windRunes) {
+                const pulse = 0.65 + Math.sin(performance.now() * 0.008) * 0.35;
+                dp.windRunes.forEach(r => {
+                    if (r.material && r.material.emissiveIntensity !== undefined) {
+                        r.material.emissiveIntensity = pulse;
+                    }
+                });
+            }
+
             const dx = Math.abs(sonic.position.x - dp.x);
             const dz = Math.abs(sonic.position.z - dp.z);
             const dy = Math.abs(sonic.position.y - dp.y);
@@ -1715,10 +1839,13 @@ class ObjectManager {
             if (dx < dp.width / 2 && dz < dp.length / 2 && dy < 1.8 && dp.cooldown <= 0) {
                 sonic.applyDash(dp.dirX, dp.dirZ, dp.force);
                 dp.cooldown = 0.5; // Trigger cleanly once per pad pass
+                if (window.soundManager && window.soundManager.playDash) {
+                    window.soundManager.playDash();
+                }
             }
         });
 
-        // 5. Update Spikes
+        // 5. Update Asura Bramble Thorns
         this.spikes.forEach(spk => {
             const dist = sonic.position.distanceTo(spk.group.position);
             if (dist < spk.radius + 0.6) {
