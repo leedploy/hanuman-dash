@@ -257,6 +257,30 @@ class SoundManager {
         osc.stop(t + 0.26);
     }
 
+    // Asura Sentinel Defeat Impact Sound (Punchy retro impact with triumphant chime)
+    playEnemyDefeat() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, t);
+        osc.frequency.exponentialRampToValueAtTime(440, t + 0.12);
+
+        gain.gain.setValueAtTime(0.45 * (this.sfxVolume || 0.8), t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+
+        osc.connect(gain);
+        gain.connect(this.sfxMasterGain || this.ctx.destination);
+
+        osc.start(t);
+        osc.stop(t + 0.30);
+    }
+
     // Spring Pad Boing Sound
     playSpring() {
         if (this.isMuted) return;

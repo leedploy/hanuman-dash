@@ -9,6 +9,8 @@ class ObjectManager {
         this.springs = [];
         this.dashPads = [];
         this.spikes = [];
+        this.sentinels = [];
+        this.geysers = [];
         this.starPosts = [];
         this.scatteredRings = [];
         this.goalRing = null;
@@ -84,6 +86,38 @@ class ObjectManager {
             emissive: 0x991b1b,
             emissiveIntensity: 0.55,
             roughness: 0.25
+        });
+
+        // Asura Sentinel Patrol Minion Materials
+        this.asuraSkinMat = new THREE.MeshLambertMaterial({ color: 0x1f5436 }); // Demonic emerald green skin
+        this.asuraLoinclothMat = new THREE.MeshLambertMaterial({ color: 0x991b1b }); // Crimson cloth
+        this.asuraGoldMat = new THREE.MeshStandardMaterial({
+            color: 0xfbbf24,
+            metalness: 0.7,
+            roughness: 0.25
+        });
+        this.asuraEyeMat = new THREE.MeshBasicMaterial({ color: 0xff1500 });
+        this.asuraClubMat = new THREE.MeshLambertMaterial({ color: 0x241722, roughness: 0.8 });
+
+        // Naga Poison Geyser Materials
+        this.geyserBaseMat = new THREE.MeshLambertMaterial({ color: 0x122418 });
+        this.geyserWarningMat = new THREE.MeshBasicMaterial({
+            color: 0x10b981,
+            transparent: true,
+            opacity: 0.55
+        });
+        this.geyserColumnMat = new THREE.MeshBasicMaterial({
+            color: 0x059669,
+            transparent: true,
+            opacity: 0.78,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+        });
+        this.geyserCoreMat = new THREE.MeshBasicMaterial({
+            color: 0x34d399,
+            transparent: true,
+            opacity: 0.88,
+            side: THREE.DoubleSide
         });
 
         this.springRedMat = this.lotusPetalMat;
@@ -361,6 +395,8 @@ class ObjectManager {
         removeGroup(this.springs);
         removeGroup(this.dashPads);
         removeGroup(this.spikes);
+        removeGroup(this.sentinels);
+        removeGroup(this.geysers);
         removeGroup(this.starPosts);
         removeGroup(this.scatteredRings);
         removeGroup(this.moons);
@@ -374,6 +410,8 @@ class ObjectManager {
         this.springs = [];
         this.dashPads = [];
         this.spikes = [];
+        this.sentinels = [];
+        this.geysers = [];
         this.starPosts = [];
         this.scatteredRings = [];
         this.goalRing = null;
@@ -1022,7 +1060,27 @@ class ObjectManager {
         this.createSpikes(6, 10, -4980);
         this.createSpikes(0, 10, -5180);
 
-        // --- 6. GIANT GOAL RING (At end of 5,600m Victory Colosseum Arena, groundY = 10) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ตรวจการณ์ - กระโดดเหยียบได้ + พุ่งชนได้) ---
+        this.createAsuraSentinel(0, 16, -180, 4.5, 2.2);   // Mountain slope patrol
+        this.createAsuraSentinel(0, 5, -620, 3.8, 2.0);    // Cascade bridge patrol
+        this.createAsuraSentinel(0, 8, -840, 5.0, 2.3);    // Mid-course highway patrol
+        this.createAsuraSentinel(0, 26, -1320, 4.5, 2.0);  // High ridge plateau patrol
+        this.createAsuraSentinel(0, 4, -1760, 5.2, 2.4);   // Rollercoaster dip floor patrol
+        this.createAsuraSentinel(0, 10, -2480, 4.2, 2.2);  // Canyon exit patrol
+        this.createAsuraSentinel(0, 10, -4120, 5.0, 2.3);  // Coastal lagoon bridge patrol
+        this.createAsuraSentinel(0, 10, -5120, 5.5, 2.5);  // Grand speedway final patrol
+
+        // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคพุ่งปะทุ - Timing Hazard) ---
+        this.createNagaGeyser(0, 22, -285, 0.0);           // High plateau geyser
+        this.createNagaGeyser(-3.5, 4, -430, 1.6);         // Downhill foot geyser
+        this.createNagaGeyser(3.5, 8, -760, 0.8);          // Highway verge geyser
+        this.createNagaGeyser(0, 8, -1150, 2.2);           // Mountain ramp geyser
+        this.createNagaGeyser(-4.0, 10, -2290, 1.2);       // Emerald Canyon geyser
+        this.createNagaGeyser(4.0, 12, -2720, 2.8);        // Speedway geyser
+        this.createNagaGeyser(0, 10, -4020, 0.5);          // Coastal bridge geyser
+        this.createNagaGeyser(-4.0, 12, -4600, 3.2);       // Triple S-curve geyser
+
+        // --- 8. GIANT GOAL RING (At end of 5,600m Victory Colosseum Arena, groundY = 10) ---
         this.createGoalRing(0, 10, -5600, 8.5);
     }
 
@@ -1382,6 +1440,194 @@ class ObjectManager {
             group: group,
             x: x, y: y, z: z,
             radius: 1.8
+        });
+    }
+
+    createAsuraSentinel(x, y, z, patrolRange = 5.0, patrolSpeed = 2.0) {
+        const world = this.world || (window.game && window.game.world);
+        if (world && world.getGroundHeight) {
+            const groundY = world.getGroundHeight(x, z);
+            if (groundY > -40) y = groundY;
+        }
+
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+
+        const charGroup = new THREE.Group();
+
+        // 1. Torso & Armor (ลำตัวยักษ์ & เกราะทอง)
+        const chestGeo = new THREE.BoxGeometry(1.0, 0.9, 0.65);
+        const chest = new THREE.Mesh(chestGeo, this.asuraSkinMat);
+        chest.position.y = 1.25;
+        chest.castShadow = true;
+        charGroup.add(chest);
+
+        const breastGeo = new THREE.BoxGeometry(0.7, 0.45, 0.68);
+        const breast = new THREE.Mesh(breastGeo, this.asuraGoldMat);
+        breast.position.set(0, 1.35, 0.05);
+        charGroup.add(breast);
+
+        const clothGeo = new THREE.BoxGeometry(0.95, 0.42, 0.68);
+        const cloth = new THREE.Mesh(clothGeo, this.asuraLoinclothMat);
+        cloth.position.y = 0.75;
+        charGroup.add(cloth);
+
+        const beltGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.7, 8);
+        beltGeo.rotateX(Math.PI / 2);
+        const belt = new THREE.Mesh(beltGeo, this.asuraGoldMat);
+        belt.position.set(0, 0.85, 0.35);
+        charGroup.add(belt);
+
+        // 2. Head & Golden Crown (หัวยักษ์ & ชฎายอดแหลม)
+        const headGeo = new THREE.BoxGeometry(0.72, 0.72, 0.65);
+        const head = new THREE.Mesh(headGeo, this.asuraSkinMat);
+        head.position.y = 2.05;
+        head.castShadow = true;
+        charGroup.add(head);
+
+        // Fiery glowing eyes
+        [-0.18, 0.18].forEach(eyeX => {
+            const eyeGeo = new THREE.BoxGeometry(0.14, 0.09, 0.12);
+            const eye = new THREE.Mesh(eyeGeo, this.asuraEyeMat);
+            eye.position.set(eyeX, 2.12, 0.32);
+            charGroup.add(eye);
+        });
+
+        // Upward-pointing white fangs
+        [-0.24, 0.24].forEach(fangX => {
+            const fangGeo = new THREE.ConeGeometry(0.06, 0.22, 4);
+            const fang = new THREE.Mesh(fangGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            fang.position.set(fangX, 1.88, 0.34);
+            fang.rotation.x = -0.35;
+            charGroup.add(fang);
+        });
+
+        const crownBaseGeo = new THREE.CylinderGeometry(0.48, 0.42, 0.25, 8);
+        const crownBase = new THREE.Mesh(crownBaseGeo, this.asuraGoldMat);
+        crownBase.position.y = 2.45;
+        charGroup.add(crownBase);
+
+        const crownSpireGeo = new THREE.ConeGeometry(0.28, 0.85, 6);
+        const crownSpire = new THREE.Mesh(crownSpireGeo, this.asuraGoldMat);
+        crownSpire.position.y = 2.95;
+        charGroup.add(crownSpire);
+
+        // 3. Spiked Giant Club (กระบองยักษ์ปลายหนาม)
+        const clubGroup = new THREE.Group();
+        clubGroup.position.set(0.68, 1.1, 0.2);
+
+        const shaftGeo = new THREE.CylinderGeometry(0.08, 0.1, 1.6, 8);
+        const shaft = new THREE.Mesh(shaftGeo, this.asuraClubMat);
+        shaft.position.y = 0.4;
+        clubGroup.add(shaft);
+
+        const clubHeadGeo = new THREE.CylinderGeometry(0.26, 0.18, 0.85, 8);
+        const clubHead = new THREE.Mesh(clubHeadGeo, this.asuraClubMat);
+        clubHead.position.y = 1.05;
+        clubHead.castShadow = true;
+        clubGroup.add(clubHead);
+
+        for (let a = 0; a < 4; a++) {
+            const ang = (a / 4) * Math.PI * 2;
+            const spkGeo = new THREE.ConeGeometry(0.08, 0.28, 4);
+            spkGeo.rotateZ(-Math.PI / 2);
+            const spk = new THREE.Mesh(spkGeo, this.asuraGoldMat);
+            spk.position.set(Math.cos(ang) * 0.28, 1.05, Math.sin(ang) * 0.28);
+            spk.rotation.y = -ang;
+            clubGroup.add(spk);
+        }
+        clubGroup.rotation.z = -0.25;
+        clubGroup.rotation.x = 0.2;
+        charGroup.add(clubGroup);
+
+        // 4. Sturdy Legs
+        const legGeo = new THREE.CylinderGeometry(0.18, 0.16, 0.65, 8);
+        legGeo.translate(0, -0.32, 0);
+
+        const leftLeg = new THREE.Mesh(legGeo, this.asuraSkinMat);
+        leftLeg.position.set(-0.28, 0.65, 0);
+        charGroup.add(leftLeg);
+
+        const rightLeg = new THREE.Mesh(legGeo, this.asuraSkinMat);
+        rightLeg.position.set(0.28, 0.65, 0);
+        charGroup.add(rightLeg);
+
+        group.add(charGroup);
+        this.scene.add(group);
+
+        this.sentinels.push({
+            group: group,
+            charGroup: charGroup,
+            leftLeg: leftLeg,
+            rightLeg: rightLeg,
+            clubGroup: clubGroup,
+            startX: x,
+            y: y,
+            z: z,
+            currentX: x,
+            patrolRange: patrolRange,
+            patrolSpeed: patrolSpeed,
+            patrolTimer: Math.random() * Math.PI * 2,
+            alive: true,
+            defeatTimer: 0
+        });
+    }
+
+    createNagaGeyser(x, y, z, cycleOffset = 0) {
+        const world = this.world || (window.game && window.game.world);
+        if (world && world.getGroundHeight) {
+            const groundY = world.getGroundHeight(x, z);
+            if (groundY > -40) y = groundY;
+        }
+
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+
+        // 1. Serpentine Stone Crater Maw (ปากปล่องหินพญานาค)
+        const craterGeo = new THREE.CylinderGeometry(1.4, 1.7, 0.24, 10);
+        const crater = new THREE.Mesh(craterGeo, this.geyserBaseMat);
+        crater.position.y = 0.12;
+        crater.receiveShadow = true;
+        group.add(crater);
+
+        const rimGeo = new THREE.TorusGeometry(1.2, 0.1, 6, 16);
+        const rim = new THREE.Mesh(rimGeo, this.geyserWarningMat);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.22;
+        group.add(rim);
+
+        // 2. Warning Steam Sphere
+        const warnGeo = new THREE.SphereGeometry(0.75, 10, 8);
+        const warnMesh = new THREE.Mesh(warnGeo, this.geyserWarningMat);
+        warnMesh.position.y = 0.5;
+        warnMesh.visible = false;
+        group.add(warnMesh);
+
+        // 3. Erupting Poison Gas Cylinder Column (เสาไอพิษพุ่งปะทุ)
+        const colGeo = new THREE.CylinderGeometry(1.1, 1.45, 6.5, 12, 1, true);
+        colGeo.translate(0, 3.25, 0);
+        const colMesh = new THREE.Mesh(colGeo, this.geyserColumnMat);
+        colMesh.visible = false;
+        group.add(colMesh);
+
+        const coreGeo = new THREE.CylinderGeometry(0.65, 0.9, 6.2, 8, 1, true);
+        coreGeo.translate(0, 3.1, 0);
+        const coreMesh = new THREE.Mesh(coreGeo, this.geyserCoreMat);
+        coreMesh.visible = false;
+        group.add(coreMesh);
+
+        this.scene.add(group);
+
+        this.geysers.push({
+            group: group,
+            columnMesh: colMesh,
+            coreMesh: coreMesh,
+            warningMesh: warnMesh,
+            x: x, y: y, z: z,
+            radius: 1.6,
+            timer: cycleOffset % 4.0,
+            cycleDuration: 4.0,
+            state: 'dormant'
         });
     }
 
@@ -1894,6 +2140,123 @@ class ObjectManager {
                 const lost = sonic.takeDamage();
                 if (lost > 0) {
                     this.spawnScatteredRings(sonic.position.x, sonic.position.y, sonic.position.z, lost);
+                }
+            }
+        });
+
+        // 6. Update Patrolling Asura Sentinels
+        this.sentinels.forEach(s => {
+            if (!s.alive) {
+                if (s.defeatTimer > 0) {
+                    s.defeatTimer -= dt;
+                    s.group.scale.multiplyScalar(0.90);
+                    s.group.position.y += dt * 3.5;
+                    if (s.defeatTimer <= 0) {
+                        this.scene.remove(s.group);
+                    }
+                }
+                return;
+            }
+
+            s.patrolTimer += dt * s.patrolSpeed;
+            const offset = Math.sin(s.patrolTimer) * s.patrolRange;
+            s.currentX = s.startX + offset;
+            s.group.position.x = s.currentX;
+
+            const gy = this.getSafeGroundY(s.currentX, s.z, s.y);
+            s.group.position.y = gy;
+
+            const movingRight = Math.cos(s.patrolTimer) > 0;
+            s.charGroup.rotation.y = movingRight ? Math.PI * 0.45 : -Math.PI * 0.45;
+
+            const step = Math.sin(s.patrolTimer * 5);
+            s.leftLeg.rotation.x = step * 0.5;
+            s.rightLeg.rotation.x = -step * 0.5;
+            s.charGroup.position.y = Math.abs(step) * 0.12;
+
+            // Collision check with Hanuman
+            const dist = Math.hypot(sonic.position.x - s.currentX, sonic.position.z - s.z);
+            const vertDist = sonic.position.y - s.group.position.y;
+
+            if (dist < 1.9 && vertDist > -0.6 && vertDist < 2.8) {
+                const isStomp = (vertDist > 1.0 && sonic.velocity.y <= 1.2) || sonic.isSpinning;
+                const isBoostSmash = (sonic.isBoosting && sonic.boostEnergy > 1.0);
+
+                if (isStomp || isBoostSmash) {
+                    // DEFEAT ASURA SENTINEL!
+                    s.alive = false;
+                    s.defeatTimer = 0.4;
+                    if (isStomp) {
+                        sonic.velocity.y = 17.5; // Satisfying enemy bounce launch!
+                        sonic.isGrounded = false;
+                        sonic.isJumping = true;
+                    }
+                    this.spawnRingCollectFX(s.currentX, gy + 1.2, s.z);
+                    if (window.soundManager && window.soundManager.playEnemyDefeat) {
+                        window.soundManager.playEnemyDefeat();
+                    }
+                    // Reward with 3 bonus golden stars!
+                    for (let k = -1; k <= 1; k++) {
+                        this.createRing(s.currentX + k * 1.6, gy + 1.4, s.z + (Math.random() - 0.5) * 2);
+                    }
+                } else if (!sonic.isInvulnerable && !sonic.isDead) {
+                    const lost = sonic.takeDamage();
+                    if (lost > 0) {
+                        this.spawnScatteredRings(sonic.position.x, sonic.position.y, sonic.position.z, lost);
+                    }
+                }
+            }
+        });
+
+        // 7. Update Naga Poison Geysers (Timing Hazard)
+        this.geysers.forEach(g => {
+            g.timer = (g.timer + dt) % g.cycleDuration;
+
+            // Phase 1: Dormant (0.0s to 2.0s)
+            if (g.timer < 2.0) {
+                g.state = 'dormant';
+                g.columnMesh.visible = false;
+                g.coreMesh.visible = false;
+                g.warningMesh.visible = false;
+            }
+            // Phase 2: Warning Telegraph (2.0s to 2.8s - 0.8s advance notice)
+            else if (g.timer < 2.8) {
+                g.state = 'warning';
+                g.warningMesh.visible = true;
+                const warnProgress = (g.timer - 2.0) / 0.8;
+                const pulse = Math.sin(warnProgress * Math.PI * 8) * 0.5 + 0.5;
+                g.warningMesh.scale.set(0.8 + pulse * 0.8, 0.4 + pulse * 0.6, 0.8 + pulse * 0.8);
+                g.warningMesh.material.opacity = 0.4 + pulse * 0.5;
+                g.columnMesh.visible = false;
+                g.coreMesh.visible = false;
+            }
+            // Phase 3: Eruption (2.8s to 4.0s - 1.2s surging pillar)
+            else {
+                g.state = 'erupting';
+                g.warningMesh.visible = false;
+                g.columnMesh.visible = true;
+                g.coreMesh.visible = true;
+
+                const eruptTime = (g.timer - 2.8) / 1.2;
+                const surge = Math.sin(eruptTime * Math.PI);
+                const colH = 6.5 * Math.min(1.0, eruptTime * 4.0) * (1.0 - Math.pow(eruptTime, 3));
+                g.columnMesh.scale.set(1.0 + surge * 0.25, Math.max(0.01, colH / 6.5), 1.0 + surge * 0.25);
+                g.coreMesh.scale.set(0.7, Math.max(0.01, colH / 6.2), 0.7);
+
+                g.columnMesh.rotation.y += dt * 3.5;
+                g.coreMesh.rotation.y -= dt * 4.5;
+
+                // Collision with player during eruption!
+                const dist = Math.hypot(sonic.position.x - g.x, sonic.position.z - g.z);
+                const playerY = sonic.position.y - g.y;
+
+                if (dist < g.radius && playerY >= 0 && playerY < colH + 0.5) {
+                    if (!sonic.isInvulnerable && !sonic.isDead && !(sonic.isBoosting && sonic.boostEnergy > 2.0)) {
+                        const lost = sonic.takeDamage();
+                        if (lost > 0) {
+                            this.spawnScatteredRings(sonic.position.x, sonic.position.y, sonic.position.z, lost);
+                        }
+                    }
                 }
             }
         });
