@@ -21,77 +21,185 @@ class World {
         // =======================================================
         // 1. HIMAVANTA MYSTIC FOREST ZONE TEXTURES & MATERIALS
         // =======================================================
-        // Ancient Sacred Mossy Stone with Carved Vein Inlays
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
+        // 1.1 Natural Himavanta Cliff Strata with Raw Golden Veins & Hanging Moss (512x512)
+        const cliffCanvas = document.createElement('canvas');
+        cliffCanvas.width = 512;
+        cliffCanvas.height = 512;
+        const cliffCtx = cliffCanvas.getContext('2d');
 
-        // Dark mossy Himalayan slate
-        ctx.fillStyle = '#182d1c';
-        ctx.fillRect(0, 0, 256, 256);
+        // Natural stratified rock base layers (หินผาธรรมชาติป่าหิมพานต์)
+        cliffCtx.fillStyle = '#17271b';
+        cliffCtx.fillRect(0, 0, 512, 512);
 
-        const cols = 4;
-        const rows = 4;
-        const w = canvas.width / cols;
-        const h = canvas.height / rows;
-        const tileColor1 = '#1f3a24';
-        const tileColor2 = '#26472d';
-        const border = '#122015';
+        // Horizontal sediment strata bands
+        const strataColors = ['#1e3424', '#26402e', '#1c2f21', '#2c4734', '#203627', '#243a2b'];
+        for (let y = 0; y < 512; y += 32) {
+            const idx = Math.floor(y / 32) % strataColors.length;
+            cliffCtx.fillStyle = strataColors[idx];
+            cliffCtx.fillRect(0, y, 512, 32);
 
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                ctx.fillStyle = (r + c) % 2 === 0 ? tileColor1 : tileColor2;
-                ctx.fillRect(c * w, r * h, w, h);
-                ctx.strokeStyle = border;
-                ctx.lineWidth = 3;
-                ctx.strokeRect(c * w + 1, r * h + 1, w - 2, h - 2);
-
-                // Ancient floral / moss carving details
-                ctx.fillStyle = 'rgba(74, 133, 79, 0.4)';
-                ctx.beginPath();
-                ctx.arc(c * w + w / 2, r * h + h / 2, w / 4.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Golden sacred vein flecks
-                if ((r + c) % 3 === 0) {
-                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.arc(c * w + w / 2, r * h + h / 2, w / 3.2, 0, Math.PI * 1.2);
-                    ctx.stroke();
-                }
+            // Natural strata fissure contour
+            cliffCtx.strokeStyle = '#111d14';
+            cliffCtx.lineWidth = 2.5;
+            cliffCtx.beginPath();
+            cliffCtx.moveTo(0, y);
+            for (let x = 0; x <= 512; x += 40) {
+                cliffCtx.lineTo(x, y + (Math.sin(x * 0.05 + y * 0.1) * 5));
             }
+            cliffCtx.stroke();
         }
-        this.checkerTexture = new THREE.CanvasTexture(canvas);
+
+        // Raw Golden Mineral Veins embedded in rock fissures (สายแร่ทองคำแท้)
+        cliffCtx.strokeStyle = 'rgba(255, 215, 0, 0.85)';
+        cliffCtx.lineWidth = 3.0;
+        cliffCtx.shadowColor = '#ffd700';
+        cliffCtx.shadowBlur = 8;
+        const veinPaths = [
+            [[0, 45], [110, 85], [200, 75], [320, 125], [410, 105], [512, 145]],
+            [[0, 235], [130, 265], [240, 245], [350, 285], [470, 265], [512, 280]],
+            [[0, 395], [80, 425], [180, 385], [300, 435], [410, 405], [512, 445]]
+        ];
+        veinPaths.forEach(vp => {
+            cliffCtx.beginPath();
+            cliffCtx.moveTo(vp[0][0], vp[0][1]);
+            for (let j = 1; j < vp.length; j++) {
+                cliffCtx.lineTo(vp[j][0], vp[j][1]);
+            }
+            cliffCtx.stroke();
+        });
+        cliffCtx.shadowBlur = 0;
+
+        // Hanging Emerald Moss & Fern Fronds cascading from top edge (ม่านเถาวัลย์และมอสเขียวชอุ่ม)
+        cliffCtx.fillStyle = '#16a34a';
+        for (let x = 0; x < 512; x += 16) {
+            const vineLen = 22 + ((x * 13) % 48);
+            cliffCtx.beginPath();
+            cliffCtx.moveTo(x, 0);
+            cliffCtx.lineTo(x + 8, vineLen);
+            cliffCtx.lineTo(x + 16, 0);
+            cliffCtx.fill();
+        }
+        cliffCtx.fillStyle = '#22c55e';
+        for (let x = 8; x < 512; x += 24) {
+            const vineLen = 14 + ((x * 17) % 32);
+            cliffCtx.beginPath();
+            cliffCtx.moveTo(x, 0);
+            cliffCtx.lineTo(x + 6, vineLen);
+            cliffCtx.lineTo(x + 12, 0);
+            cliffCtx.fill();
+        }
+
+        this.checkerTexture = new THREE.CanvasTexture(cliffCanvas);
         this.checkerTexture.wrapS = THREE.RepeatWrapping;
         this.checkerTexture.wrapT = THREE.RepeatWrapping;
 
-        // Emerald Sacred Grass with Dew Sparkles
-        const gCanvas = document.createElement('canvas');
-        gCanvas.width = 128;
-        gCanvas.height = 128;
-        const gCtx = gCanvas.getContext('2d');
-        gCtx.fillStyle = '#1bb83a';
-        gCtx.fillRect(0, 0, 128, 128);
+        // 1.2 Ancient Himavanta Sacred Pathway Running Surface (512x512)
+        const tCanvas = document.createElement('canvas');
+        tCanvas.width = 512;
+        tCanvas.height = 512;
+        const tCtx = tCanvas.getContext('2d');
 
-        // Lush grass tufts
-        gCtx.fillStyle = '#138228';
-        for (let i = 0; i < 128; i += 16) {
-            gCtx.beginPath();
-            gCtx.moveTo(i, 0);
-            gCtx.lineTo(i + 8, 48);
-            gCtx.lineTo(i + 16, 0);
-            gCtx.fill();
+        // Deep earthy slate base
+        tCtx.fillStyle = '#1b2d20';
+        tCtx.fillRect(0, 0, 512, 512);
+
+        // Interlocking ancient sacred flagstones (แผ่นศิลาโบราณปูทางเดิน)
+        const stoneLayout = [
+            [0, 0, 130, 120, '#28412e'], [130, 0, 150, 110, '#233a29'], [280, 0, 110, 125, '#2c4733'], [390, 0, 122, 115, '#253e2b'],
+            [0, 120, 160, 135, '#243b2a'], [160, 110, 120, 140, '#2b4532'], [280, 125, 130, 130, '#213727'], [410, 115, 102, 140, '#294330'],
+            [0, 255, 120, 130, '#2a4431'], [120, 250, 150, 135, '#223828'], [270, 255, 140, 130, '#2c4733'], [410, 255, 102, 130, '#253e2b'],
+            [0, 385, 145, 127, '#233a29'], [145, 385, 135, 127, '#294330'], [280, 385, 130, 127, '#243b2a'], [410, 385, 102, 127, '#2b4532']
+        ];
+
+        stoneLayout.forEach(st => {
+            // Flagstone body
+            tCtx.fillStyle = st[4];
+            tCtx.fillRect(st[0] + 3, st[1] + 3, st[2] - 6, st[3] - 6);
+
+            // Beveled flagstone edge highlight
+            tCtx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
+            tCtx.lineWidth = 2;
+            tCtx.strokeRect(st[0] + 4, st[1] + 4, st[2] - 8, st[3] - 8);
+
+            // Subtle stone surface grain
+            tCtx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+            tCtx.fillRect(st[0] + 12, st[1] + (st[3] * 0.4), st[2] - 24, 2);
+            tCtx.fillRect(st[0] + (st[2] * 0.3), st[1] + 10, 2, st[3] - 20);
+        });
+
+        // Crevice mortar & lush emerald moss between stones
+        tCtx.strokeStyle = '#0f1e13';
+        tCtx.lineWidth = 6;
+        stoneLayout.forEach(st => {
+            tCtx.strokeRect(st[0], st[1], st[2], st[3]);
+        });
+
+        // Emerald moss tufts in crevices
+        tCtx.fillStyle = '#22c55e';
+        for (let i = 0; i < 90; i++) {
+            const mx = (i * 47) % 506 + 3;
+            const my = (i * 71) % 506 + 3;
+            const mr = 2 + (i % 4);
+            tCtx.beginPath();
+            tCtx.arc(mx, my, mr, 0, Math.PI * 2);
+            tCtx.fill();
         }
-        // Golden dew flecks
-        gCtx.fillStyle = 'rgba(255, 235, 120, 0.7)';
-        for (let i = 0; i < 12; i++) {
-            const rx = (i * 27) % 120 + 4;
-            const ry = (i * 39) % 120 + 4;
-            gCtx.fillRect(rx, ry, 2, 2);
+
+        // Sacred Golden Glyphs & Thai Kranok Inlays (รอยจารึกอักขระมนตราและลายกนกทองคำ)
+        tCtx.strokeStyle = 'rgba(255, 215, 0, 0.7)';
+        tCtx.lineWidth = 2.5;
+        tCtx.shadowColor = '#ffd700';
+        tCtx.shadowBlur = 6;
+
+        const sacredMotifs = [
+            [220, 60, 22], [80, 180, 20], [345, 190, 24], [195, 315, 22], [345, 450, 20]
+        ];
+        sacredMotifs.forEach(sm => {
+            tCtx.beginPath();
+            tCtx.arc(sm[0], sm[1], sm[2], 0, Math.PI * 2);
+            tCtx.stroke();
+
+            tCtx.beginPath();
+            tCtx.arc(sm[0], sm[1], sm[2] * 0.5, 0, Math.PI * 1.5);
+            tCtx.stroke();
+
+            tCtx.fillStyle = 'rgba(255, 215, 0, 0.85)';
+            tCtx.beginPath();
+            tCtx.arc(sm[0], sm[1], 3.5, 0, Math.PI * 2);
+            tCtx.fill();
+        });
+        tCtx.shadowBlur = 0;
+
+        // Scattered Sacred Pink Lotus Petals (กลีบดอกบัวสวรรค์ร่วงโปรยปราย)
+        const petals = [
+            [65, 45, 0.4], [190, 130, 1.2], [320, 80, -0.6], [450, 170, 0.8],
+            [95, 290, -1.1], [240, 260, 0.3], [380, 310, 1.4], [120, 440, -0.4],
+            [290, 420, 0.9], [460, 460, -0.8]
+        ];
+        petals.forEach(p => {
+            tCtx.save();
+            tCtx.translate(p[0], p[1]);
+            tCtx.rotate(p[2]);
+            tCtx.fillStyle = '#f472b6';
+            tCtx.beginPath();
+            tCtx.ellipse(0, 0, 7, 3.5, 0, 0, Math.PI * 2);
+            tCtx.fill();
+            tCtx.fillStyle = '#fdf2f8';
+            tCtx.beginPath();
+            tCtx.ellipse(-1, 0, 4, 1.8, 0, 0, Math.PI * 2);
+            tCtx.fill();
+            tCtx.restore();
+        });
+
+        // Golden Celestial Dew / Star dust flecks
+        tCtx.fillStyle = 'rgba(255, 235, 120, 0.9)';
+        for (let i = 0; i < 50; i++) {
+            const sx = (i * 37) % 508 + 2;
+            const sy = (i * 59) % 508 + 2;
+            tCtx.fillRect(sx, sy, 2, 2);
         }
-        this.grassTexture = new THREE.CanvasTexture(gCanvas);
+
+        this.grassTexture = new THREE.CanvasTexture(tCanvas);
         this.grassTexture.wrapS = THREE.RepeatWrapping;
         this.grassTexture.wrapT = THREE.RepeatWrapping;
 
@@ -101,7 +209,7 @@ class World {
         this.mesaCheckerTexture.needsUpdate = true;
         this.mesaCheckerMat = new THREE.MeshLambertMaterial({
             map: this.mesaCheckerTexture,
-            color: 0x9be8aa
+            color: 0xffffff
         });
         this.mesaGrassMat = new THREE.MeshLambertMaterial({ color: 0x22c55e });
 
@@ -586,14 +694,14 @@ class World {
         const tex = this.checkerTexture.clone();
         tex.needsUpdate = true;
         tex.repeat.set(repeatX, repeatZ);
-        return new THREE.MeshLambertMaterial({ map: tex, roughness: 0.8 });
+        return new THREE.MeshLambertMaterial({ color: 0xffffff, map: tex, roughness: 0.75 });
     }
 
     getGrassTopMaterial(repeatX = 1, repeatZ = 1) {
         const tex = this.grassTexture.clone();
         tex.needsUpdate = true;
         tex.repeat.set(repeatX, repeatZ);
-        return new THREE.MeshLambertMaterial({ color: 0x48c734, map: tex, roughness: 0.6 });
+        return new THREE.MeshLambertMaterial({ color: 0xffffff, map: tex, roughness: 0.65 });
     }
 
     getChemTrackMaterial(repeatX = 1, repeatZ = 1) {
