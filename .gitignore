@@ -1,0 +1,25 @@
+# Heavy media & raw 3D assets (Keep videos and large zips ignored, but include game-ready Hanuman GLB)
+assets/*
+!assets/hanuman.glb
+!assets/Meshy_AI_Meshy_Merged_Animations.glb
+
+
+# 3D Raw & Archive files
+*.obj
+*.mtl
+*.zip
+*.fbx
+
+# Temporary test captures
+*.png
+!js/*.png
+
+# IDE & OS Junk
+.vscode/
+.idea/
+.gemini/
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+*.tmp
