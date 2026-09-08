@@ -18,46 +18,65 @@ class World {
     }
 
     generateTextures() {
-        // ==========================================
-        // 1. GREEN HILL ZONE TEXTURES & MATERIALS
-        // ==========================================
+        // =======================================================
+        // 1. HIMAVANTA MYSTIC FOREST ZONE TEXTURES & MATERIALS
+        // =======================================================
+        // Ancient Sacred Mossy Stone with Carved Vein Inlays
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
 
+        // Dark mossy Himalayan slate
+        ctx.fillStyle = '#182d1c';
+        ctx.fillRect(0, 0, 256, 256);
+
         const cols = 4;
         const rows = 4;
         const w = canvas.width / cols;
         const h = canvas.height / rows;
-        const c1 = '#d97d26';
-        const c2 = '#a35013';
-        const border = '#703206';
+        const tileColor1 = '#1f3a24';
+        const tileColor2 = '#26472d';
+        const border = '#122015';
 
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
-                ctx.fillStyle = (r + c) % 2 === 0 ? c1 : c2;
+                ctx.fillStyle = (r + c) % 2 === 0 ? tileColor1 : tileColor2;
                 ctx.fillRect(c * w, r * h, w, h);
                 ctx.strokeStyle = border;
-                ctx.lineWidth = 4;
-                ctx.strokeRect(c * w + 2, r * h + 2, w - 4, h - 4);
-                ctx.fillStyle = 'rgba(0,0,0,0.08)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(c * w + 1, r * h + 1, w - 2, h - 2);
+
+                // Ancient floral / moss carving details
+                ctx.fillStyle = 'rgba(74, 133, 79, 0.4)';
                 ctx.beginPath();
-                ctx.arc(c * w + w/2, r * h + h/2, w/5, 0, Math.PI * 2);
+                ctx.arc(c * w + w / 2, r * h + h / 2, w / 4.5, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Golden sacred vein flecks
+                if ((r + c) % 3 === 0) {
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(c * w + w / 2, r * h + h / 2, w / 3.2, 0, Math.PI * 1.2);
+                    ctx.stroke();
+                }
             }
         }
         this.checkerTexture = new THREE.CanvasTexture(canvas);
         this.checkerTexture.wrapS = THREE.RepeatWrapping;
         this.checkerTexture.wrapT = THREE.RepeatWrapping;
 
+        // Emerald Sacred Grass with Dew Sparkles
         const gCanvas = document.createElement('canvas');
         gCanvas.width = 128;
         gCanvas.height = 128;
         const gCtx = gCanvas.getContext('2d');
-        gCtx.fillStyle = '#2db828';
+        gCtx.fillStyle = '#1bb83a';
         gCtx.fillRect(0, 0, 128, 128);
-        gCtx.fillStyle = '#1c8c18';
+
+        // Lush grass tufts
+        gCtx.fillStyle = '#138228';
         for (let i = 0; i < 128; i += 16) {
             gCtx.beginPath();
             gCtx.moveTo(i, 0);
@@ -65,42 +84,56 @@ class World {
             gCtx.lineTo(i + 16, 0);
             gCtx.fill();
         }
+        // Golden dew flecks
+        gCtx.fillStyle = 'rgba(255, 235, 120, 0.7)';
+        for (let i = 0; i < 12; i++) {
+            const rx = (i * 27) % 120 + 4;
+            const ry = (i * 39) % 120 + 4;
+            gCtx.fillRect(rx, ry, 2, 2);
+        }
         this.grassTexture = new THREE.CanvasTexture(gCanvas);
         this.grassTexture.wrapS = THREE.RepeatWrapping;
         this.grassTexture.wrapT = THREE.RepeatWrapping;
 
-        // Green Hill Scenery Materials
+        // Himavanta Cliff Textures & Scenery Materials
         this.mesaCheckerTexture = this.checkerTexture.clone();
         this.mesaCheckerTexture.repeat.set(4, 6);
         this.mesaCheckerTexture.needsUpdate = true;
         this.mesaCheckerMat = new THREE.MeshLambertMaterial({
             map: this.mesaCheckerTexture,
-            color: 0xffffff
+            color: 0x9be8aa
         });
-        this.mesaGrassMat = new THREE.MeshLambertMaterial({ color: 0x3ac82a });
+        this.mesaGrassMat = new THREE.MeshLambertMaterial({ color: 0x22c55e });
 
+        // Sacred Turquoise Waterfalls & Foam
         this.waterfallMat = new THREE.MeshBasicMaterial({
-            color: 0x00f0ff,
+            color: 0x00f5d4,
             transparent: true,
-            opacity: 0.88,
+            opacity: 0.90,
             side: THREE.DoubleSide
         });
         this.waterfallFoamMat = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
+            color: 0xf0fdff,
             transparent: true,
-            opacity: 0.82
+            opacity: 0.88
         });
 
-        this.hillNearMat = new THREE.MeshLambertMaterial({ color: 0x38b000, flatShading: true });
-        this.hillMidMat = new THREE.MeshLambertMaterial({ color: 0x228b22, flatShading: true });
-        this.hillFarMat = new THREE.MeshLambertMaterial({ color: 0x1d6d62, flatShading: true });
+        // Layered Himalayan Mountains
+        this.hillNearMat = new THREE.MeshLambertMaterial({ color: 0x1b6b33, flatShading: true }); // Rainforest emerald
+        this.hillMidMat = new THREE.MeshLambertMaterial({ color: 0x154e28, flatShading: true });  // Mountain pine
+        this.hillFarMat = new THREE.MeshLambertMaterial({ color: 0x1e384d, flatShading: true });  // Majestic purple-tinged peak
 
-        this.woodTrunkMat = new THREE.MeshLambertMaterial({ color: 0x824419 });
-        this.bubbleLeafMat1 = new THREE.MeshLambertMaterial({ color: 0x24b01c, flatShading: true });
-        this.bubbleLeafMat2 = new THREE.MeshLambertMaterial({ color: 0x48d832, flatShading: true });
-        this.flowerStalkMat = new THREE.MeshLambertMaterial({ color: 0x2ea822 });
-        this.flowerPetalMat = new THREE.MeshLambertMaterial({ color: 0xffb703, side: THREE.DoubleSide });
-        this.flowerCenterMat = new THREE.MeshLambertMaterial({ color: 0x4a2408 });
+        // Sacred Flora & Tree Materials
+        this.woodTrunkMat = new THREE.MeshLambertMaterial({ color: 0x5a2a18 });
+        this.bubbleLeafMat1 = new THREE.MeshLambertMaterial({ color: 0x16a34a, flatShading: true }); // Emerald
+        this.bubbleLeafMat2 = new THREE.MeshLambertMaterial({ color: 0xec4899, flatShading: true }); // Celestial Lotus Pink
+        this.bubbleLeafMat3 = new THREE.MeshLambertMaterial({ color: 0x00e5ff, flatShading: true }); // Celestial Cyan
+        this.himavantaFruitMat = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xb8860b, emissiveIntensity: 0.4 });
+        this.flowerStalkMat = new THREE.MeshLambertMaterial({ color: 0x15803d });
+        this.flowerPetalMat = new THREE.MeshLambertMaterial({ color: 0xf472b6, side: THREE.DoubleSide }); // Lotus Pink
+        this.flowerCenterMat = new THREE.MeshLambertMaterial({ color: 0xfacc15, emissive: 0xca8a04, emissiveIntensity: 0.5 }); // Radiant Gold
+        this.ancientStoneMat = new THREE.MeshLambertMaterial({ color: 0x2d4336, roughness: 0.7 });
+        this.pillarGoldTrimMat = new THREE.MeshLambertMaterial({ color: 0xfbbf24, roughness: 0.3, metalness: 0.4 });
 
         // ==========================================
         // 2. CHEMICAL PLANT ZONE TEXTURES & MATERIALS
@@ -488,18 +521,19 @@ class World {
             this.buildHydrocityCourse();
             this.buildHydrocityScenery();
         } else {
-            // Tropical Green Hill Day Atmosphere
-            this.scene.background = new THREE.Color(0x5cb8ff);
-            this.scene.fog = new THREE.FogExp2(0x6ec0ff, 0.0018);
+            // Himavanta Mystic Forest Celestial Atmosphere
+            this.scene.background = new THREE.Color(0x42b4e6);
+            this.scene.fog = new THREE.FogExp2(0x5ebbe3, 0.0016);
 
-            this.hemiLight.color.setHex(0xffffff);
-            this.hemiLight.groundColor.setHex(0x3d8231);
-            this.dirLight.color.setHex(0xfff8e8);
-            this.dirLight.intensity = 1.35;
+            this.hemiLight.color.setHex(0xe0f7ff);       // Celestial morning sky
+            this.hemiLight.groundColor.setHex(0x193b20);  // Sacred emerald canopy bounce
+            this.dirLight.color.setHex(0xfff8d6);        // Warm golden morning sun rays
+            this.dirLight.intensity = 1.45;
 
-            // Spawn Cartoon Puffy Clouds
+            // Spawn Soft Golden-White Celestial Clouds
             for (let i = 0; i < 54; i++) {
-                const cloud = this.createCloud(0xffffff);
+                const cloudTint = (i % 3 === 0) ? 0xfffbeb : 0xffffff;
+                const cloud = this.createCloud(cloudTint);
                 cloud.position.set(
                     (Math.random() - 0.5) * 550,
                     50 + Math.random() * 45,
@@ -731,7 +765,7 @@ class World {
         // Side Guardrail Trusses
         [-trackWidth/2 - 0.4, trackWidth/2 + 0.4].forEach(edgeX => {
             const rimGeo = new THREE.TorusGeometry(radius, 0.45, 8, 48);
-            const rimMat = isChem ? this.neonYellowMat : (isHydro ? this.hydroGoldTrimMat : new THREE.MeshLambertMaterial({ color: 0xd97d26 }));
+            const rimMat = isChem ? this.neonYellowMat : (isHydro ? this.hydroGoldTrimMat : (this.pillarGoldTrimMat || new THREE.MeshLambertMaterial({ color: 0xf59e0b })));
             const rim = new THREE.Mesh(rimGeo, rimMat);
             rim.position.set(edgeX, radius, 0);
             rim.rotation.y = Math.PI / 2;
@@ -740,7 +774,7 @@ class World {
 
         // Glowing Chevron Entry Runway Lights on the floor
         const arrowGeo = new THREE.ConeGeometry(0.9, 1.8, 3);
-        const arrowMat = isChem ? this.neonCyanMat : (isHydro ? this.hydroWaterMat : this.neonYellowMat);
+        const arrowMat = isChem ? this.neonCyanMat : (isHydro ? this.hydroWaterMat : (this.himavantaFruitMat || this.neonYellowMat));
         [14, 10, 6].forEach(offsetZ => {
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
             arrow.rotation.x = Math.PI / 2;
@@ -1455,37 +1489,85 @@ class World {
     }
 
     buildVictoryColosseum(x, y, z, radius = 72) {
-        const colosseumGroup = new THREE.Group();
-        const baseGeo = new THREE.CylinderGeometry(radius, radius, 14, 32);
-        const baseMat = this.getGroundMaterial(12, 3);
-        const topMat = this.getGrassTopMaterial(12, 12);
-        const baseMesh = new THREE.Mesh(baseGeo, [baseMat, topMat, baseMat]);
-        baseMesh.position.set(x, y - 7, z);
-        baseMesh.receiveShadow = true;
-        colosseumGroup.add(baseMesh);
+        this.buildHimavantaShrine(x, y, z, radius);
+    }
 
+    buildHimavantaShrine(x, y, z, radius = 72) {
+        const shrineGroup = new THREE.Group();
+
+        // 1. Grand Sacred Stone Terrace (Multi-tiered base)
+        const baseGeo1 = new THREE.CylinderGeometry(radius, radius * 1.05, 14, 32);
+        const baseMat = this.ancientStoneMat;
+        const topMat = this.getGrassTopMaterial(12, 12);
+        const baseMesh1 = new THREE.Mesh(baseGeo1, [baseMat, topMat, baseMat]);
+        baseMesh1.position.set(x, y - 7, z);
+        baseMesh1.receiveShadow = true;
+        shrineGroup.add(baseMesh1);
+
+        // Golden rim ring around terrace edge
+        const rimGeo = new THREE.TorusGeometry(radius, 1.2, 8, 36);
+        const rim = new THREE.Mesh(rimGeo, this.pillarGoldTrimMat);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.set(x, y + 0.5, z);
+        shrineGroup.add(rim);
+
+        // 2. Inner Sacred Dais (แท่นบูชาหิมพานต์)
+        const innerGeo = new THREE.CylinderGeometry(radius * 0.45, radius * 0.48, 6, 24);
+        const innerMesh = new THREE.Mesh(innerGeo, [this.pillarGoldTrimMat, topMat, this.pillarGoldTrimMat]);
+        innerMesh.position.set(x, y + 3, z);
+        shrineGroup.add(innerMesh);
+
+        // 3. Ring of 16 Ancient Sacred Lotus Pillars
         for (let i = 0; i < 16; i++) {
             const angle = (i / 16) * Math.PI * 2;
-            const px = x + Math.cos(angle) * (radius - 4);
-            const pz = z + Math.sin(angle) * (radius - 4);
-            const pillarGeo = new THREE.CylinderGeometry(2.2, 2.8, 36, 12);
-            const pillarMat = this.getGroundMaterial(2, 6);
-            const pillar = new THREE.Mesh(pillarGeo, pillarMat);
-            pillar.position.set(px, y + 18, pz);
-            pillar.castShadow = true;
-            colosseumGroup.add(pillar);
+            const px = x + Math.cos(angle) * (radius - 6);
+            const pz = z + Math.sin(angle) * (radius - 6);
+            const pillar = this.createAncientHimavantaPillar(34);
+            pillar.position.set(px, y, pz);
+            shrineGroup.add(pillar);
         }
 
-        this.scene.add(colosseumGroup);
-        this.stageMeshes.push(colosseumGroup);
+        // 4. Central Himavanta Celestial Golden Spire / Pavilion (มณฑปทองคำยอดเขาหิมพานต์)
+        const spireGroup = new THREE.Group();
+        spireGroup.position.set(x, y + 6, z - radius * 0.55);
+
+        const tiers = [
+            { w: 22, h: 4.5, y: 12 },
+            { w: 17, h: 4.0, y: 18 },
+            { w: 12, h: 3.5, y: 23 },
+            { w: 8, h: 3.0, y: 27 }
+        ];
+        tiers.forEach(t => {
+            const roofGeo = new THREE.ConeGeometry(t.w, t.h, 6);
+            const roofMesh = new THREE.Mesh(roofGeo, this.pillarGoldTrimMat);
+            roofMesh.position.y = t.y;
+            spireGroup.add(roofMesh);
+        });
+
+        // Golden Pinnacle Finial (ยอดฉัตร)
+        const spireGeo = new THREE.ConeGeometry(2.8, 18, 8);
+        const spireMesh = new THREE.Mesh(spireGeo, this.pillarGoldTrimMat);
+        spireMesh.position.y = 38;
+        spireGroup.add(spireMesh);
+
+        // Radiant Celestial Orb on Top
+        const orbGeo = new THREE.SphereGeometry(3.2, 16, 16);
+        const orbMesh = new THREE.Mesh(orbGeo, this.himavantaFruitMat);
+        orbMesh.position.y = 48;
+        spireGroup.add(orbMesh);
+
+        shrineGroup.add(spireGroup);
+
+        this.scene.add(shrineGroup);
+        this.stageMeshes.push(shrineGroup);
     }
 
     buildWaterBasin(x, z, width, length) {
         const waterGeo = new THREE.PlaneGeometry(width, length);
         const waterMat = new THREE.MeshBasicMaterial({
-            color: 0x1aa8e8,
+            color: 0x00f5d4,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.85
         });
         const water = new THREE.Mesh(waterGeo, waterMat);
         water.rotation.x = -Math.PI / 2;
@@ -1537,11 +1619,11 @@ class World {
             let obj;
             const floraRoll = (index % 7);
             if (floraRoll <= 3) {
-                obj = this.createPalmTree();
+                obj = this.createHimavantaTree();
             } else if (floraRoll <= 5) {
-                obj = this.createBubbleTree();
+                obj = this.createHimavantaPinkTree();
             } else {
-                obj = this.createGiantSunflower();
+                obj = this.createSacredLotus();
                 const side = loc[0] > 0 ? 1 : -1;
                 obj.rotation.y = -side * 0.38;
             }
@@ -1570,9 +1652,9 @@ class World {
         totemLocations.forEach((loc, idx) => {
             let obj;
             if (idx % 2 === 0) {
-                obj = this.createTotemPole();
+                obj = this.createAncientHimavantaPillar(14);
             } else {
-                obj = this.createGiantSunflower();
+                obj = this.createSacredLotus();
                 const side = loc[0] > 0 ? 1 : -1;
                 obj.rotation.y = -side * 0.38;
             }
@@ -1582,7 +1664,7 @@ class World {
             this.sceneryObjects.push(obj);
         });
 
-        // Giant Checkered Mesas, Waterfalls & Layered Rolling Hills
+        // Giant Himavanta Cliffs, Cascading Waterfalls & Layered Mountains
         const totalBackdropFormations = 75;
         for (let i = 0; i < totalBackdropFormations; i++) {
             const side = (i % 2 === 0) ? 1 : -1;
@@ -1592,14 +1674,14 @@ class World {
             if (i % 3 === 0) {
                 const w = 55 + Math.random() * 25;
                 const h = 75 + Math.random() * 35;
-                const hasWaterfall = (i % 6 === 0);
-                const mesa = this.createCheckeredMesa(w, h, w, hasWaterfall);
+                const hasWaterfall = (i % 5 === 0);
+                const cliff = this.createHimavantaCliff(w, h, w, hasWaterfall);
                 const dist = 140 + Math.random() * 60;
-                mesa.position.set(side * dist, -8, z);
-                mesa.rotation.y = (side > 0) ? -Math.PI * 0.45 : Math.PI * 0.45;
-                this.scene.add(mesa);
-                this.stageMeshes.push(mesa);
-                this.sceneryObjects.push(mesa);
+                cliff.position.set(side * dist, -8, z);
+                cliff.rotation.y = (side > 0) ? -Math.PI * 0.45 : Math.PI * 0.45;
+                this.scene.add(cliff);
+                this.stageMeshes.push(cliff);
+                this.sceneryObjects.push(cliff);
             } else if (i % 3 === 1) {
                 const r = 45 + Math.random() * 25;
                 const hill = this.createRollingHill(r, 0.85 + Math.random() * 0.3, 'near');
@@ -1620,38 +1702,53 @@ class World {
         }
     }
 
-    createCheckeredMesa(w = 55, h = 85, d = 55, hasWaterfall = false) {
+    createHimavantaCliff(w = 55, h = 85, d = 55, hasWaterfall = false) {
         const group = new THREE.Group();
 
-        const rockGeo = new THREE.CylinderGeometry(w * 0.42, w * 0.52, h, 8);
+        // Layered mossy slate cliff body
+        const rockGeo = new THREE.CylinderGeometry(w * 0.40, w * 0.54, h, 9);
         const rockMesh = new THREE.Mesh(rockGeo, this.mesaCheckerMat);
         rockMesh.position.y = h * 0.5;
         rockMesh.castShadow = true;
         rockMesh.receiveShadow = true;
         group.add(rockMesh);
 
-        const grassGeo = new THREE.CylinderGeometry(w * 0.45, w * 0.45, 3.5, 8);
+        // Lush emerald sacred grass plateau cap
+        const grassGeo = new THREE.CylinderGeometry(w * 0.43, w * 0.43, 4.0, 9);
         const grassMesh = new THREE.Mesh(grassGeo, this.mesaGrassMat);
-        grassMesh.position.y = h + 1.2;
+        grassMesh.position.y = h + 1.5;
         grassMesh.castShadow = true;
         group.add(grassMesh);
 
+        // Sacred cascading waterfall
         if (hasWaterfall) {
-            const fallWidth = Math.max(7.0, w * 0.20);
-            const fallGeo = new THREE.PlaneGeometry(fallWidth, h * 0.96);
+            const fallWidth = Math.max(8.0, w * 0.22);
+            const fallGeo = new THREE.PlaneGeometry(fallWidth, h * 0.98);
             const fallMesh = new THREE.Mesh(fallGeo, this.waterfallMat);
-            const slopeAngle = Math.atan2(w * 0.10, h);
+            const slopeAngle = Math.atan2(w * 0.12, h);
             fallMesh.rotation.x = slopeAngle;
-            fallMesh.position.set(0, h * 0.48, (w * 0.42 + w * 0.52) * 0.5 + 1.0);
+            fallMesh.position.set(0, h * 0.49, (w * 0.40 + w * 0.54) * 0.5 + 1.2);
             group.add(fallMesh);
 
-            const foamGeo = new THREE.CylinderGeometry(fallWidth * 0.9, fallWidth * 1.5, 2.4, 8);
+            // Shimmering foam splash at base
+            const foamGeo = new THREE.CylinderGeometry(fallWidth * 0.9, fallWidth * 1.6, 3.0, 8);
             const foamMesh = new THREE.Mesh(foamGeo, this.waterfallFoamMat);
-            foamMesh.position.set(0, 1.2, w * 0.52 + 1.5);
+            foamMesh.position.set(0, 1.5, w * 0.54 + 2.0);
             group.add(foamMesh);
+
+            // Secondary crystal cascade ribbon
+            const sideFallGeo = new THREE.PlaneGeometry(fallWidth * 0.35, h * 0.7);
+            const sideFallMesh = new THREE.Mesh(sideFallGeo, this.waterfallMat);
+            sideFallMesh.rotation.x = slopeAngle;
+            sideFallMesh.position.set(fallWidth * 0.7, h * 0.35, (w * 0.40 + w * 0.54) * 0.5 + 1.0);
+            group.add(sideFallMesh);
         }
 
         return group;
+    }
+
+    createCheckeredMesa(w = 55, h = 85, d = 55, hasWaterfall = false) {
+        return this.createHimavantaCliff(w, h, d, hasWaterfall);
     }
 
     createRollingHill(r = 45, hScale = 1.0, tier = 'near') {
@@ -1676,175 +1773,225 @@ class World {
         return group;
     }
 
-    createPalmTree() {
+    createHimavantaTree() {
         const group = new THREE.Group();
-        const trunkMat = new THREE.MeshLambertMaterial({ color: 0x9b5420 });
-        const ringMat = new THREE.MeshLambertMaterial({ color: 0x6e360e });
+        const trunkHeight = 10.0 + (Math.random() - 0.5) * 2.0;
 
-        const trunkHeight = 9.5 + (Math.random() - 0.5) * 1.5;
-        const segments = 8;
-        const leanDirection = (Math.random() - 0.5) * 0.6;
+        // Gnarled sacred tree trunk
+        const segments = 6;
+        const lean = (Math.random() - 0.5) * 0.4;
         for (let i = 0; i < segments; i++) {
-            const rad = 0.58 - (i / segments) * 0.2;
-            const geo = new THREE.CylinderGeometry(rad * 0.9, rad, trunkHeight / segments, 8);
-            const m = new THREE.Mesh(geo, i % 2 === 0 ? trunkMat : ringMat);
-            const segY = (i + 0.5) * (trunkHeight / segments);
-            const lean = Math.sin((i / segments) * Math.PI * 0.85) * leanDirection * 1.5;
-            m.position.set(lean, segY, 0);
+            const radB = 0.9 - (i / segments) * 0.35;
+            const radT = 0.9 - ((i + 1) / segments) * 0.35;
+            const segH = trunkHeight / segments;
+            const geo = new THREE.CylinderGeometry(radT, radB, segH, 8);
+            const m = new THREE.Mesh(geo, this.woodTrunkMat);
+            const curY = (i + 0.5) * segH;
+            const curX = Math.sin((i / segments) * Math.PI * 0.7) * lean * 2.0;
+            m.position.set(curX, curY, 0);
             m.castShadow = true;
             group.add(m);
         }
 
-        const topX = Math.sin(Math.PI * 0.85) * leanDirection * 1.5;
-        const leafUpperMat = new THREE.MeshLambertMaterial({ color: 0x2fd41c, side: THREE.DoubleSide });
-        const leafLowerMat = new THREE.MeshLambertMaterial({ color: 0x1d9612, side: THREE.DoubleSide });
+        // Outstretched ancient branches
+        const branchAngles = [0.4, 2.2, 4.3];
+        branchAngles.forEach(ang => {
+            const bGeo = new THREE.CylinderGeometry(0.25, 0.4, 3.5, 6);
+            const bMesh = new THREE.Mesh(bGeo, this.woodTrunkMat);
+            bMesh.position.set(Math.cos(ang) * 1.2, trunkHeight * 0.75, Math.sin(ang) * 1.2);
+            bMesh.rotation.z = Math.cos(ang) * 0.6;
+            bMesh.rotation.x = Math.sin(ang) * 0.6;
+            group.add(bMesh);
+        });
 
-        for (let i = 0; i < 6; i++) {
-            const angle = (i / 6) * Math.PI * 2 + (Math.random() * 0.2);
-            const leafGeo = new THREE.ConeGeometry(1.7, 6.2, 4);
-            leafGeo.scale(1, 0.08, 0.55);
-            leafGeo.translate(0, 2.8, 0);
-            const leaf = new THREE.Mesh(leafGeo, leafLowerMat);
-            leaf.position.set(topX, trunkHeight, 0);
-            leaf.rotation.y = angle;
-            leaf.rotation.z = 1.25;
-            leaf.castShadow = true;
-            group.add(leaf);
-        }
+        // Sacred Emerald Canopy Domes
+        const topX = Math.sin(Math.PI * 0.7) * lean * 2.0;
+        const leafClusters = [
+            { r: 2.8, x: topX, y: trunkHeight + 2.0, z: 0, mat: this.bubbleLeafMat1 },
+            { r: 2.2, x: topX - 1.8, y: trunkHeight + 1.4, z: 0.8, mat: this.bubbleLeafMat1 },
+            { r: 2.3, x: topX + 1.9, y: trunkHeight + 1.6, z: -0.7, mat: this.bubbleLeafMat1 },
+            { r: 1.8, x: topX + 0.5, y: trunkHeight + 3.4, z: 0.4, mat: this.bubbleLeafMat1 }
+        ];
 
-        for (let i = 0; i < 6; i++) {
-            const angle = (i / 6) * Math.PI * 2 + Math.PI / 6;
-            const leafGeo = new THREE.ConeGeometry(1.5, 5.0, 4);
-            leafGeo.scale(1, 0.09, 0.55);
-            leafGeo.translate(0, 2.2, 0);
-            const leaf = new THREE.Mesh(leafGeo, leafUpperMat);
-            leaf.position.set(topX, trunkHeight + 0.4, 0);
-            leaf.rotation.y = angle;
-            leaf.rotation.z = 0.85;
-            leaf.castShadow = true;
-            group.add(leaf);
-        }
+        leafClusters.forEach(cl => {
+            const leafGeo = new THREE.SphereGeometry(cl.r, 9, 8);
+            const leafMesh = new THREE.Mesh(leafGeo, cl.mat);
+            leafMesh.position.set(cl.x, cl.y, cl.z);
+            leafMesh.castShadow = true;
+            group.add(leafMesh);
+        });
 
-        const cocoMat = new THREE.MeshLambertMaterial({ color: 0x5a2d0c });
-        for (let j = 0; j < 3; j++) {
-            const coco = new THREE.Mesh(new THREE.SphereGeometry(0.35, 6, 6), cocoMat);
-            const a = (j / 3) * Math.PI * 2;
-            coco.position.set(topX + Math.cos(a) * 0.45, trunkHeight - 0.2, Math.sin(a) * 0.45);
-            group.add(coco);
-        }
+        // Glowing Golden Sacred Fruits (ผลไม้มงคลหิมพานต์)
+        const fruitPositions = [
+            [topX - 1.2, trunkHeight + 0.4, 1.2],
+            [topX + 1.4, trunkHeight + 0.6, -1.0],
+            [topX - 0.8, trunkHeight + 0.2, -1.2],
+            [topX + 1.2, trunkHeight + 0.5, 1.1]
+        ];
+        fruitPositions.forEach(fp => {
+            const fruitGeo = new THREE.SphereGeometry(0.48, 8, 8);
+            const fruit = new THREE.Mesh(fruitGeo, this.himavantaFruitMat);
+            fruit.position.set(fp[0], fp[1], fp[2]);
+            group.add(fruit);
+        });
 
-        const scale = 0.9 + Math.random() * 0.25;
-        group.scale.set(scale, scale, scale);
+        const s = 0.95 + Math.random() * 0.2;
+        group.scale.set(s, s, s);
         return group;
     }
 
-    createBubbleTree() {
+    createPalmTree() {
+        return this.createHimavantaTree();
+    }
+
+    createHimavantaPinkTree() {
         const group = new THREE.Group();
-        const trunkHeight = 6.5 + (Math.random() - 0.5) * 1.0;
-        const trunkGeo = new THREE.CylinderGeometry(0.42, 0.65, trunkHeight, 8);
+        const trunkHeight = 8.5 + (Math.random() - 0.5) * 1.5;
+
+        // Trunk
+        const trunkGeo = new THREE.CylinderGeometry(0.55, 0.85, trunkHeight, 8);
         const trunk = new THREE.Mesh(trunkGeo, this.woodTrunkMat);
         trunk.position.y = trunkHeight * 0.5;
         trunk.castShadow = true;
         group.add(trunk);
 
-        const branchGeo = new THREE.CylinderGeometry(0.25, 0.35, 2.5, 6);
-        const branch = new THREE.Mesh(branchGeo, this.woodTrunkMat);
-        branch.position.set(0.7, trunkHeight * 0.72, 0);
-        branch.rotation.z = -0.75;
-        group.add(branch);
-
-        const spheres = [
-            { r: 2.2, x: 0, y: trunkHeight + 1.6, z: 0, mat: this.bubbleLeafMat1 },
-            { r: 1.7, x: -1.2, y: trunkHeight + 1.1, z: 0.5, mat: this.bubbleLeafMat2 },
-            { r: 1.8, x: 1.3, y: trunkHeight + 1.4, z: -0.4, mat: this.bubbleLeafMat1 },
-            { r: 1.5, x: 0.3, y: trunkHeight + 2.8, z: 0.2, mat: this.bubbleLeafMat2 }
+        // Celestial Pink & Cyan Blossom Domes
+        const clusters = [
+            { r: 2.6, x: 0, y: trunkHeight + 1.8, z: 0, mat: this.bubbleLeafMat2 },
+            { r: 2.0, x: -1.6, y: trunkHeight + 1.2, z: 0.6, mat: this.bubbleLeafMat2 },
+            { r: 2.1, x: 1.5, y: trunkHeight + 1.4, z: -0.6, mat: this.bubbleLeafMat3 },
+            { r: 1.6, x: 0.2, y: trunkHeight + 3.2, z: 0.3, mat: this.bubbleLeafMat2 }
         ];
 
-        spheres.forEach(s => {
-            const sGeo = new THREE.SphereGeometry(s.r, 8, 8);
-            const sMesh = new THREE.Mesh(sGeo, s.mat);
-            sMesh.position.set(s.x, s.y, s.z);
-            sMesh.castShadow = true;
-            group.add(sMesh);
+        clusters.forEach(c => {
+            const geo = new THREE.SphereGeometry(c.r, 9, 8);
+            const m = new THREE.Mesh(geo, c.mat);
+            m.position.set(c.x, c.y, c.z);
+            m.castShadow = true;
+            group.add(m);
         });
 
-        const scale = 0.95 + Math.random() * 0.2;
-        group.scale.set(scale, scale, scale);
+        // Hanging golden pollen drops
+        for (let i = 0; i < 5; i++) {
+            const a = (i / 5) * Math.PI * 2;
+            const drop = new THREE.Mesh(new THREE.SphereGeometry(0.38, 8, 8), this.himavantaFruitMat);
+            drop.position.set(Math.cos(a) * 1.5, trunkHeight + 0.3, Math.sin(a) * 1.5);
+            group.add(drop);
+        }
+
+        const s = 0.95 + Math.random() * 0.2;
+        group.scale.set(s, s, s);
+        return group;
+    }
+
+    createBubbleTree() {
+        return this.createHimavantaPinkTree();
+    }
+
+    createSacredLotus() {
+        const group = new THREE.Group();
+
+        // Giant Emerald Lily Pad Base (ใบบัวทิพย์)
+        const padGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.12, 16);
+        const padMesh = new THREE.Mesh(padGeo, this.mesaGrassMat);
+        padMesh.position.y = 0.06;
+        padMesh.castShadow = true;
+        group.add(padMesh);
+
+        // Curving Sacred Flower Stalk
+        const stalkH = 3.6;
+        const stalkGeo = new THREE.CylinderGeometry(0.18, 0.26, stalkH, 8);
+        const stalk = new THREE.Mesh(stalkGeo, this.flowerStalkMat);
+        stalk.position.set(0, stalkH * 0.5, -0.15);
+        stalk.rotation.x = -0.06;
+        stalk.castShadow = true;
+        group.add(stalk);
+
+        // Lotus Blossom Head
+        const head = new THREE.Group();
+        head.position.set(0, stalkH, 0);
+
+        // Radiant Golden Core Receptacle (เกสรดอกบัวเรืองรอง)
+        const coreGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.35, 16);
+        const core = new THREE.Mesh(coreGeo, this.flowerCenterMat);
+        head.add(core);
+
+        // Glowing center jewel
+        const jewelGeo = new THREE.SphereGeometry(0.42, 8, 8);
+        const jewel = new THREE.Mesh(jewelGeo, this.himavantaFruitMat);
+        jewel.position.y = 0.22;
+        head.add(jewel);
+
+        // Multi-layered Lotus Petals (กลีบบัวสวรรค์สีชมพูบานสะพรั่ง)
+        const numPetals = 12;
+        for (let i = 0; i < numPetals; i++) {
+            const angle = (i / numPetals) * Math.PI * 2;
+            const petalGeo = new THREE.ConeGeometry(0.55, 1.8, 5);
+            petalGeo.scale(1, 0.18, 0.65);
+            petalGeo.translate(0, 0.9, 0);
+            const petal = new THREE.Mesh(petalGeo, this.flowerPetalMat);
+            petal.position.set(Math.cos(angle) * 0.75, 0.1, Math.sin(angle) * 0.75);
+            petal.rotation.y = -angle;
+            petal.rotation.x = 0.85;
+            petal.castShadow = true;
+            head.add(petal);
+        }
+
+        group.add(head);
+        const s = 1.0 + Math.random() * 0.25;
+        group.scale.set(s, s, s);
         return group;
     }
 
     createGiantSunflower() {
+        return this.createSacredLotus();
+    }
+
+    createAncientHimavantaPillar(height = 12) {
         const group = new THREE.Group();
-        const stalkHeight = 5.4;
-        const stalkGeo = new THREE.CylinderGeometry(0.24, 0.34, stalkHeight, 8);
-        const stalk = new THREE.Mesh(stalkGeo, this.flowerStalkMat);
-        stalk.position.set(0, stalkHeight * 0.5, -0.35);
-        stalk.rotation.x = -0.08;
-        stalk.castShadow = true;
-        group.add(stalk);
 
-        const leafGeo = new THREE.ConeGeometry(0.7, 2.2, 4);
-        leafGeo.scale(1, 0.12, 0.65);
-        const leafL = new THREE.Mesh(leafGeo, this.flowerStalkMat);
-        leafL.position.set(-0.85, stalkHeight * 0.42, -0.2);
-        leafL.rotation.z = 1.15;
-        leafL.rotation.y = -0.35;
-        group.add(leafL);
+        // Mossy Slate Hexagonal Base Pedestal
+        const baseGeo = new THREE.CylinderGeometry(1.6, 2.0, 2.2, 6);
+        const base = new THREE.Mesh(baseGeo, this.ancientStoneMat);
+        base.position.y = 1.1;
+        base.castShadow = true;
+        group.add(base);
 
-        const leafR = new THREE.Mesh(leafGeo, this.flowerStalkMat);
-        leafR.position.set(0.85, stalkHeight * 0.56, -0.2);
-        leafR.rotation.z = -1.15;
-        leafR.rotation.y = 0.35;
-        group.add(leafR);
+        // Pillar Shaft
+        const shaftH = height - 3.5;
+        const shaftGeo = new THREE.CylinderGeometry(1.1, 1.35, shaftH, 12);
+        const shaft = new THREE.Mesh(shaftGeo, this.ancientStoneMat);
+        shaft.position.y = 2.2 + shaftH * 0.5;
+        shaft.castShadow = true;
+        group.add(shaft);
 
-        const headGroup = new THREE.Group();
-        headGroup.position.set(0, stalkHeight, 0);
+        // Golden Inscribed Rings / Runes along shaft
+        [0.3, 0.6, 0.9].forEach(f => {
+            const ringGeo = new THREE.TorusGeometry(1.3, 0.15, 6, 16);
+            const ring = new THREE.Mesh(ringGeo, this.pillarGoldTrimMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 2.2 + shaftH * f;
+            group.add(ring);
+        });
 
-        const centerGeo = new THREE.CylinderGeometry(0.95, 0.95, 0.28, 16);
-        const center = new THREE.Mesh(centerGeo, this.flowerCenterMat);
-        center.rotation.x = Math.PI * 0.5;
-        headGroup.add(center);
+        // Lotus Capital at Top
+        const capGeo = new THREE.CylinderGeometry(1.8, 1.2, 1.2, 8);
+        const cap = new THREE.Mesh(capGeo, this.pillarGoldTrimMat);
+        cap.position.y = 2.2 + shaftH + 0.6;
+        cap.castShadow = true;
+        group.add(cap);
 
-        const innerGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.32, 16);
-        const innerMat = new THREE.MeshLambertMaterial({ color: 0x482205 });
-        const inner = new THREE.Mesh(innerGeo, innerMat);
-        inner.rotation.x = Math.PI * 0.5;
-        headGroup.add(inner);
+        // Radiant Celestial Spire Jewel on Top
+        const orbGeo = new THREE.SphereGeometry(0.65, 12, 12);
+        const orb = new THREE.Mesh(orbGeo, this.himavantaFruitMat);
+        orb.position.y = 2.2 + shaftH + 1.8;
+        group.add(orb);
 
-        const numPetals = 14;
-        for (let i = 0; i < numPetals; i++) {
-            const angle = (i / numPetals) * Math.PI * 2;
-            const petalGeo = new THREE.ConeGeometry(0.48, 1.6, 4);
-            petalGeo.scale(1, 0.22, 0.7);
-            petalGeo.translate(0, 0.8, 0);
-            const petal = new THREE.Mesh(petalGeo, this.flowerPetalMat);
-            petal.position.set(Math.cos(angle) * 0.92, Math.sin(angle) * 0.92, 0);
-            petal.rotation.z = angle - Math.PI / 2;
-            headGroup.add(petal);
-        }
-
-        group.add(headGroup);
-        const scale = 0.92 + Math.random() * 0.22;
-        group.scale.set(scale, scale, scale);
         return group;
     }
 
     createTotemPole() {
-        const group = new THREE.Group();
-        const baseGeo = new THREE.CylinderGeometry(1.1, 1.3, 8, 8);
-        const baseMat = new THREE.MeshLambertMaterial({ color: 0x4898c8 });
-        const m = new THREE.Mesh(baseGeo, baseMat);
-        m.position.y = 4;
-        m.castShadow = true;
-        group.add(m);
-
-        const wingGeo = new THREE.BoxGeometry(4.2, 0.8, 0.4);
-        const wingMat = new THREE.MeshLambertMaterial({ color: 0xffd200 });
-        const wing = new THREE.Mesh(wingGeo, wingMat);
-        wing.position.set(0, 6.5, 0);
-        group.add(wing);
-
-        return group;
+        return this.createAncientHimavantaPillar(12);
     }
 
     createMountain() {

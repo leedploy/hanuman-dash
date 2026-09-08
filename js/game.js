@@ -48,7 +48,7 @@ class SonicGame {
         // Multi-Stage System (Stage 1: Green Hill, Stage 2: Chemical Plant, Stage 3: Hydrocity)
         this.currentStageId = 'green_hill';
         this.stageConfigs = {
-            green_hill: { name: 'GREEN HILL ZONE', act: 'ACT 1', totalDist: 5600, nextStage: 'chemical_plant' },
+            green_hill: { name: 'HIMAVANTA FOREST', act: 'ACT 1', totalDist: 5600, nextStage: 'chemical_plant', thaiTitle: 'ป่าหิมพานต์ • ธาราน้ำตกทิพย์' },
             chemical_plant: { name: 'CHEMICAL PLANT ZONE', act: 'ACT 2', totalDist: 4800, nextStage: 'hydrocity' },
             hydrocity: { name: 'HYDROCITY ZONE', act: 'ACT 3', totalDist: 5000, nextStage: 'green_hill' }
         };
