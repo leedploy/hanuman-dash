@@ -49,7 +49,7 @@ class SonicGame {
         this.currentStageId = 'green_hill';
         this.stageConfigs = {
             green_hill: { name: 'HIMAVANTA FOREST', act: 'ACT 1', totalDist: 5600, nextStage: 'chemical_plant', thaiTitle: 'ป่าหิมพานต์ • ธาราน้ำตกทิพย์' },
-            chemical_plant: { name: 'CHEMICAL PLANT ZONE', act: 'ACT 2', totalDist: 4800, nextStage: 'hydrocity' },
+            chemical_plant: { name: 'KISHKINDHA KINGDOM', act: 'ACT 2', totalDist: 4800, nextStage: 'hydrocity', thaiTitle: 'นครขีดขิน • พระราชวังศิลาทอง' },
             hydrocity: { name: 'HYDROCITY ZONE', act: 'ACT 3', totalDist: 5000, nextStage: 'green_hill' }
         };
 
@@ -613,10 +613,10 @@ class SonicGame {
             if (badgeText) badgeText.textContent = 'HYDROCITY ZONE • ACT 3';
         } else if (zoneId === 'chemical_plant') {
             if (pillChemical) pillChemical.classList.add('active');
-            if (badgeText) badgeText.textContent = 'CHEMICAL PLANT ZONE • ACT 2';
+            if (badgeText) badgeText.textContent = 'KISHKINDHA REALM • ACT 2';
         } else {
             if (pillGreenHill) pillGreenHill.classList.add('active');
-            if (badgeText) badgeText.textContent = 'GREEN HILL ZONE • ACT 1';
+            if (badgeText) badgeText.textContent = 'HIMAVANTA REALM • ACT 1';
         }
 
         this.setStage(zoneId);
@@ -708,9 +708,9 @@ class SonicGame {
             if (this.currentStageId === 'hydrocity') {
                 titleEl.innerHTML = 'HYDROCITY ZONE &bull; ACT 3';
             } else if (this.currentStageId === 'chemical_plant') {
-                titleEl.innerHTML = 'CHEMICAL PLANT ZONE &bull; ACT 2';
+                titleEl.innerHTML = 'KISHKINDHA KINGDOM &bull; ACT 2';
             } else {
-                titleEl.innerHTML = 'GREEN HILL ZONE &bull; ACT 1';
+                titleEl.innerHTML = 'HIMAVANTA FOREST &bull; ACT 1';
             }
         }
 
@@ -1081,11 +1081,11 @@ class SonicGame {
             if (clearTitleEl) clearTitleEl.textContent = 'STAGE CLEAR!';
             if (nextBtn) nextBtn.classList.remove('grand-victory-btn');
             if (this.currentStageId === 'chemical_plant') {
-                if (clearSubEl) clearSubEl.textContent = 'SONIC HAS PASSED CHEMICAL PLANT ZONE!';
+                if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS PASSED KISHKINDHA KINGDOM!';
                 if (nextBtn) nextBtn.textContent = 'NEXT STAGE: HYDROCITY ➔';
             } else {
-                if (clearSubEl) clearSubEl.textContent = 'SONIC HAS PASSED GREEN HILL ZONE!';
-                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: CHEMICAL PLANT ➔';
+                if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS PASSED HIMAVANTA FOREST!';
+                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: KISHKINDHA KINGDOM ➔';
             }
         }
 

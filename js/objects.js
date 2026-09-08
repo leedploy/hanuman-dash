@@ -547,17 +547,39 @@ class ObjectManager {
             }
         });
 
+        // --- 1.1 MULTIDIMENSIONAL 3D STAR FORMATIONS (ขบวนดาว 3 มิติในนครขีดขิน) ---
+        // 1. Slalom S-Curve Waves along the royal causeways
+        this.createSlalomRings(-20, -110, 16, 4.5, 0);       // Starting marble bridge
+        this.createSlalomRings(-1250, -1370, 18, 5.0, 5);    // Low bridge over Anodat sea
+        this.createSlalomRings(-2880, -3100, 24, 6.0, 8);    // Kishkindha grand sprint lane 1
+        this.createSlalomRings(-3450, -3680, 24, 6.0, 8);    // Kishkindha grand sprint lane 2
+
+        // 2. Parabolic Jump Arcs over obstacles & ramps
+        this.createJumpArc(0, -90, -115, 6, 4.5);            // Arc over start hazards
+        this.createJumpArc(0, -745, -775, 7, 5.5);           // Arc over drop hazards
+        this.createJumpArc(0, -1305, -1335, 7, 5.5);         // Arc over Anodat bridge hazards
+        this.createJumpArc(0, -2565, -2595, 7, 5.5);         // Arc over spillway hazards
+        this.createJumpArc(0, -3665, -3695, 7, 5.5);         // Arc over superhighway hazards
+
+        // 3. Wedge & Diamond Constellation Clusters
+        this.createWedgeCluster(0, -370, 0, 4.0, 2.5);       // Leading into ascent ramp
+        this.createDiamondCluster(0, -610, 24, 3.5);         // High Skyway palace vista
+        this.createDiamondCluster(0, -1450, 5, 3.5);         // Suspension bridge checkpoint
+        this.createWedgeCluster(0, -1740, 28, 4.0, 2.5);     // Leading into high crystal canopy
+        this.createWedgeCluster(0, -4060, 8, 4.0, 2.5);      // Leading into final loop
+        this.createDiamondCluster(0, -4600, 8, 4.5);         // Finish arena approach
+
         // Loop Arcs for Loop 1 (z: -880), Loop 2 (z: -1080), and Loop 3 (z: -4160)
         this.spawnLoopRings(-880, 16, 4);
         this.spawnLoopRings(-1080, 18, 4);
         this.spawnLoopRings(-4160, 18, 4);
 
         // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง) ---
-        this.createMoon(0, 24, -390);     // Ramp above Mega Mack
+        this.createMoon(0, 24, -390);     // Ramp above Anodat Moat
         this.createMoon(0, 38, -610);     // High Skyway Catwalk
-        this.createMoon(0, 36, -1900);    // Glass Booster Tube #2 Exit
-        this.createMoon(0, 26, -3550);    // Highway Leap
-        this.createMoon(0, 24, -4600);    // Finish Colosseum Sprint
+        this.createMoon(0, 36, -1900);    // Sacred Crystal Canopy Way #2 Exit
+        this.createMoon(0, 26, -3550);    // Kishkindha Highway Leap
+        this.createMoon(0, 24, -4600);    // Grand Throne Colosseum Sprint
 
         // --- 2. DASH BOOSTER PADS ---
         const chemDashPads = [
@@ -649,7 +671,27 @@ class ObjectManager {
             this.createSpikes(pos[0], spikeY, pos[2]);
         });
 
-        // --- 6. GIANT GOAL RING (At center of Chemical Plant Colosseum, groundY = 8) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานขีดขิน) ---
+        this.createAsuraSentinel(0, 0.1, -70, 5.0, 2.2);        // Marble bridge sentinel
+        this.createAsuraSentinel(0, 24.1, -590, 4.0, 2.0);      // High skyway catwalk
+        this.createAsuraSentinel(0, 5.1, -1300, 4.5, 2.4);      // Low Anodat bridge
+        this.createAsuraSentinel(0, 5.1, -1420, 4.5, 2.2);      // Low Anodat bridge
+        this.createAsuraSentinel(-12, 28.1, -2280, 2.5, 2.0);   // Split catwalk left
+        this.createAsuraSentinel(12, 28.1, -2280, 2.5, 2.0);    // Split catwalk right
+        this.createAsuraSentinel(0, 8.1, -3050, 6.0, 2.6);      // Kishkindha superhighway
+        this.createAsuraSentinel(0, 8.1, -3500, 6.0, 2.6);      // Kishkindha superhighway
+        this.createAsuraSentinel(0, 8.1, -3820, 6.0, 2.8);      // Approach to finish arena
+
+        // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคคูเมือง) ---
+        this.createNagaGeyser(-6, 0.1, -40, 0.0);
+        this.createNagaGeyser(6, 0.1, -40, 2.0);
+        this.createNagaGeyser(-5, 5.1, -1350, 0.5);
+        this.createNagaGeyser(5, 5.1, -1350, 2.5);
+        this.createNagaGeyser(-7, 8.1, -3250, 1.0);
+        this.createNagaGeyser(7, 8.1, -3250, 3.0);
+        this.createNagaGeyser(0, 8.1, -4450, 1.5);
+
+        // --- 8. GIANT GOAL RING (At center of Kishkindha Royal Throne Arena, groundY = 8) ---
         this.createGoalRing(0, 8, -4800, 8.5);
     }
 
@@ -1844,8 +1886,8 @@ class ObjectManager {
         // 5. Grand Architectural Foundation Dais (Ground Stepped Plinth)
         const daisGeo = new THREE.CylinderGeometry(radius * 1.5, radius * 1.65, 1.4, 36);
         const daisMat = new THREE.MeshStandardMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0x242838 : 0x8b6540,
-            metalness: 0.7,
+            color: (this.currentStageId === 'chemical_plant') ? 0xf8fafc : 0x8b6540,
+            metalness: 0.3,
             roughness: 0.3
         });
         const daisMesh = new THREE.Mesh(daisGeo, daisMat);
@@ -1855,7 +1897,7 @@ class ObjectManager {
         // Dais Glowing Border Rim
         const daisRimGeo = new THREE.TorusGeometry(radius * 1.52, 0.18, 12, 36);
         const daisRimMat = new THREE.MeshBasicMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0x00f0ff : 0xffd700
+            color: 0xffd700
         });
         const daisRim = new THREE.Mesh(daisRimGeo, daisRimMat);
         daisRim.rotation.x = Math.PI / 2;
@@ -1865,13 +1907,13 @@ class ObjectManager {
         // 6. Grand Flanking Pylon Columns (Left & Right)
         const pillarColGeo = new THREE.CylinderGeometry(0.85, 1.15, radius * 1.85, 16);
         const pillarMat = new THREE.MeshStandardMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0x1f293d : 0xab8860,
-            metalness: 0.6,
+            color: (this.currentStageId === 'chemical_plant') ? 0xf1f5f9 : 0xab8860,
+            metalness: 0.3,
             roughness: 0.3
         });
         const orbGeo = new THREE.SphereGeometry(1.2, 16, 16);
         const orbMat = new THREE.MeshBasicMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0x00f0ff : 0xffd700
+            color: 0xffd700
         });
 
         [-radius - 1.6, radius + 1.6].forEach(colX => {

@@ -244,140 +244,205 @@ class World {
         this.pillarGoldTrimMat = new THREE.MeshLambertMaterial({ color: 0xfbbf24, roughness: 0.3, metalness: 0.4 });
 
         // ==========================================
-        // 2. CHEMICAL PLANT ZONE TEXTURES & MATERIALS
+        // 2. KISHKINDHA KINGDOM (STAGE 2) TEXTURES & MATERIALS
         // ==========================================
-        // Track Grating Texture: Metallic Blue Grating with Bright Yellow/Dark Diagonal Hazard Borders
+        // Track: Royal White Marble with Ancient Thai Gold Kranok Border Trims
         const cpCanvas = document.createElement('canvas');
         cpCanvas.width = 256;
         cpCanvas.height = 256;
         const cpCtx = cpCanvas.getContext('2d');
 
-        // Dark industrial slate-blue base
-        cpCtx.fillStyle = '#0f172a';
+        // Polished Ivory-White Marble Base Slabs
+        cpCtx.fillStyle = '#f8fafc';
         cpCtx.fillRect(0, 0, 256, 256);
 
-        // Center steel grating (width: 192px, from x=32 to 224)
-        cpCtx.fillStyle = '#1e293b';
-        cpCtx.fillRect(32, 0, 192, 256);
-
-        // Steel grid mesh
-        const gridSize = 16;
-        cpCtx.strokeStyle = '#38bdf8';
-        cpCtx.lineWidth = 1.5;
-        for (let gx = 32; gx <= 224; gx += gridSize) {
+        // Subtle marble grain veins
+        cpCtx.strokeStyle = 'rgba(203, 213, 225, 0.65)';
+        cpCtx.lineWidth = 1.2;
+        for (let v = 0; v < 8; v++) {
             cpCtx.beginPath();
-            cpCtx.moveTo(gx, 0);
-            cpCtx.lineTo(gx, 256);
-            cpCtx.stroke();
-        }
-        for (let gy = 0; gy <= 256; gy += gridSize) {
-            cpCtx.beginPath();
-            cpCtx.moveTo(32, gy);
-            cpCtx.lineTo(224, gy);
+            cpCtx.moveTo(35, v * 32);
+            cpCtx.bezierCurveTo(90, v * 32 + 15, 160, v * 32 - 15, 220, v * 32 + 10);
             cpCtx.stroke();
         }
 
-        // Rivets inside grating intersections
-        cpCtx.fillStyle = '#7dd3fc';
-        for (let gx = 32 + gridSize/2; gx < 224; gx += gridSize) {
-            for (let gy = gridSize/2; gy < 256; gy += gridSize) {
-                cpCtx.fillRect(gx - 1, gy - 1, 2, 2);
-            }
+        // Center Royal Ceremonial Stone Path (x: 36 to 220)
+        cpCtx.fillStyle = '#f1f5f9';
+        cpCtx.fillRect(36, 0, 184, 256);
+
+        // Stone slab joint lines
+        cpCtx.strokeStyle = '#cbd5e1';
+        cpCtx.lineWidth = 2;
+        cpCtx.strokeRect(36, 0, 184, 256);
+        for (let gy = 0; gy <= 256; gy += 64) {
+            cpCtx.beginPath();
+            cpCtx.moveTo(36, gy);
+            cpCtx.lineTo(220, gy);
+            cpCtx.stroke();
         }
 
-        // Hazard Caution Borders on left (0-32) and right (224-256)
-        const drawHazardStripes = (startX, endX) => {
-            cpCtx.save();
+        // Center Gold Lotus Inlay Cartouche in each slab
+        for (let cy = 32; cy < 256; cy += 64) {
+            // Diamond flower core
+            cpCtx.fillStyle = 'rgba(245, 158, 11, 0.45)';
             cpCtx.beginPath();
-            cpCtx.rect(startX, 0, endX - startX, 256);
-            cpCtx.clip();
-            cpCtx.fillStyle = '#ffd000'; // Bright Warning Yellow
-            cpCtx.fillRect(startX, 0, endX - startX, 256);
+            cpCtx.moveTo(128, cy - 14);
+            cpCtx.lineTo(142, cy);
+            cpCtx.lineTo(128, cy + 14);
+            cpCtx.lineTo(114, cy);
+            cpCtx.closePath();
+            cpCtx.fill();
 
-            cpCtx.fillStyle = '#111827'; // Dark Black/Slate
-            const stripeWidth = 14;
-            for (let y = -50; y < 350; y += stripeWidth * 2) {
+            cpCtx.fillStyle = '#ffd700';
+            cpCtx.beginPath();
+            cpCtx.arc(128, cy, 3.5, 0, Math.PI * 2);
+            cpCtx.fill();
+        }
+
+        // Ancient Thai Gold Kranok Border Trims (left: 0-36, right: 220-256)
+        const drawKranokBorder = (startX, endX) => {
+            const w = endX - startX;
+            // Rich Royal Amber/Bronze Base
+            cpCtx.fillStyle = '#78350f';
+            cpCtx.fillRect(startX, 0, w, 256);
+
+            // Shimmering Gold Border Stripe
+            cpCtx.fillStyle = '#f59e0b';
+            cpCtx.fillRect(startX + 3, 0, w - 6, 256);
+
+            // Repeated Sacred Kranok Flame motif
+            cpCtx.fillStyle = '#ffd700';
+            for (let y = 0; y < 256; y += 32) {
+                // Outer curving flame leaf
                 cpCtx.beginPath();
-                cpCtx.moveTo(startX - 10, y);
-                cpCtx.lineTo(endX + 10, y + (endX - startX) + 10);
-                cpCtx.lineTo(endX + 10, y + (endX - startX) + 10 + stripeWidth);
-                cpCtx.lineTo(startX - 10, y + stripeWidth);
+                const midX = startX + w * 0.5;
+                cpCtx.moveTo(midX, y + 4);
+                cpCtx.quadraticCurveTo(midX + (startX === 0 ? 8 : -8), y + 16, midX, y + 28);
+                cpCtx.quadraticCurveTo(midX + (startX === 0 ? -6 : 6), y + 18, midX, y + 4);
                 cpCtx.closePath();
                 cpCtx.fill();
-            }
-            cpCtx.restore();
 
-            // Inner dividing neon cyan line
-            cpCtx.strokeStyle = '#00f0ff';
-            cpCtx.lineWidth = 3;
+                // Ruby/Emerald jewel dot
+                cpCtx.fillStyle = (y % 64 === 0) ? '#dc2626' : '#059669';
+                cpCtx.beginPath();
+                cpCtx.arc(midX, y + 16, 2.2, 0, Math.PI * 2);
+                cpCtx.fill();
+                cpCtx.fillStyle = '#ffd700';
+            }
+
+            // Gilded inner divider line
+            cpCtx.strokeStyle = '#fde047';
+            cpCtx.lineWidth = 3.5;
             cpCtx.beginPath();
-            cpCtx.moveTo(startX === 0 ? endX : startX, 0);
-            cpCtx.lineTo(startX === 0 ? endX : startX, 256);
+            const divX = (startX === 0) ? endX : startX;
+            cpCtx.moveTo(divX, 0);
+            cpCtx.lineTo(divX, 256);
             cpCtx.stroke();
         };
 
-        drawHazardStripes(0, 32);
-        drawHazardStripes(224, 256);
+        drawKranokBorder(0, 36);
+        drawKranokBorder(220, 256);
 
         this.chemTrackTexture = new THREE.CanvasTexture(cpCanvas);
         this.chemTrackTexture.wrapS = THREE.RepeatWrapping;
         this.chemTrackTexture.wrapT = THREE.RepeatWrapping;
 
-        // Side Wall Texture: Industrial Blue Plating with Bracing
+        // Side Wall Texture: Ancient Royal Carved Sandstone & Golden Lotus Relief
         const sideCanvas = document.createElement('canvas');
         sideCanvas.width = 256;
         sideCanvas.height = 256;
         const sCtx = sideCanvas.getContext('2d');
-        sCtx.fillStyle = '#111c30';
+        // Warm Terracotta / Ancient Khmer-Thai Sandstone
+        sCtx.fillStyle = '#78350f';
         sCtx.fillRect(0, 0, 256, 256);
 
-        sCtx.strokeStyle = '#2563eb';
-        sCtx.lineWidth = 4;
+        // Stone frieze block bevels
+        sCtx.strokeStyle = '#92400e';
+        sCtx.lineWidth = 5;
         sCtx.strokeRect(4, 4, 248, 248);
 
-        // X-Brace
-        sCtx.strokeStyle = '#1d4ed8';
-        sCtx.lineWidth = 3;
-        sCtx.beginPath();
-        sCtx.moveTo(4, 4);
-        sCtx.lineTo(252, 252);
-        sCtx.moveTo(252, 4);
-        sCtx.lineTo(4, 252);
-        sCtx.stroke();
+        // Multi-tiered Lotus Petal Relief (บัวคว่ำ บัวหงาย)
+        sCtx.fillStyle = '#b45309';
+        for (let bx = 16; bx < 256; bx += 48) {
+            // Upper lotus petal
+            sCtx.beginPath();
+            sCtx.arc(bx, 28, 18, 0, Math.PI);
+            sCtx.fill();
+            // Lower inverted lotus petal
+            sCtx.beginPath();
+            sCtx.arc(bx, 228, 18, Math.PI, 0);
+            sCtx.fill();
+        }
 
-        // Yellow caution tabs
-        sCtx.fillStyle = '#facc15';
-        sCtx.fillRect(10, 10, 16, 16);
-        sCtx.fillRect(230, 10, 16, 16);
+        // Center Royal Vanara Sun Relief Diamond
+        sCtx.fillStyle = '#f59e0b';
+        sCtx.beginPath();
+        sCtx.moveTo(128, 64);
+        sCtx.lineTo(192, 128);
+        sCtx.lineTo(128, 192);
+        sCtx.lineTo(64, 128);
+        sCtx.closePath();
+        sCtx.fill();
+
+        sCtx.fillStyle = '#ffd700';
+        sCtx.beginPath();
+        sCtx.arc(128, 128, 22, 0, Math.PI * 2);
+        sCtx.fill();
+
+        sCtx.fillStyle = '#78350f';
+        sCtx.beginPath();
+        sCtx.arc(128, 128, 10, 0, Math.PI * 2);
+        sCtx.fill();
 
         this.chemSideTexture = new THREE.CanvasTexture(sideCanvas);
         this.chemSideTexture.wrapS = THREE.RepeatWrapping;
         this.chemSideTexture.wrapT = THREE.RepeatWrapping;
 
-        // Mega Mack Toxic Pink Liquid Texture
+        // Sacred Anodat Lotus Moat & Royal Pool Water Texture
         const mmCanvas = document.createElement('canvas');
-        mmCanvas.width = 128;
-        mmCanvas.height = 128;
+        mmCanvas.width = 256;
+        mmCanvas.height = 256;
         const mmCtx = mmCanvas.getContext('2d');
-        mmCtx.fillStyle = '#fa26a0'; // Luminescent hot pink
-        mmCtx.fillRect(0, 0, 128, 128);
+        // Sacred Deep Emerald-Teal Water
+        mmCtx.fillStyle = '#064e3b';
+        mmCtx.fillRect(0, 0, 256, 256);
 
-        // Swirling highlights
-        mmCtx.fillStyle = '#ff70a6';
-        for (let i = 0; i < 8; i++) {
-            const rx = Math.random() * 128;
-            const ry = Math.random() * 128;
-            const rw = 20 + Math.random() * 30;
-            const rh = 10 + Math.random() * 15;
+        // Shimmering Turquoise & Jade Water Ripples
+        mmCtx.fillStyle = '#0d9488';
+        for (let i = 0; i < 14; i++) {
+            const rx = Math.random() * 256;
+            const ry = Math.random() * 256;
+            const rw = 25 + Math.random() * 45;
+            const rh = 12 + Math.random() * 20;
             mmCtx.beginPath();
             mmCtx.ellipse(rx, ry, rw, rh, Math.random() * Math.PI, 0, Math.PI * 2);
             mmCtx.fill();
         }
-        // Glowing white bubbles
-        mmCtx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        for (let b = 0; b < 14; b++) {
+
+        // Floating Sacred Emerald Lotus Pads
+        for (let lp = 0; lp < 8; lp++) {
+            const px = 20 + Math.random() * 216;
+            const py = 20 + Math.random() * 216;
+            const pr = 12 + Math.random() * 10;
+            mmCtx.fillStyle = '#059669';
             mmCtx.beginPath();
-            mmCtx.arc(Math.random() * 128, Math.random() * 128, 2 + Math.random() * 3, 0, Math.PI * 2);
+            mmCtx.arc(px, py, pr, 0.2, Math.PI * 1.85);
+            mmCtx.lineTo(px, py);
+            mmCtx.fill();
+
+            // Lotus pad golden vein
+            mmCtx.strokeStyle = '#34d399';
+            mmCtx.lineWidth = 1.5;
+            mmCtx.beginPath();
+            mmCtx.arc(px, py, pr * 0.65, 0, Math.PI * 2);
+            mmCtx.stroke();
+        }
+
+        // Glowing Golden Pollen & Water Sparkles
+        mmCtx.fillStyle = 'rgba(253, 224, 71, 0.85)';
+        for (let b = 0; b < 24; b++) {
+            mmCtx.beginPath();
+            mmCtx.arc(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 0, Math.PI * 2);
             mmCtx.fill();
         }
 
@@ -385,36 +450,53 @@ class World {
         this.megaMackTexture.wrapS = THREE.RepeatWrapping;
         this.megaMackTexture.wrapT = THREE.RepeatWrapping;
 
-        // Chemical Plant Materials
+        // Kishkindha Kingdom Materials
         this.chemTrackMat = new THREE.MeshLambertMaterial({
             map: this.chemTrackTexture,
-            roughness: 0.35
+            roughness: 0.25
         });
         this.chemSideMat = new THREE.MeshLambertMaterial({
             map: this.chemSideTexture,
-            roughness: 0.5
+            roughness: 0.55
         });
         this.megaMackMat = new THREE.MeshBasicMaterial({
             map: this.megaMackTexture,
             transparent: true,
-            opacity: 0.90
+            opacity: 0.92
         });
 
+        // Sacred Crystal Canopy Material (replacing glass tube)
         this.glassTubeMat = new THREE.MeshLambertMaterial({
-            color: 0x00f0ff,
+            color: 0xfffaed,
             transparent: true,
-            opacity: 0.28,
+            opacity: 0.32,
             depthWrite: false,
             side: THREE.DoubleSide
         });
 
-        this.neonYellowMat = new THREE.MeshBasicMaterial({ color: 0xffe600 });
-        this.neonCyanMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
-        this.neonPinkMat = new THREE.MeshBasicMaterial({ color: 0xff007f });
-        this.chemSteelMat = new THREE.MeshLambertMaterial({ color: 0x1e293b, flatShading: true });
-        this.chemSiloMat = new THREE.MeshLambertMaterial({ color: 0x162032, flatShading: true });
-        this.chemPipeMat = new THREE.MeshLambertMaterial({ color: 0xf59e0b });
-        this.chemBeaconRedMat = new THREE.MeshBasicMaterial({ color: 0xff1e27 });
+        // Vanara & Royal Palace Architecture Materials
+        this.vanaraGoldMat = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            metalness: 0.88,
+            roughness: 0.2,
+            emissive: 0x4a3200
+        });
+        this.vanaraBronzeMat = new THREE.MeshLambertMaterial({ color: 0x92400e, flatShading: true });
+        this.royalMarbleWhiteMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc, flatShading: true });
+        this.royalCrimsonMat = new THREE.MeshLambertMaterial({ color: 0xb91c1c, flatShading: true });
+        this.royalEmeraldMat = new THREE.MeshLambertMaterial({ color: 0x047857, flatShading: true });
+        this.sacredFireMat = new THREE.MeshBasicMaterial({ color: 0xff7700 });
+        this.sacredFireGlowMat = new THREE.MeshBasicMaterial({ color: 0xffdd44 });
+        this.sacredTorchWoodMat = new THREE.MeshLambertMaterial({ color: 0x451a03 });
+
+        // Compatibility color aliases
+        this.neonYellowMat = this.vanaraGoldMat;
+        this.neonCyanMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        this.neonPinkMat = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+        this.chemSteelMat = this.vanaraBronzeMat;
+        this.chemSiloMat = this.chemSideMat;
+        this.chemPipeMat = this.vanaraGoldMat;
+        this.chemBeaconRedMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
 
         // ==========================================
         // 3. HYDROCITY ZONE TEXTURES & MATERIALS
@@ -579,21 +661,23 @@ class World {
         this.currentStageId = stageId;
 
         if (stageId === 'chemical_plant') {
-            // Cyberpunk Industrial Night Atmosphere
-            this.scene.background = new THREE.Color(0x060b17);
-            this.scene.fog = new THREE.FogExp2(0x0f172a, 0.0022);
+            // Kishkindha: Kingdom of the Monkeys (นครขีดขิน & พระราชวังศิลาทอง)
+            // Royal Twilight & Golden Hour Sunset Atmosphere
+            this.scene.background = new THREE.Color(0x1a0f2e);   // Deep royal twilight indigo-violet
+            this.scene.fog = new THREE.FogExp2(0x2d1838, 0.0016); // Warm golden twilight mist
 
-            this.hemiLight.color.setHex(0x38bdf8);      // Electric cyan sky reflection
-            this.hemiLight.groundColor.setHex(0x1e1b4b); // Deep indigo bounce
-            this.dirLight.color.setHex(0xa5b4fc);        // Cool moonlight & industrial halide
-            this.dirLight.intensity = 1.25;
+            this.hemiLight.color.setHex(0xfbbf24);        // Warm golden sky light
+            this.hemiLight.groundColor.setHex(0x3b1448);   // Deep royal purple & sandstone ground bounce
+            this.dirLight.color.setHex(0xffe082);          // Radiant golden sunset light
+            this.dirLight.intensity = 1.45;
 
-            // Spawn Industrial Cyber Smog Clouds
-            for (let i = 0; i < 40; i++) {
-                const cloud = this.createCloud(0x1e293b);
+            // Spawn Majestic Sunset Twilight Clouds with Golden Edges
+            for (let i = 0; i < 45; i++) {
+                const cloudColor = (i % 2 === 0) ? 0x6b306b : 0x8a457a;
+                const cloud = this.createCloud(cloudColor);
                 cloud.position.set(
-                    (Math.random() - 0.5) * 600,
-                    45 + Math.random() * 40,
+                    (Math.random() - 0.5) * 650,
+                    45 + Math.random() * 50,
                     -Math.random() * 4900 + 60
                 );
                 this.scene.add(cloud);
@@ -882,7 +966,7 @@ class World {
 
         // Glowing Chevron Entry Runway Lights on the floor
         const arrowGeo = new THREE.ConeGeometry(0.9, 1.8, 3);
-        const arrowMat = isChem ? this.neonCyanMat : (isHydro ? this.hydroWaterMat : (this.himavantaFruitMat || this.neonYellowMat));
+        const arrowMat = isChem ? (this.sacredFireGlowMat || this.vanaraGoldMat) : (isHydro ? this.hydroWaterMat : (this.himavantaFruitMat || this.neonYellowMat));
         [14, 10, 6].forEach(offsetZ => {
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
             arrow.rotation.x = Math.PI / 2;
@@ -917,26 +1001,33 @@ class World {
     }
 
     // ============================================================
-    // CHEMICAL PLANT SPECIALTY GIMMICKS & OBJECT BUILDERS
+    // KISHKINDHA KINGDOM (STAGE 2) SPECIALTY GIMMICKS & ARCHITECTURE
     // ============================================================
     addGlassTube(startX, startY, startZ, length, radius = 14.0) {
         const group = new THREE.Group();
 
-        // 1. Transparent Cyan Glass Tunnel (Open ended cylinder)
+        // 1. Transparent Sacred Crystal Royal Canopy (สะพานแก้วทิพย์มังคลาภิเษก)
         const tubeGeo = new THREE.CylinderGeometry(radius, radius, length, 32, 1, true);
         const tubeMesh = new THREE.Mesh(tubeGeo, this.glassTubeMat);
-        tubeMesh.rotation.x = Math.PI * 0.5; // Lay along Z axis
+        tubeMesh.rotation.x = Math.PI * 0.5;
         const centerY = startY + 7.5;
         tubeMesh.position.set(startX, centerY, startZ - length * 0.5);
         group.add(tubeMesh);
 
-        // 2. Glowing Neon Accelerator Rings every 22 units
-        const numRings = Math.floor(length / 22);
+        // 2. Sacred Golden Vanara Kranok Torus Ribs every 24 units
+        const numRings = Math.floor(length / 24);
         for (let i = 0; i <= numRings; i++) {
-            const ringGeo = new THREE.TorusGeometry(radius + 0.25, 0.35, 8, 32);
-            const ringMesh = new THREE.Mesh(ringGeo, (i % 2 === 0) ? this.neonYellowMat : this.neonCyanMat);
-            ringMesh.position.set(startX, centerY, startZ - i * 22);
+            const ringGeo = new THREE.TorusGeometry(radius + 0.35, 0.45, 8, 32);
+            const ringMesh = new THREE.Mesh(ringGeo, this.vanaraGoldMat);
+            ringMesh.position.set(startX, centerY, startZ - i * 24);
             group.add(ringMesh);
+
+            // Glowing sacred ruby / emerald jewel nodes on the arch
+            const nodeGeo = new THREE.SphereGeometry(0.7, 8, 8);
+            const nodeMat = (i % 2 === 0) ? this.royalCrimsonMat : this.royalEmeraldMat;
+            const topNode = new THREE.Mesh(nodeGeo, nodeMat);
+            topNode.position.set(startX, centerY + radius + 0.35, startZ - i * 24);
+            group.add(topNode);
         }
 
         this.scene.add(group);
@@ -947,160 +1038,368 @@ class World {
     addChemicalBasin(x, z, width, length) {
         const group = new THREE.Group();
 
-        // Glowing Mega Mack liquid plane
+        // 1. Shimmering Sacred Anodat Lotus Moat & Royal Pool (สระอโนดาตและคูเมืองขีดขิน)
         const liquidGeo = new THREE.PlaneGeometry(width, length);
         const liquidMesh = new THREE.Mesh(liquidGeo, this.megaMackMat);
         liquidMesh.rotation.x = -Math.PI / 2;
         liquidMesh.position.set(x, -2.5, z);
         group.add(liquidMesh);
 
-        // Foam / Hazard boundary
-        const borderGeo = new THREE.BoxGeometry(width + 4, 1.2, length + 4);
-        const borderMesh = new THREE.Mesh(borderGeo, this.chemSteelMat);
+        // 2. Carved White Marble & Gold Border Terrace
+        const borderGeo = new THREE.BoxGeometry(width + 4, 1.4, length + 4);
+        const borderMesh = new THREE.Mesh(borderGeo, this.chemSideMat);
         borderMesh.position.set(x, -3.2, z);
         group.add(borderMesh);
+
+        // 3. Floating 3D Sacred Lotus Blossoms on water
+        const numLotus = Math.min(18, Math.floor((width * length) / 4000));
+        for (let l = 0; l < numLotus; l++) {
+            const lx = x + (Math.random() - 0.5) * (width * 0.85);
+            const lz = z + (Math.random() - 0.5) * (length * 0.85);
+            const lotusPad = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 0.1, 10), this.royalEmeraldMat);
+            lotusPad.position.set(lx, -2.4, lz);
+            group.add(lotusPad);
+
+            const flower = new THREE.Mesh(new THREE.ConeGeometry(1.2, 1.6, 6), this.vanaraGoldMat);
+            flower.position.set(lx, -1.6, lz);
+            group.add(flower);
+        }
 
         this.scene.add(group);
         this.stageMeshes.push(group);
         return group;
     }
 
-    createChemicalSilo(height = 65, radius = 22) {
+    createVanaraGuardPillar(height = 10, radius = 1.0) {
         const group = new THREE.Group();
 
-        // Main cylindrical steel tank body
-        const tankGeo = new THREE.CylinderGeometry(radius, radius, height, 16);
-        const tank = new THREE.Mesh(tankGeo, this.chemSiloMat);
-        tank.position.y = height * 0.5;
-        tank.castShadow = true;
-        group.add(tank);
+        // Base Plinth
+        const baseGeo = new THREE.BoxGeometry(radius * 2.5, 1.2, radius * 2.5);
+        const base = new THREE.Mesh(baseGeo, this.royalMarbleWhiteMat);
+        base.position.y = 0.6;
+        base.castShadow = true;
+        group.add(base);
 
-        // Top Rounded Dome
-        const domeGeo = new THREE.SphereGeometry(radius * 0.98, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.5);
-        const dome = new THREE.Mesh(domeGeo, this.chemSiloMat);
-        dome.position.y = height;
-        group.add(dome);
+        const goldBaseRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.3, 0.18, 6, 16), this.vanaraGoldMat);
+        goldBaseRing.rotation.x = Math.PI / 2;
+        goldBaseRing.position.y = 1.2;
+        group.add(goldBaseRing);
 
-        // Flashing Red Aviation Beacon on top
-        const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.6, 8, 8), this.chemBeaconRedMat);
-        beacon.position.y = height + radius * 0.55;
+        // Fluted White Marble Pillar Shaft
+        const shaftGeo = new THREE.CylinderGeometry(radius * 0.85, radius * 1.05, height, 10);
+        const shaft = new THREE.Mesh(shaftGeo, this.royalMarbleWhiteMat);
+        shaft.position.y = height * 0.5 + 1.2;
+        shaft.castShadow = true;
+        group.add(shaft);
+
+        // Golden Vanara Warrior Head Capital
+        const capY = height + 1.2;
+        const capGeo = new THREE.CylinderGeometry(radius * 1.6, radius * 1.15, 1.2, 8);
+        const cap = new THREE.Mesh(capGeo, this.vanaraGoldMat);
+        cap.position.y = capY + 0.6;
+        group.add(cap);
+
+        // 4 Golden Vanara Face Masks on cardinal directions
+        for (let a = 0; a < 4; a++) {
+            const angle = (a / 4) * Math.PI * 2;
+            const maskGeo = new THREE.ConeGeometry(radius * 0.45, radius * 0.9, 4);
+            const mask = new THREE.Mesh(maskGeo, this.vanaraGoldMat);
+            mask.position.set(Math.cos(angle) * radius * 1.3, capY + 0.6, Math.sin(angle) * radius * 1.3);
+            mask.rotation.y = -angle;
+            group.add(mask);
+        }
+
+        // Golden Spire Crown
+        const spireGeo = new THREE.ConeGeometry(radius * 0.5, radius * 1.5, 6);
+        const spire = new THREE.Mesh(spireGeo, this.vanaraGoldMat);
+        spire.position.y = capY + 1.8;
+        group.add(spire);
+
+        // Sacred Fire Brazier on Top
+        const bowlGeo = new THREE.CylinderGeometry(radius * 1.4, radius * 0.7, 0.8, 8);
+        const bowl = new THREE.Mesh(bowlGeo, this.vanaraGoldMat);
+        bowl.position.y = capY + 1.4;
+        group.add(bowl);
+
+        const flameGeo = new THREE.ConeGeometry(radius * 0.75, 1.8, 6);
+        const flame = new THREE.Mesh(flameGeo, this.sacredFireMat);
+        flame.position.y = capY + 2.5;
+        group.add(flame);
+
+        const flameCore = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.4, 6, 6), this.sacredFireGlowMat);
+        flameCore.position.y = capY + 2.1;
+        group.add(flameCore);
+
+        return group;
+    }
+
+    createVanaraMonument(height = 65, radius = 20) {
+        const group = new THREE.Group();
+
+        // 1. Octagonal Ancient Sandstone Fortress Bastion
+        const bodyGeo = new THREE.CylinderGeometry(radius * 0.88, radius * 1.05, height * 0.6, 8);
+        const body = new THREE.Mesh(bodyGeo, this.chemSideMat);
+        body.position.y = height * 0.3;
+        body.castShadow = true;
+        group.add(body);
+
+        // 2. 4 Golden Vanara Masks at mid-height
+        for (let a = 0; a < 4; a++) {
+            const angle = (a / 4) * Math.PI * 2;
+            const mask = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.28, radius * 0.65, 4), this.vanaraGoldMat);
+            mask.position.set(Math.cos(angle) * (radius * 0.95), height * 0.35, Math.sin(angle) * (radius * 0.95));
+            mask.rotation.y = -angle;
+            group.add(mask);
+        }
+
+        // 3. Golden Balcony Gallery
+        const balconyGeo = new THREE.CylinderGeometry(radius * 1.15, radius * 1.05, 2.8, 8);
+        const balcony = new THREE.Mesh(balconyGeo, this.vanaraGoldMat);
+        balcony.position.y = height * 0.6;
+        group.add(balcony);
+
+        // 4 Burning Corner Braziers on the Balcony
+        for (let a = 0; a < 4; a++) {
+            const angle = (a / 4) * Math.PI * 2 + Math.PI / 4;
+            const bz = new THREE.Mesh(new THREE.ConeGeometry(1.6, 3.2, 5), this.sacredFireMat);
+            bz.position.set(Math.cos(angle) * (radius * 1.05), height * 0.6 + 2.5, Math.sin(angle) * (radius * 1.05));
+            group.add(bz);
+        }
+
+        // 4. White Marble Upper Shrine Chamber
+        const shrineGeo = new THREE.CylinderGeometry(radius * 0.65, radius * 0.85, height * 0.22, 8);
+        const shrine = new THREE.Mesh(shrineGeo, this.royalMarbleWhiteMat);
+        shrine.position.y = height * 0.72;
+        group.add(shrine);
+
+        // 5. Majestic Golden Lotus Stupa Peak (ยอดเจดีย์ทรงบัวตูมทองคำ)
+        const stupaGeo = new THREE.ConeGeometry(radius * 0.52, height * 0.32, 8);
+        const stupa = new THREE.Mesh(stupaGeo, this.vanaraGoldMat);
+        stupa.position.y = height * 0.96;
+        group.add(stupa);
+
+        // Glowing Beacon Jewel on apex
+        const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.8, 8, 8), this.sacredFireGlowMat);
+        beacon.position.y = height + height * 0.12;
         group.add(beacon);
 
-        // Neon Yellow Hazard Ring around middle
-        const ringGeo = new THREE.TorusGeometry(radius + 0.35, 0.6, 6, 24);
-        const ring = new THREE.Mesh(ringGeo, this.neonYellowMat);
-        ring.position.y = height * 0.55;
-        ring.rotation.x = Math.PI * 0.5;
-        group.add(ring);
+        return group;
+    }
 
-        // Catwalk Railing Ring
-        const catwalkGeo = new THREE.CylinderGeometry(radius + 2.5, radius + 2.5, 1.2, 16);
-        const catwalk = new THREE.Mesh(catwalkGeo, this.chemSteelMat);
-        catwalk.position.y = height * 0.85;
-        group.add(catwalk);
+    createChemicalSilo(height = 65, radius = 22) {
+        return this.createVanaraMonument(height, radius);
+    }
+
+    createKishkindhaPalace(w = 42, h = 115, d = 42) {
+        const group = new THREE.Group();
+
+        // Tier 1: Polished White Marble Base Pavilion
+        const t1H = h * 0.32;
+        const tier1Geo = new THREE.BoxGeometry(w, t1H, d);
+        const tier1 = new THREE.Mesh(tier1Geo, this.royalMarbleWhiteMat);
+        tier1.position.y = t1H * 0.5;
+        tier1.castShadow = true;
+        group.add(tier1);
+
+        // Tier 1 Roof Eaves (Royal Crimson with Gold Rim)
+        const roof1Geo = new THREE.BoxGeometry(w * 1.18, 3.2, d * 1.18);
+        const roof1 = new THREE.Mesh(roof1Geo, this.royalCrimsonMat);
+        roof1.position.y = t1H + 1.6;
+        group.add(roof1);
+
+        // Tier 1 Chofa Spires (4 Golden Horns on roof corners)
+        [-1, 1].forEach(sx => {
+            [-1, 1].forEach(sz => {
+                const chofa = new THREE.Mesh(new THREE.ConeGeometry(1.2, 5.5, 4), this.vanaraGoldMat);
+                chofa.position.set(sx * (w * 0.58), t1H + 4.2, sz * (d * 0.58));
+                chofa.rotation.z = -sx * 0.35;
+                chofa.rotation.x = sz * 0.35;
+                group.add(chofa);
+            });
+        });
+
+        // Tier 2: Royal Upper Hall
+        const t2H = h * 0.26;
+        const tier2Geo = new THREE.BoxGeometry(w * 0.72, t2H, d * 0.72);
+        const tier2 = new THREE.Mesh(tier2Geo, this.royalMarbleWhiteMat);
+        tier2.position.y = t1H + 3.2 + t2H * 0.5;
+        tier2.castShadow = true;
+        group.add(tier2);
+
+        // Tier 2 Roof Eaves (Royal Emerald & Gold)
+        const roof2Y = t1H + 3.2 + t2H;
+        const roof2Geo = new THREE.BoxGeometry(w * 0.88, 2.8, d * 0.88);
+        const roof2 = new THREE.Mesh(roof2Geo, this.royalEmeraldMat);
+        roof2.position.y = roof2Y + 1.4;
+        group.add(roof2);
+
+        // Tier 3: Golden Pavilion Top
+        const t3H = h * 0.16;
+        const tier3Geo = new THREE.BoxGeometry(w * 0.48, t3H, d * 0.48);
+        const tier3 = new THREE.Mesh(tier3Geo, this.vanaraGoldMat);
+        tier3.position.y = roof2Y + 2.8 + t3H * 0.5;
+        group.add(tier3);
+
+        // Soaring Needle Spire (ยอดปราสาทศิลาทอง)
+        const spireBaseY = roof2Y + 2.8 + t3H;
+        const ringsGeo = new THREE.CylinderGeometry(w * 0.18, w * 0.32, 5, 8);
+        const rings = new THREE.Mesh(ringsGeo, this.vanaraGoldMat);
+        rings.position.y = spireBaseY + 2.5;
+        group.add(rings);
+
+        const needleGeo = new THREE.ConeGeometry(1.8, 32, 8);
+        const needle = new THREE.Mesh(needleGeo, this.vanaraGoldMat);
+        needle.position.y = spireBaseY + 21;
+        needle.castShadow = true;
+        group.add(needle);
+
+        // Radiant Celestial Star Beacon at Apex
+        const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.8, 8, 8), this.sacredFireGlowMat);
+        beacon.position.y = spireBaseY + 38;
+        group.add(beacon);
 
         return group;
     }
 
     createCyberSkyscraper(w = 42, h = 140, d = 42) {
+        return this.createKishkindhaPalace(w, h, d);
+    }
+
+    createRoyalGateway(span = 72, height = 32) {
         const group = new THREE.Group();
 
-        // Dark navy monolithic tower
-        const towerGeo = new THREE.BoxGeometry(w, h, d);
-        const tower = new THREE.Mesh(towerGeo, this.chemSteelMat);
-        tower.position.y = h * 0.5;
-        group.add(tower);
+        // Left & Right Massive Fluted White Marble Columns
+        [-span * 0.46, span * 0.46].forEach(colX => {
+            const colGeo = new THREE.CylinderGeometry(2.2, 3.0, height, 12);
+            const col = new THREE.Mesh(colGeo, this.royalMarbleWhiteMat);
+            col.position.set(colX, height * 0.5, 0);
+            col.castShadow = true;
+            group.add(col);
 
-        // Illuminated neon window stripes
-        const numStripes = 6;
-        for (let i = 0; i < numStripes; i++) {
-            const stripGeo = new THREE.BoxGeometry(w + 0.6, 1.8, d + 0.6);
-            const mat = (i % 3 === 0) ? this.neonCyanMat : (i % 3 === 1 ? this.neonYellowMat : this.neonPinkMat);
-            const strip = new THREE.Mesh(stripGeo, mat);
-            strip.position.y = 20 + i * (h / (numStripes + 1));
-            group.add(strip);
-        }
+            // Column Capital with burning sacred fire altar
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 2.6, 2.0, 8), this.vanaraGoldMat);
+            cap.position.set(colX, height + 1.0, 0);
+            group.add(cap);
 
-        // Antenna Mast
-        const antGeo = new THREE.CylinderGeometry(0.6, 1.4, 30, 8);
-        const ant = new THREE.Mesh(antGeo, this.chemSteelMat);
-        ant.position.y = h + 15;
-        group.add(ant);
+            const fire = new THREE.Mesh(new THREE.ConeGeometry(1.8, 3.8, 6), this.sacredFireMat);
+            fire.position.set(colX, height + 3.8, 0);
+            group.add(fire);
+        });
 
-        const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.5, 8, 8), this.chemBeaconRedMat);
-        beacon.position.y = h + 30;
-        group.add(beacon);
+        // Gilded Thai Archway Crossbeam
+        const beamGeo = new THREE.BoxGeometry(span, 3.8, 5.0);
+        const beam = new THREE.Mesh(beamGeo, this.vanaraGoldMat);
+        beam.position.set(0, height, 0);
+        group.add(beam);
+
+        // Center Thai Pediment Arch (หน้าบันทรงสามเหลี่ยมยอดปรางค์)
+        const pedGeo = new THREE.ConeGeometry(9.0, 8.5, 4);
+        pedGeo.rotateY(Math.PI / 4);
+        const ped = new THREE.Mesh(pedGeo, this.vanaraGoldMat);
+        ped.position.set(0, height + 6.2, 0);
+        group.add(ped);
+
+        // Central Golden Vanara Relief Crest
+        const crest = new THREE.Mesh(new THREE.SphereGeometry(2.4, 8, 8), this.vanaraGoldMat);
+        crest.position.set(0, height + 5.0, 2.4);
+        group.add(crest);
+
+        // Hanging Crimson & Gold Royal Victory Banners (ธงทิวชัยโบราณขีดขิน)
+        [-span * 0.28, span * 0.28].forEach(bx => {
+            const bannerGeo = new THREE.BoxGeometry(2.4, 15, 0.2);
+            const banner = new THREE.Mesh(bannerGeo, this.royalCrimsonMat);
+            banner.position.set(bx, height - 8, 0);
+            group.add(banner);
+
+            const fringe = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.4, 0.3), this.vanaraGoldMat);
+            fringe.position.set(bx, height - 15.7, 0);
+            group.add(fringe);
+        });
 
         return group;
     }
 
     createOverheadPipeline(span = 70, height = 34) {
-        const group = new THREE.Group();
-
-        // Big yellow chemical conduit crossing overhead
-        const pipeGeo = new THREE.CylinderGeometry(2.2, 2.2, span, 12);
-        const pipe = new THREE.Mesh(pipeGeo, this.chemPipeMat);
-        pipe.rotation.z = Math.PI * 0.5;
-        pipe.position.set(0, height, 0);
-        group.add(pipe);
-
-        // Flanged connector joints
-        [-span * 0.35, 0, span * 0.35].forEach(px => {
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(3.0, 0.45, 8, 16), this.neonCyanMat);
-            ring.rotation.y = Math.PI * 0.5;
-            ring.position.set(px, height, 0);
-            group.add(ring);
-        });
-
-        // Vertical Pylons on each side
-        [-span * 0.48, span * 0.48].forEach(px => {
-            const legGeo = new THREE.CylinderGeometry(1.8, 2.6, height + 10, 8);
-            const leg = new THREE.Mesh(legGeo, this.chemSteelMat);
-            leg.position.set(px, (height + 10) * 0.5 - 5, 0);
-            group.add(leg);
-        });
-
-        return group;
+        return this.createRoyalGateway(span, height);
     }
 
     buildChemicalColosseum(x, y, z, radius = 68) {
         const group = new THREE.Group();
 
-        // Cyberpunk Finish Line Arena
-        const arenaGeo = new THREE.CylinderGeometry(radius, radius, 12, 32);
-        const arenaMesh = new THREE.Mesh(arenaGeo, this.chemSideMat);
-        arenaMesh.position.set(x, y - 6, z);
+        // 1. Royal Grand Throne Colosseum of Kishkindha (มณฑปทองคำท้องพระโรงนครขีดขิน)
+        const arenaGeo = new THREE.CylinderGeometry(radius, radius * 1.06, 10, 32);
+        const arenaMesh = new THREE.Mesh(arenaGeo, this.royalMarbleWhiteMat);
+        arenaMesh.position.set(x, y - 5, z);
         group.add(arenaMesh);
 
-        // 8 Surrounding Chemical Floodlight Towers
+        const goldRim = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.5, 0.8, 8, 32), this.vanaraGoldMat);
+        goldRim.rotation.x = Math.PI / 2;
+        goldRim.position.set(x, y + 0.2, z);
+        group.add(goldRim);
+
+        // 2. 8 Golden Vanara Guardian Statues around Arena Perimeter
         for (let i = 0; i < 8; i++) {
             const angle = (i / 8) * Math.PI * 2;
             const tx = x + Math.cos(angle) * (radius - 6);
             const tz = z + Math.sin(angle) * (radius - 6);
 
-            const towerGeo = new THREE.CylinderGeometry(2.5, 4.0, 48, 8);
-            const tower = new THREE.Mesh(towerGeo, this.chemSteelMat);
-            tower.position.set(tx, y + 24, tz);
-            group.add(tower);
+            // Marble Pedestal
+            const pedGeo = new THREE.CylinderGeometry(2.5, 3.2, 12, 8);
+            const ped = new THREE.Mesh(pedGeo, this.royalMarbleWhiteMat);
+            ped.position.set(tx, y + 6, tz);
+            group.add(ped);
 
-            // Neon Searchlight Head
-            const head = new THREE.Mesh(new THREE.SphereGeometry(3.2, 8, 8), (i % 2 === 0) ? this.neonCyanMat : this.neonYellowMat);
-            head.position.set(tx, y + 48, tz);
+            // Golden Warrior Statue
+            const statueGeo = new THREE.CylinderGeometry(1.6, 1.8, 14, 8);
+            const statue = new THREE.Mesh(statueGeo, this.vanaraGoldMat);
+            statue.position.set(tx, y + 19, tz);
+            group.add(statue);
+
+            // Golden Head & Crown
+            const head = new THREE.Mesh(new THREE.SphereGeometry(1.6, 8, 8), this.vanaraGoldMat);
+            head.position.set(tx, y + 27, tz);
             group.add(head);
+
+            const crown = new THREE.Mesh(new THREE.ConeGeometry(1.0, 3.2, 6), this.vanaraGoldMat);
+            crown.position.set(tx, y + 29.5, tz);
+            group.add(crown);
+
+            // Battle Trident Weapon (ตรีศูลทองคำ)
+            const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 22, 8), this.vanaraGoldMat);
+            staff.position.set(tx + 1.2, y + 20, tz);
+            group.add(staff);
+
+            const prong = new THREE.Mesh(new THREE.ConeGeometry(0.7, 4.0, 4), this.vanaraGoldMat);
+            prong.position.set(tx + 1.2, y + 32, tz);
+            group.add(prong);
+
+            // Sacred Fire Brazier flanking statue
+            const flame = new THREE.Mesh(new THREE.ConeGeometry(1.4, 3.2, 6), this.sacredFireMat);
+            flame.position.set(tx - 1.5, y + 13.5, tz);
+            group.add(flame);
         }
 
-        // Finish Line Archway
-        const archL = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 2.0, 24, 8), this.chemSteelMat);
-        archL.position.set(x - 14, y + 12, z + 20);
+        // 3. Grand Finish Line Gateway: 7-Tiered Royal Parasol Arch (ซุ้มประตูฉัตรทองคำ)
+        const archL = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.5, 26, 8), this.royalMarbleWhiteMat);
+        archL.position.set(x - 14, y + 13, z + 20);
         group.add(archL);
 
-        const archR = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 2.0, 24, 8), this.chemSteelMat);
-        archR.position.set(x + 14, y + 12, z + 20);
+        const archR = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.5, 26, 8), this.royalMarbleWhiteMat);
+        archR.position.set(x + 14, y + 13, z + 20);
         group.add(archR);
 
-        const beam = new THREE.Mesh(new THREE.BoxGeometry(32, 3.5, 3.5), this.neonYellowMat);
-        beam.position.set(x, y + 23, z + 20);
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(34, 4.0, 4.0), this.vanaraGoldMat);
+        beam.position.set(x, y + 26, z + 20);
         group.add(beam);
+
+        // 7-Tiered Royal Golden Parasols (ฉัตรทองคำ) above finish line
+        [-8, 0, 8].forEach(cx => {
+            for (let t = 0; t < 5; t++) {
+                const tier = new THREE.Mesh(new THREE.ConeGeometry(2.4 - t * 0.4, 0.9, 8), this.vanaraGoldMat);
+                tier.position.set(x + cx, y + 29 + t * 1.1, z + 20);
+                group.add(tier);
+            }
+        });
 
         this.scene.add(group);
         this.stageMeshes.push(group);
@@ -1108,42 +1407,74 @@ class World {
     }
 
     // ============================================================
-    // STAGE 2: CHEMICAL PLANT COURSE DEFINITION (4,800m)
+    // STAGE 2: KISHKINDHA KINGDOM COURSE DEFINITION (4,800m)
     // ============================================================
     buildChemicalPlantCourse() {
-        // 1. Starting Cyber Highway (z: 40 to -140, y: 0, length: 180, center: -50)
-        // minZ: -140, maxZ: +40 -> Seamlessly bridges the gap to the booster tube!
+        // 1. Starting Royal Marble Causeway (z: 40 to -140, y: 0, length: 180, center: -50)
         this.addRoadSegment(0, 0, -50, 36, 180, 0);
 
-        // 2. High-Speed Glass Booster Tube #1 (Warp Conduit) (z: -140 to -380, y: 0, length: 240, center: -260)
+        // Flanking Guard Pillars at Start
+        [-16, 16].forEach(px => {
+            [20, -20, -60, -100].forEach(pz => {
+                const pillar = this.createVanaraGuardPillar(10, 1.0);
+                pillar.position.set(px, 0, pz);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            });
+        });
+
+        // 2. High-Speed Sacred Crystal Canopy Way #1 (z: -140 to -380, y: 0, length: 240, center: -260)
         this.addRoadSegment(0, 0, -260, 24, 240, 0);
         this.addGlassTube(0, 0, -140, 240, 14.0);
 
-        // 3. Mega Mack Vat #1 below track
+        // 3. Sacred Anodat Lotus Moat & Royal Pool #1 below track
         this.addChemicalBasin(0, -600, 220, 480);
 
-        // 4. Climbing Ramp over Mega Mack (z: -380 to -540, climbing y: 0 -> 24)
+        // 4. Grand Ascending Marble Ramp over Anodat Pool (z: -380 to -540, climbing y: 0 -> 24)
         this.addSlopedRoad(0, 0, -380, 30, 160, 24);
 
-        // 5. High Catwalk Skyway (z: -540 to -680, y: 24, length: 140, center: -610)
+        // 5. High Royal Catwalk Skyway (z: -540 to -680, y: 24, length: 140, center: -610)
         this.addRoadSegment(0, 24, -610, 28, 140, 0);
+
+        // Flanking Guard Pillars on Skyway
+        [-13, 13].forEach(px => {
+            [-560, -610, -660].forEach(pz => {
+                const pillar = this.createVanaraGuardPillar(8, 0.9);
+                pillar.position.set(px, 24, pz);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            });
+        });
 
         // 6. Steep Thrill Drop (z: -680 to -780, dropping y: 24 -> 4)
         this.addSlopedRoad(0, 24, -680, 28, 100, -20);
 
-        // 7. Twin Industrial Steel Loops (z: -880 and z: -1080, y: 4, spanning -780 to -1230 solid continuous ground)
+        // 7. Twin Vanara Carved Stone Loops (z: -880 and z: -1080, y: 4, spanning -780 to -1230 solid continuous ground)
         this.addRoadSegment(0, 4, -1005, 32, 450, 0);
         this.buildLoopSection(0, 4, -880, 16);
         this.buildLoopSection(0, 4, -1080, 18);
 
-        // 8. Low Suspension Bridge over Massive Mega Mack Sea (z: -1230 to -1550, y: 5, length: 320, center: -1390)
+        // 8. Low Royal Causeway over Massive Anodat Lotus Sea (z: -1230 to -1550, y: 5, length: 320, center: -1390)
         this.addChemicalBasin(0, -1400, 260, 400);
         this.addRoadSegment(0, 5, -1390, 24, 320, 0);
 
-        // 9. Spiral Tower Ascent (z: -1550 to -1750, climbing y: 5 -> 28, length: 200)
+        // Flanking Guard Pillars on Low Bridge
+        [-11, 11].forEach(px => {
+            [-1260, -1320, -1380, -1440, -1500].forEach(pz => {
+                const pillar = this.createVanaraGuardPillar(9, 0.95);
+                pillar.position.set(px, 5, pz);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            });
+        });
+
+        // 9. Spiral Palace Tower Ascent (z: -1550 to -1750, climbing y: 5 -> 28, length: 200)
         this.addSlopedRoad(0, 5, -1550, 28, 200, 23);
 
-        // 10. High-Altitude Glass Booster Tube #2 (z: -1750 to -2150, y: 28, length: 400, center: -1950)
+        // 10. High-Altitude Sacred Crystal Canopy Way #2 (z: -1750 to -2150, y: 28, length: 400, center: -1950)
         this.addRoadSegment(0, 28, -1950, 24, 400, 0);
         this.addGlassTube(0, 28, -1750, 400, 14.0);
 
@@ -1152,31 +1483,42 @@ class World {
         this.addRoadSegment(12, 28, -2300, 16, 300, 0);  // Right route
         this.addRoadSegment(0, 28, -2300, 10, 300, 0);   // Center connector
 
-        // 12. Mega Mack Spillway & Coaster Drop (z: -2450 to -2850, y: 28 -> 8)
+        // 12. Sacred Spillway & Coaster Drop (z: -2450 to -2850, y: 28 -> 8)
         this.addChemicalBasin(0, -2700, 240, 450);
         this.addSlopedRoad(0, 28, -2450, 32, 180, -20);
         this.addRoadSegment(0, 8, -2740, 34, 220, 0);
 
-        // 13. The Chemical Superhighway Sprint (z: -2850 to -4000, y: 8, length: 1150 continuous)
+        // 13. The Grand Kishkindha Superhighway Sprint (z: -2850 to -4000, y: 8, length: 1150 continuous)
         this.addRoadSegment(0, 8, -3000, 42, 300, 0); // -2850 to -3150
         this.addRoadSegment(0, 8, -3300, 42, 300, 0); // -3150 to -3450
         this.addRoadSegment(0, 8, -3600, 42, 300, 0); // -3450 to -3750
         this.addRoadSegment(0, 8, -3875, 42, 250, 0); // -3750 to -4000
 
-        // 14. Rollercoaster Dip & Final Loop #3 (z: -4000 to -4300, y: 8 -> 4 -> 8)
+        // Flanking Pillars along the Grand Sprint
+        [-19, 19].forEach(px => {
+            [-2900, -3100, -3300, -3500, -3700, -3900].forEach(pz => {
+                const pillar = this.createVanaraGuardPillar(11, 1.1);
+                pillar.position.set(px, 8, pz);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            });
+        });
+
+        // 14. Rollercoaster Dip & Final Vanara Loop #3 (z: -4000 to -4300, y: 8 -> 4 -> 8)
         this.addSlopedRoad(0, 8, -4000, 34, 80, -4);
         this.addRoadSegment(0, 4, -4160, 36, 160, 0);
         this.buildLoopSection(0, 4, -4160, 18);
         this.addSlopedRoad(0, 4, -4240, 34, 60, 4);
 
-        // 15. Chemical Plant Grand Colosseum (Finish Arena) (z: -4300 to -4900, y: 8)
+        // 15. Kishkindha Grand Royal Throne Arena (Finish Arena) (z: -4300 to -4900, y: 8)
         this.addRoadSegment(0, 8, -4450, 48, 300, 0);
         this.addRoadSegment(0, 8, -4750, 64, 300, 0);
         this.buildChemicalColosseum(0, 8, -4800, 68);
     }
 
     buildChemicalPlantScenery() {
-        // Distribute Chemical Silos, Skyscrapers, and Overhead Pipelines across the 4,800m track
+        // Distribute Kishkindha Royal Palaces, Vanara Monuments, and Royal Gateways across the 4,800m track
         const totalBackdrop = 80;
         for (let i = 0; i < totalBackdrop; i++) {
             const side = (i % 2 === 0) ? 1 : -1;
@@ -1184,46 +1526,46 @@ class World {
             const z = 80 - progress * 4900;
 
             if (i % 3 === 0) {
-                // Chemical Storage Silo Tank
-                const h = 55 + Math.random() * 35;
-                const r = 18 + Math.random() * 10;
-                const silo = this.createChemicalSilo(h, r);
+                // Ancient Vanara Stone Fortress Bastion & Shrine
+                const h = 55 + Math.random() * 30;
+                const r = 18 + Math.random() * 8;
+                const monument = this.createVanaraMonument(h, r);
                 const dist = 75 + Math.random() * 45;
-                silo.position.set(side * dist, -5, z);
-                this.scene.add(silo);
-                this.stageMeshes.push(silo);
-                this.sceneryObjects.push(silo);
+                monument.position.set(side * dist, -5, z);
+                this.scene.add(monument);
+                this.stageMeshes.push(monument);
+                this.sceneryObjects.push(monument);
             } else if (i % 3 === 1) {
-                // Cyberpunk Skyscraper Monolith
-                const w = 35 + Math.random() * 20;
-                const h = 90 + Math.random() * 65;
-                const tower = this.createCyberSkyscraper(w, h, w);
-                const dist = 130 + Math.random() * 70;
-                tower.position.set(side * dist, -5, z);
-                this.scene.add(tower);
-                this.stageMeshes.push(tower);
-                this.sceneryObjects.push(tower);
+                // Grand Royal Thai Multi-Tiered Palace Pavilion
+                const w = 36 + Math.random() * 18;
+                const h = 95 + Math.random() * 45;
+                const palace = this.createKishkindhaPalace(w, h, w);
+                const dist = 120 + Math.random() * 65;
+                palace.position.set(side * dist, -5, z);
+                this.scene.add(palace);
+                this.stageMeshes.push(palace);
+                this.sceneryObjects.push(palace);
             } else {
-                // Distant Mega Tower with aviation beacons
-                const w = 50 + Math.random() * 30;
-                const h = 130 + Math.random() * 80;
-                const tower = this.createCyberSkyscraper(w, h, w);
-                const dist = 220 + Math.random() * 90;
-                tower.position.set(side * dist, -10, z);
-                this.scene.add(tower);
-                this.stageMeshes.push(tower);
-                this.sceneryObjects.push(tower);
+                // Towering Golden Mount Monolith Palace
+                const w = 48 + Math.random() * 24;
+                const h = 125 + Math.random() * 60;
+                const palace = this.createKishkindhaPalace(w, h, w);
+                const dist = 210 + Math.random() * 80;
+                palace.position.set(side * dist, -10, z);
+                this.scene.add(palace);
+                this.stageMeshes.push(palace);
+                this.sceneryObjects.push(palace);
             }
         }
 
-        // Overhead Pipeline Bridges crossing the track
-        const pipelineLocations = [-100, -380, -750, -1200, -1700, -2150, -2600, -3100, -3600, -4100, -4500];
-        pipelineLocations.forEach(pz => {
-            const pipe = this.createOverheadPipeline(75, 34);
-            pipe.position.set(0, 0, pz);
-            this.scene.add(pipe);
-            this.stageMeshes.push(pipe);
-            this.sceneryObjects.push(pipe);
+        // Grand Royal Gateways crossing overhead with fluttering victory banners
+        const gatewayLocations = [-100, -380, -750, -1200, -1700, -2150, -2600, -3100, -3600, -4100, -4500];
+        gatewayLocations.forEach(pz => {
+            const gateway = this.createRoyalGateway(72, 32);
+            gateway.position.set(0, 0, pz);
+            this.scene.add(gateway);
+            this.stageMeshes.push(gateway);
+            this.sceneryObjects.push(gateway);
         });
     }
 
