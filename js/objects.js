@@ -434,11 +434,11 @@ class ObjectManager {
         this.loadStageObjects('green_hill');
     }
 
-    getSafeGroundY(x, z, fallbackY = 0.1) {
+    getSafeGroundY(x, z, fallbackY = 0) {
         const world = this.world || (window.game && window.game.world);
         if (world && world.getGroundHeight) {
             const gy = world.getGroundHeight(x, z);
-            if (gy > -40) return gy + 0.1;
+            if (gy > -40) return gy;
         }
         return fallbackY;
     }
@@ -801,7 +801,7 @@ class ObjectManager {
         });
 
         // --- 1.1 MULTIDIMENSIONAL 3D STAR FORMATIONS (ขบวนดาว 3 มิติในมหาสมุทรลงกา) ---
-        // 1. Slalom S-Curve Waves weaving along aqueducts & flumes
+        // 1. Slalom S-Curve Waves weaving along causeway & flumes
         this.createSlalomRings(-20, -110, 16, 4.5, 0);       // Starting Rama's causeway bridge
         this.createSlalomRings(-820, -960, 20, 5.0, 4);      // Inside Crystal Abyss Flume #1
         this.createSlalomRings(-1860, -2100, 24, 6.0, 3.5);  // Lanka water-surface sprint
@@ -813,44 +813,44 @@ class ObjectManager {
         this.createJumpArc(0, -590, -620, 7, 5.5);           // Arc plunge into Flume #1
         this.createJumpArc(0, -2180, -2210, 7, 6.0);         // Arc leap over water-skimming ramp
         this.createJumpArc(0, -2580, -2610, 7, 6.0);         // Arc launch into Flume #2
-        this.createJumpArc(0, -3780, -3810, 7, 5.5);         // Arc thrilling descent into Grand Canal
+        this.createJumpArc(0, -3780, -3810, 7, 5.5);         // Arc descent into Grand Canal
 
         // 3. Wedge & Diamond Constellation Clusters
-        this.createWedgeCluster(0, -210, 0, 4.0, 2.5);       // Leading into climbing aqueduct
-        this.createDiamondCluster(0, -450, 12, 3.5);         // High Palace Aqueduct lookout
-        this.createDiamondCluster(0, -1980, 3.5, 4.0);       // Water skimming center oasis
-        this.createDiamondCluster(0, -2500, 16, 3.5);        // High Shelf panoramic vista
-        this.createWedgeCluster(0, -4600, 8, 4.0, 2.5);      // Approach to Lanka Causeway Pavilion
-        this.createDiamondCluster(0, -4850, 8, 4.5);         // Finish Pavilion approach
+        this.createWedgeCluster(0, -210, 0, 4.0, 2.5);       // Leading into viaduct
+        this.createDiamondCluster(0, -450, 6.0, 3.5);        // Viaduct lookout
+        this.createDiamondCluster(0, -1980, 0.8, 4.0);       // Water skimming center oasis
+        this.createDiamondCluster(0, -2500, 6.0, 3.5);       // Upper viaduct vista
+        this.createWedgeCluster(0, -4600, 2.0, 4.0, 2.5);    // Approach to Lanka Causeway Pavilion
+        this.createDiamondCluster(0, -4850, 2.5, 4.5);       // Finish Pavilion approach
 
         // 360° Water Loop 1 & Loop 2 Ring Arcs
-        this.spawnLoopRings(-1450, 16, 4, 10);
-        this.spawnLoopRings(-3650, 18, 18, 10);
+        this.spawnLoopRings(-1450, 16, 2.0, 10);
+        this.spawnLoopRings(-3650, 16, 2.0, 10);
 
         // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง) ---
-        this.createMoon(0, 30, -420);     // Water Aqueduct Leap
-        this.createMoon(0, 36, -1550);    // Temple Waterfall Lookout
-        this.createMoon(0, 28, -3100);    // Undersea Ruins Apex
-        this.createMoon(0, 24, -4800);    // Final Lagoon Ascent
+        this.createMoon(0, 14, -420);     // Viaduct Leap
+        this.createMoon(0, 20, -1450);    // Water Loop #1 Apex
+        this.createMoon(0, 12, -3060);    // Undersea Ruins Apex
+        this.createMoon(0, 16, -4850);    // Final Pavilion Ascent
 
         // --- 2. HYDRO BOOSTERS (Cyan Water Jet Accelerators) ---
         const hydroBoosters = [
-            [0, 0.1, -180, 0, -1, 55],       // Launch up Palace Aqueduct slope
-            [0, 12.1, -580, 0, -1, 58],      // Launch into Hydro-Tube #1
-            [0, 4.1, -850, 0, -1, 55],       // Inside Hydro-Tube #1 mid
-            [0, 4.1, -1050, 0, -1, 55],      // Inside Hydro-Tube #1 exit
-            [0, 4.1, -1400, 0, -1, 60],      // Boost into Water Loop #1!
-            [0, 3.6, -1850, 0, -1, 58],      // Water-skimming hydro sprint!
-            [0, 3.6, -2100, 0, -1, 55],      // Launch up rising ramp out of water
-            [0, 16.1, -2560, 0, -1, 58],     // Launch into Deep Abyss Hydro-Tube #2
-            [0, 6.1, -2850, 0, -1, 55],      // Inside Hydro-Tube #2
-            [0, 6.1, -3150, 0, -1, 55],      // Inside Hydro-Tube #2
-            [0, 6.1, -3280, 0, -1, 58],      // Launch up Climbing Rapids
-            [0, 18.1, -3600, 0, -1, 60],     // Boost into Water Loop #2!
-            [0, 18.1, -3780, 0, -1, 55],     // Launch down thrilling canal descent
-            [0, 8.1, -4150, 0, -1, 58],      // Trident Grand Canal Sprint #1
-            [0, 8.1, -4400, 0, -1, 58],      // Trident Grand Canal Sprint #2
-            [0, 8.1, -4750, 0, -1, 55]       // Final Sprint into Poseidon Colosseum!
+            [0, 2.0, -180, 0, -1, 55],       // Launch up Viaduct slope
+            [0, 6.0, -580, 0, -1, 58],       // Launch into Flume #1
+            [0, 1.0, -850, 0, -1, 55],       // Inside Flume #1 mid
+            [0, 1.0, -1050, 0, -1, 55],      // Inside Flume #1 exit
+            [0, 2.0, -1400, 0, -1, 60],      // Boost into Water Loop #1!
+            [0, 0.8, -1850, 0, -1, 58],      // Water-skimming hydro sprint!
+            [0, 0.8, -2100, 0, -1, 55],      // Launch up rising ramp out of water
+            [0, 6.0, -2560, 0, -1, 58],      // Launch into Deep Abyss Flume #2
+            [0, 1.0, -2850, 0, -1, 55],      // Inside Flume #2
+            [0, 1.0, -3150, 0, -1, 55],      // Inside Flume #2
+            [0, 1.0, -3280, 0, -1, 58],      // Launch up to Loop #2
+            [0, 2.0, -3600, 0, -1, 60],      // Boost into Water Loop #2!
+            [0, 2.0, -3780, 0, -1, 55],      // Launch down canal
+            [0, 2.0, -4150, 0, -1, 58],      // Grand Ocean Canal Sprint #1
+            [0, 2.0, -4400, 0, -1, 58],      // Grand Ocean Canal Sprint #2
+            [0, 2.5, -4750, 0, -1, 55]       // Final Sprint into Lanka Pavilion!
         ];
 
         hydroBoosters.forEach(dp => {
@@ -860,18 +860,18 @@ class ObjectManager {
 
         // --- 3. WATER BUBBLE GEYSERS (Vertical Water Spout Springs) ---
         const hydroSprings = [
-            [-5, 0.1, -200, 22],
-            [5, 0.1, -200, 22],
-            [0, 12.1, -450, 24],
-            [-6, 4.1, -1180, 26],
-            [6, 4.1, -1180, 26],
-            [0, 3.6, -1950, 20],
-            [-8, 16.1, -2480, 22],
-            [8, 16.1, -2480, 22],
-            [0, 6.1, -2740, 24],
-            [-7, 18.1, -3520, 22],
-            [7, 18.1, -3520, 22],
-            [0, 8.1, -4300, 22]
+            [-5, 2.0, -200, 22],
+            [5, 2.0, -200, 22],
+            [0, 6.0, -450, 24],
+            [-6, 1.0, -1180, 26],
+            [6, 1.0, -1180, 26],
+            [0, 0.8, -1950, 20],
+            [-8, 6.0, -2480, 22],
+            [8, 6.0, -2480, 22],
+            [0, 1.0, -2740, 24],
+            [-7, 2.0, -3520, 22],
+            [7, 2.0, -3520, 22],
+            [0, 2.0, -4300, 22]
         ];
 
         hydroSprings.forEach(sp => {
@@ -880,25 +880,25 @@ class ObjectManager {
         });
 
         // --- 4. CHECKPOINT STARPOSTS (4 Checkpoints in Hydrocity) ---
-        this.createStarPost(-9, 4, -1100);    // Checkpoint 1: Hydro-Tube #1 Exit
-        this.createStarPost(9, 3.5, -2150);   // Checkpoint 2: Water-Surface Sprint
-        this.createStarPost(-9, 6, -3250);    // Checkpoint 3: Hydro-Tube #2 Exit
-        this.createStarPost(9, 8, -4250);     // Checkpoint 4: Trident Grand Canal
+        this.createStarPost(-9, 1.0, -1100);    // Checkpoint 1: Flume #1 Exit
+        this.createStarPost(9, 0.8, -2150);     // Checkpoint 2: Water-Surface Sprint
+        this.createStarPost(-9, 1.0, -3250);    // Checkpoint 3: Flume #2 Exit
+        this.createStarPost(9, 2.0, -4250);     // Checkpoint 4: Trident Grand Canal
 
         // --- 5. HAZARD NAVAL SPIKES ---
         const hydroSpikes = [
-            [-5, 0.1, -120], [5, 0.1, -120],
-            [0, 12.1, -540],
-            [-4, 4.1, -800], [4, 4.1, -800],
-            [-4, 4.1, -1000], [4, 4.1, -1000],
-            [0, 4.1, -1350],
-            [-6, 3.6, -1880], [6, 3.6, -1880],
-            [-6, 3.6, -2060], [6, 3.6, -2060],
-            [0, 16.1, -2520],
-            [-5, 6.1, -2950], [5, 6.1, -2950],
-            [0, 18.1, -3740],
-            [-6, 8.1, -4250], [6, 8.1, -4250],
-            [-6, 8.1, -4550], [6, 8.1, -4550]
+            [-5, 2.0, -120], [5, 2.0, -120],
+            [0, 6.0, -540],
+            [-4, 1.0, -800], [4, 1.0, -800],
+            [-4, 1.0, -1000], [4, 1.0, -1000],
+            [0, 2.0, -1350],
+            [-6, 0.8, -1880], [6, 0.8, -1880],
+            [-6, 0.8, -2060], [6, 0.8, -2060],
+            [0, 6.0, -2520],
+            [-5, 1.0, -2950], [5, 1.0, -2950],
+            [0, 2.0, -3740],
+            [-6, 2.0, -4250], [6, 2.0, -4250],
+            [-6, 2.0, -4550], [6, 2.0, -4550]
         ];
 
         hydroSpikes.forEach(pos => {
@@ -907,28 +907,28 @@ class ObjectManager {
         });
 
         // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานข้ามสมุทรลงกา) ---
-        this.createAsuraSentinel(0, 0.1, -60, 5.0, 2.2);        // Causeway start sentinel
-        this.createAsuraSentinel(0, 12.1, -480, 4.0, 2.0);      // High aqueduct road
-        this.createAsuraSentinel(0, 4.1, -1000, 4.5, 2.4);      // Inside Flume #1
-        this.createAsuraSentinel(0, 3.6, -1950, 5.5, 2.4);      // Water-skimming causeway
-        this.createAsuraSentinel(0, 16.1, -2480, 4.0, 2.2);     // High shelf aqueduct
-        this.createAsuraSentinel(0, 6.1, -3000, 5.0, 2.4);      // Deep abyss flume #2
-        this.createAsuraSentinel(0, 18.1, -3600, 5.0, 2.4);     // High loop approach
-        this.createAsuraSentinel(0, 8.1, -4300, 6.0, 2.6);      // Lanka grand canal sprint
-        this.createAsuraSentinel(0, 8.1, -4700, 6.0, 2.8);      // Approach to finish pavilion
+        this.createAsuraSentinel(0, 2.0, -60, 4.5, 2.2);        // Causeway start sentinel
+        this.createAsuraSentinel(0, 6.0, -480, 4.0, 2.0);      // Viaduct aqueduct road
+        this.createAsuraSentinel(0, 1.0, -1000, 4.5, 2.4);     // Inside Flume #1
+        this.createAsuraSentinel(0, 0.8, -1950, 5.5, 2.4);     // Water-skimming causeway
+        this.createAsuraSentinel(0, 6.0, -2480, 4.0, 2.2);     // Upper viaduct aqueduct
+        this.createAsuraSentinel(0, 1.0, -3000, 4.5, 2.4);     // Deep abyss flume #2
+        this.createAsuraSentinel(0, 2.0, -3600, 5.0, 2.4);     // Water loop approach
+        this.createAsuraSentinel(0, 2.0, -4300, 6.0, 2.6);     // Lanka grand canal sprint
+        this.createAsuraSentinel(0, 2.5, -4700, 6.0, 2.8);     // Approach to finish pavilion
 
         // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคบาดาล) ---
-        this.createNagaGeyser(-5, 0.1, -35, 0.0);
-        this.createNagaGeyser(5, 0.1, -35, 2.0);
-        this.createNagaGeyser(0, 12.1, -520, 1.0);
-        this.createNagaGeyser(-6, 3.6, -1900, 0.5);
-        this.createNagaGeyser(6, 3.6, -1900, 2.5);
-        this.createNagaGeyser(-6, 8.1, -4200, 1.0);
-        this.createNagaGeyser(6, 8.1, -4200, 3.0);
-        this.createNagaGeyser(0, 8.1, -4850, 1.5);
+        this.createNagaGeyser(-5, 2.0, -35, 0.0);
+        this.createNagaGeyser(5, 2.0, -35, 2.0);
+        this.createNagaGeyser(0, 6.0, -520, 1.0);
+        this.createNagaGeyser(-6, 0.8, -1900, 0.5);
+        this.createNagaGeyser(6, 0.8, -1900, 2.5);
+        this.createNagaGeyser(-6, 2.0, -4200, 1.0);
+        this.createNagaGeyser(6, 2.0, -4200, 3.0);
+        this.createNagaGeyser(0, 2.5, -4850, 1.5);
 
-        // --- 8. GIANT GOAL RING (At center of Lanka Causeway Pavilion, groundY = 8) ---
-        this.createGoalRing(0, 8, -5000, 8.5);
+        // --- 8. GIANT GOAL RING (At center of Lanka Causeway Pavilion, groundY = 2.5) ---
+        this.createGoalRing(0, 2.5, -5000, 8.5);
     }
 
     spawnGreenHillObjects() {
@@ -2265,7 +2265,8 @@ class ObjectManager {
             s.currentX = s.startX + offset;
             s.group.position.x = s.currentX;
 
-            const gy = this.getSafeGroundY(s.currentX, s.z, s.y);
+            const sampledY = this.getSafeGroundY(s.currentX, s.z, s.y);
+            const gy = (sampledY > -40) ? sampledY : s.y;
             s.group.position.y = gy;
 
             const movingRight = Math.cos(s.patrolTimer) > 0;

@@ -764,19 +764,37 @@ class World {
         } else if (stageId === 'hydrocity') {
             // Lanka Ocean & Suvannamaccha's Deep Atmosphere (มหาสมุทรลงกา & วังบาดาล)
             this.scene.background = new THREE.Color(0x02182e);   // Deep sapphire-abyssal sea depth
-            this.scene.fog = new THREE.FogExp2(0x042c44, 0.0018); // Radiant turquoise deep sea mist
+            this.scene.fog = new THREE.FogExp2(0x042c44, 0.0016); // Radiant turquoise deep sea mist
 
             this.hemiLight.color.setHex(0x38bdf8);      // Shimmering turquoise water sky reflection
             this.hemiLight.groundColor.setHex(0x031926); // Abyssal sea trench floor bounce
             this.dirLight.color.setHex(0x7dd3fc);        // Piercing celestial sun rays filtering through ocean waves
             this.dirLight.intensity = 1.45;
 
+            // 1. Continuous Lanka Ocean Shimmering Surface (ครอบคลุมตลอดเส้นทาง 5,000 เมตร)
+            const oceanGeo = new THREE.PlaneGeometry(1600, 5600);
+            const oceanMesh = new THREE.Mesh(oceanGeo, this.hydroWaterMat);
+            oceanMesh.rotation.x = -Math.PI / 2;
+            oceanMesh.position.set(0, 0.0, -2500);
+            oceanMesh.receiveShadow = true;
+            this.scene.add(oceanMesh);
+            this.stageMeshes.push(oceanMesh);
+
+            // 2. Continuous Sunken Lanka Seabed Floor (พื้นทรายใต้สมุทรลงกา)
+            const seabedGeo = new THREE.PlaneGeometry(1600, 5600);
+            const seabedMat = new THREE.MeshLambertMaterial({ color: 0x011b2b, roughness: 0.95 });
+            const seabedMesh = new THREE.Mesh(seabedGeo, seabedMat);
+            seabedMesh.rotation.x = -Math.PI / 2;
+            seabedMesh.position.set(0, -14.0, -2500);
+            this.scene.add(seabedMesh);
+            this.stageMeshes.push(seabedMesh);
+
             // Spawn Floating Luminescent Oxygen Bubbles & Golden Mermaid Sparkles
             for (let i = 0; i < 60; i++) {
                 const bubble = this.createWaterBubble();
                 bubble.position.set(
                     (Math.random() - 0.5) * 480,
-                    8 + Math.random() * 50,
+                    4 + Math.random() * 32,
                     -Math.random() * 5000 + 40
                 );
                 this.scene.add(bubble);
@@ -891,7 +909,9 @@ class World {
     }
 
     addRoadSegment(x, y, z, width, length, rollAngle = 0, customTopMat = null, customSideMat = null) {
-        const boxGeo = new THREE.BoxGeometry(width, 10, length);
+        const isHydro = (this.currentStageId === 'hydrocity');
+        const boxH = isHydro ? 24 : 10;
+        const boxGeo = new THREE.BoxGeometry(width, boxH, length);
         let topMat, sideMat, frontBackMat;
 
         if (this.currentStageId === 'chemical_plant') {
@@ -900,7 +920,7 @@ class World {
             frontBackMat = sideMat;
         } else if (this.currentStageId === 'hydrocity') {
             topMat = customTopMat || this.getHydroTrackMaterial(width / 6, length / 6);
-            sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 2);
+            sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 4);
             frontBackMat = sideMat;
         } else {
             topMat = customTopMat || this.getGrassTopMaterial(width / 4, length / 4);
@@ -910,7 +930,7 @@ class World {
 
         const materials = [sideMat, sideMat, topMat, sideMat, frontBackMat, frontBackMat];
         const mesh = new THREE.Mesh(boxGeo, materials);
-        mesh.position.set(x, y - 5, z);
+        mesh.position.set(x, y - boxH * 0.5, z);
         mesh.receiveShadow = true;
         mesh.castShadow = true;
         this.scene.add(mesh);
@@ -928,7 +948,9 @@ class World {
     }
 
     addSlopedRoad(x, startY, startZ, width, length, heightDelta, customTopMat = null, customSideMat = null) {
-        const boxGeo = new THREE.BoxGeometry(width, 8, length);
+        const isHydro = (this.currentStageId === 'hydrocity');
+        const boxH = isHydro ? 24 : 8;
+        const boxGeo = new THREE.BoxGeometry(width, boxH, length);
         let topMat, sideMat;
 
         if (this.currentStageId === 'chemical_plant') {
@@ -936,7 +958,7 @@ class World {
             sideMat = customSideMat || this.getChemSideMaterial(length / 6, 2);
         } else if (this.currentStageId === 'hydrocity') {
             topMat = customTopMat || this.getHydroTrackMaterial(width / 6, length / 6);
-            sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 2);
+            sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 4);
         } else {
             topMat = customTopMat || this.getGrassTopMaterial(width / 4, length / 4);
             sideMat = customSideMat || this.getGroundMaterial(length / 4, 2);
@@ -949,7 +971,7 @@ class World {
         const midZ = startZ - length / 2;
         const midY = startY + heightDelta / 2;
 
-        mesh.position.set(x, midY - 4, midZ);
+        mesh.position.set(x, midY - boxH * 0.5, midZ);
         mesh.rotation.x = angle;
         mesh.receiveShadow = true;
         mesh.castShadow = true;
@@ -966,6 +988,30 @@ class World {
             endY: startY + heightDelta,
             length: length
         });
+    }
+
+    addViaductPillars(startX, startY, startZ, length, width, spacing = 32) {
+        const numPillars = Math.floor(length / spacing);
+        const halfW = width * 0.42;
+        for (let i = 0; i <= numPillars; i++) {
+            const pz = startZ - i * spacing;
+            [-halfW, halfW].forEach(px => {
+                const pillarH = startY + 14.0; // from startY down to seabed at y = -14
+                const pillarGeo = new THREE.CylinderGeometry(2.0, 2.6, pillarH, 12);
+                const pillarMesh = new THREE.Mesh(pillarGeo, this.hydroPillarMat);
+                pillarMesh.position.set(startX + px, startY - pillarH * 0.5, pz);
+                pillarMesh.castShadow = true;
+                this.scene.add(pillarMesh);
+                this.stageMeshes.push(pillarMesh);
+
+                // Ornate Lotus Capitol under deck
+                const capGeo = new THREE.BoxGeometry(4.8, 1.8, 4.8);
+                const capMesh = new THREE.Mesh(capGeo, this.nagaGoldMat);
+                capMesh.position.set(startX + px, startY - 0.9, pz);
+                this.scene.add(capMesh);
+                this.stageMeshes.push(capMesh);
+            });
+        }
     }
 
     buildLoopTrackBand(radius, trackWidth, segments = 64) {
@@ -1647,120 +1693,125 @@ class World {
     // STAGE 3: HYDROCITY ZONE COURSE DEFINITION (5,000m)
     // ============================================================
     buildHydrocityCourse() {
-        // 1. Starting Sunken Aqueduct & Palace Gates (z: 60 to -220, y: 0, length: 280, center: -80)
-        this.addRoadSegment(0, 0, -80, 36, 280, 0);
+        // 1. Starting Sunken Aqueduct & Palace Gates (z: 60 to -240, y: 2.0, length: 300, center: -90)
+        this.addRoadSegment(0, 2.0, -90, 36, 300, 0);
 
-        // 2. Slope Climbing to Upper Palace Aqueduct (z: -220 to -400, y: 0 -> 12, length: 180)
-        this.addSlopedRoad(0, 0, -220, 32, 180, 12);
+        // 2. Slope Rising to Grand Aqueduct Viaduct #1 (z: -240 to -400, y: 2.0 -> 6.0, length: 160)
+        this.addSlopedRoad(0, 2.0, -240, 34, 160, 4.0);
 
-        // 3. Upper Palace Aqueduct High Road (z: -400 to -600, y: 12, length: 200, center: -500)
-        this.addRoadSegment(0, 12, -500, 32, 200, 0);
+        // 3. Grand Aqueduct Viaduct High Road #1 (z: -400 to -640, y: 6.0, length: 240, center: -520)
+        this.addRoadSegment(0, 6.0, -520, 34, 240, 0);
+        this.addViaductPillars(0, 6.0, -400, 240, 34, 32);
 
-        // 4. Thrill Drop into Hydro-Tube #1 (z: -600 to -760, y: 12 -> 4, length: 160)
-        this.addSlopedRoad(0, 12, -600, 28, 160, -8);
+        // 4. Thrill Drop into Crystal Abyss Flume #1 (z: -640 to -780, y: 6.0 -> 1.0, length: 140)
+        this.addSlopedRoad(0, 6.0, -640, 30, 140, -5.0);
 
-        // 5. Submerged Glass Hydro-Tube #1 (Water Flume) (z: -760 to -1200, y: 4, length: 440, center: -980)
-        this.addRoadSegment(0, 4, -980, 24, 440, 0);
-        this.addHydroTube(0, 4, -760, 440, 14.0);
+        // 5. Submerged Crystal Abyss Flume #1 (z: -780 to -1220, y: 1.0, length: 440, center: -1000)
+        this.addRoadSegment(0, 1.0, -1000, 28, 440, 0);
+        this.addHydroTube(0, 1.0, -780, 440, 15.0);
 
-        // 6. Atlantis Colosseum & Water Loop #1 (z: -1200 to -1800, y: 4, length: 600, center: -1500)
-        this.addRoadSegment(0, 4, -1500, 34, 600, 0);
-        this.buildLoopSection(0, 4, -1450, 16);
+        // 6. Atlantis Colosseum & Water Loop #1 (z: -1220 to -1780, y: 2.0, length: 560, center: -1500)
+        this.addRoadSegment(0, 2.0, -1500, 36, 560, 0);
+        this.buildLoopSection(0, 2.0, -1450, 16);
 
-        // 7. Water-Surface Sprintfast (Skimming across water) (z: -1800 to -2200, y: 3.5, length: 400, center: -2000)
-        this.addRoadSegment(0, 3.5, -2000, 40, 400, 0);
-        this.addWaterBasin(0, -2000, 240, 420, 2.8);
+        // 7. Water-Surface Sprintfast (Skimming across ocean surface) (z: -1780 to -2240, y: 0.8, length: 460, center: -2010)
+        this.addRoadSegment(0, 0.8, -2010, 42, 460, 0);
 
-        // 8. Rising Ramp out of Water (z: -2200 to -2400, y: 3.5 -> 16, length: 200)
-        this.addSlopedRoad(0, 3.5, -2200, 32, 200, 12.5);
+        // 8. Rising Ramp to Upper Causeway Viaduct #2 (z: -2240 to -2420, y: 0.8 -> 6.0, length: 180)
+        this.addSlopedRoad(0, 0.8, -2240, 34, 180, 5.2);
 
-        // 9. High Sunken Aqueduct (z: -2400 to -2600, y: 16, length: 200, center: -2500)
-        this.addRoadSegment(0, 16, -2500, 32, 200, 0);
+        // 9. Upper Causeway Viaduct #2 (z: -2420 to -2660, y: 6.0, length: 240, center: -2540)
+        this.addRoadSegment(0, 6.0, -2540, 34, 240, 0);
+        this.addViaductPillars(0, 6.0, -2420, 240, 34, 32);
 
-        // 10. Plunge into Deep Abyss Hydro-Tube #2 (z: -2600 to -2760, y: 16 -> 6, length: 160)
-        this.addSlopedRoad(0, 16, -2600, 28, 160, -10);
+        // 10. Thrill Plunge into Deep Abyss Flume #2 (z: -2660 to -2800, y: 6.0 -> 1.0, length: 140)
+        this.addSlopedRoad(0, 6.0, -2660, 30, 140, -5.0);
 
-        // 11. Deep Abyss Hydro-Tube #2 (z: -2760 to -3300, y: 6, length: 540, center: -3030)
-        this.addRoadSegment(0, 6, -3030, 26, 540, 0);
-        this.addHydroTube(0, 6, -2760, 540, 14.0);
+        // 11. Deep Abyss Crystal Flume #2 (z: -2800 to -3320, y: 1.0, length: 520, center: -3060)
+        this.addRoadSegment(0, 1.0, -3060, 28, 520, 0);
+        this.addHydroTube(0, 1.0, -2800, 520, 15.0);
 
-        // 12. Climbing Rapids to Water Loop #2 (z: -3300 to -3500, y: 6 -> 18, length: 200)
-        this.addSlopedRoad(0, 6, -3300, 32, 200, 12);
+        // 12. Gentle Slope to Water Loop #2 (z: -3320 to -3480, y: 1.0 -> 2.0, length: 160)
+        this.addSlopedRoad(0, 1.0, -3320, 34, 160, 1.0);
 
-        // 13. High Shelf & Water Loop #2 (z: -3500 to -3800, y: 18, length: 300, center: -3650)
-        this.addRoadSegment(0, 18, -3650, 34, 300, 0);
-        this.buildLoopSection(0, 18, -3650, 18);
+        // 13. Water Loop #2 & Sacred Rapids (z: -3480 to -3820, y: 2.0, length: 340, center: -3650)
+        this.addRoadSegment(0, 2.0, -3650, 36, 340, 0);
+        this.buildLoopSection(0, 2.0, -3650, 16);
 
-        // 14. Grand Thrill Descent to Trident Canal (z: -3800 to -4100, y: 18 -> 8, length: 300)
-        this.addSlopedRoad(0, 18, -3800, 36, 300, -10);
+        // 14. Coastal Causeway Bridge (z: -3820 to -4100, y: 2.0, length: 280, center: -3960)
+        this.addRoadSegment(0, 2.0, -3960, 38, 280, 0);
 
-        // 15. Trident Grand Canal Sprint (z: -4100 to -4600, y: 8, length: 500, center: -4350)
-        this.addRoadSegment(0, 8, -4350, 44, 500, 0);
+        // 15. Trident Grand Ocean Canal Sprint (z: -4100 to -4600, y: 2.0, length: 500, center: -4350)
+        this.addRoadSegment(0, 2.0, -4350, 44, 500, 0);
 
-        // 16. Poseidon Grand Amphitheater Entrance (z: -4600 to -4900, y: 8, length: 300, center: -4750)
-        this.addRoadSegment(0, 8, -4750, 56, 300, 0);
+        // 16. Lanka Causeway Grand Pavilion Approach (z: -4600 to -4900, y: 2.5, length: 300, center: -4750)
+        this.addRoadSegment(0, 2.5, -4750, 56, 300, 0);
 
-        // 17. Colosseum Arena Floor & Finish Line (z: -4900 to -5050, y: 8, length: 150, center: -4975)
-        this.addRoadSegment(0, 8, -4975, 72, 150, 0);
-        this.buildPoseidonColosseum(0, 8, -5000, 72);
+        // 17. Lanka Causeway Finish Pavilion & Arena (z: -4900 to -5050, y: 2.5, length: 150, center: -4975)
+        this.addRoadSegment(0, 2.5, -4975, 72, 150, 0);
+        this.buildPoseidonColosseum(0, 2.5, -5000, 72);
     }
 
     buildHydrocityScenery() {
-        // Distribute Golden Naga Ocean Pillars, Suvannamaccha Archways, Water Basins, and Sacred Coral Reefs
-        const totalPillars = 64;
-        for (let i = 0; i < totalPillars; i++) {
-            const side = (i % 2 === 0) ? 1 : -1;
-            const progress = i / totalPillars;
-            const z = 40 - progress * 5000;
-            const dist = 32 + (i % 3) * 16;
-
-            // Sacred Golden Naga Ocean Pillar (เสาศิลาพญานาคราชข้ามสมุทร)
-            const pillar = this.createNagaOceanPillar(32 + Math.random() * 14, 2.0);
-            pillar.position.set(side * dist, 0, z);
-            this.scene.add(pillar);
-            this.stageMeshes.push(pillar);
-            this.sceneryObjects.push(pillar);
-
-            // Sacred Coral & Kelp Reef cluster beside pillar
-            if (i % 2 === 0) {
-                const coral = this.createSacredKelpReef(7 + Math.random() * 5);
-                coral.position.set(side * (dist - 8), 0, z + (Math.random() - 0.5) * 14);
-                this.scene.add(coral);
-                this.stageMeshes.push(coral);
-                this.sceneryObjects.push(coral);
-            }
-        }
-
-        // Triumphal Suvannamaccha Archways crossing overhead (ซุ้มประตูสุพรรณมัจฉาข้ามสมุทร)
+        // 1. Triumphal Suvannamaccha Archways crossing overhead (ซุ้มประตูสุพรรณมัจฉาข้ามสมุทร)
+        // Dynamically rooted to the road surface at each location!
         const archwaysZ = [-200, -500, -1350, -1650, -2350, -2550, -3450, -3750, -4200, -4450];
         archwaysZ.forEach(az => {
+            const groundY = this.getGroundHeight(0, az);
+            const safeY = (groundY > -40) ? groundY : 2.0;
             const arch = this.createSuvannamacchaArchway(46, 26);
-            arch.position.set(0, 0, az);
+            arch.position.set(0, safeY, az);
             this.scene.add(arch);
             this.stageMeshes.push(arch);
             this.sceneryObjects.push(arch);
         });
 
-        // Lanka Sacred Ocean Water Basins along track sides
-        const basins = [
-            { z: -350, w: 180, l: 300, y: -2 },
-            { z: -1500, w: 220, l: 450, y: 1 },
-            { z: -2900, w: 200, l: 400, y: 2 },
-            { z: -4350, w: 240, l: 500, y: 4 }
-        ];
-        basins.forEach(b => {
-            this.addWaterBasin(0, b.z, b.w, b.l, b.y);
-        });
+        // 2. Flanking Naga Ocean Guardians & Distant Sea Monoliths
+        const totalPillars = 64;
+        for (let i = 0; i < totalPillars; i++) {
+            const side = (i % 2 === 0) ? 1 : -1;
+            const progress = i / totalPillars;
+            const z = 40 - progress * 5000;
+            const roadY = this.getGroundHeight(0, z);
+            const safeY = (roadY > -40) ? roadY : 2.0;
+
+            if (i % 2 === 0) {
+                // Flanking Causeway Naga Pillar right beside the road edge
+                const dist = 22 + (i % 3) * 3;
+                const pillar = this.createNagaOceanPillar(20 + Math.random() * 8, 1.8);
+                pillar.position.set(side * dist, safeY, z);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            } else {
+                // Distant Ocean Colossus Pillar rooted in the sea floor
+                const dist = 55 + (i % 4) * 20;
+                const pillar = this.createNagaOceanPillar(38 + Math.random() * 12, 2.4);
+                pillar.position.set(side * dist, 0.0, z);
+                this.scene.add(pillar);
+                this.stageMeshes.push(pillar);
+                this.sceneryObjects.push(pillar);
+            }
+
+            // Sacred Coral & Kelp Reef cluster in the water beside causeway
+            if (i % 2 === 0) {
+                const coral = this.createSacredKelpReef(8 + Math.random() * 5);
+                coral.position.set(side * (30 + (i % 3) * 6), 0.0, z + (Math.random() - 0.5) * 14);
+                this.scene.add(coral);
+                this.stageMeshes.push(coral);
+                this.sceneryObjects.push(coral);
+            }
+        }
     }
 
-    addCrystalAbyssFlume(startX, startY, startZ, length, radius = 14.0) {
+    addCrystalAbyssFlume(startX, startY, startZ, length, radius = 15.0) {
         const group = new THREE.Group();
 
         // Transparent Aqua-Glass Crystal Flume Cylinder (อุโมงค์แก้วผลึกบาดาล)
         const tubeGeo = new THREE.CylinderGeometry(radius, radius, length, 32, 1, true);
         const tubeMesh = new THREE.Mesh(tubeGeo, this.hydroTubeMat);
         tubeMesh.rotation.x = Math.PI * 0.5;
-        const centerY = startY + 7.5;
+        const centerY = startY + 5.0;
         tubeMesh.position.set(startX, centerY, startZ - length * 0.5);
         group.add(tubeMesh);
 
