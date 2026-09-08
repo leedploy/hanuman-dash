@@ -499,84 +499,136 @@ class World {
         this.chemBeaconRedMat = new THREE.MeshBasicMaterial({ color: 0xff3b30 });
 
         // ==========================================
-        // 3. HYDROCITY ZONE TEXTURES & MATERIALS
+        // 3. LANKA OCEAN & SUVANNAMACCHA DEEP TEXTURES & MATERIALS
         // ==========================================
-        // 1. Hydro Track: Atlantean Aqua & Deep Sapphire Tiles with Golden Wave Border
+        // 1. Rama's Causeway Track: Oceanic slate tiles with Mother-of-Pearl inlays & Golden Naga borders
         const htCanvas = document.createElement('canvas');
         htCanvas.width = 256;
         htCanvas.height = 256;
         const htCtx = htCanvas.getContext('2d');
         if (htCtx) {
-            htCtx.fillStyle = '#0a4261'; // Deep oceanic slate
+            // Deep oceanic slate foundation (หินศิลาใต้สมุทร)
+            htCtx.fillStyle = '#0a2540';
             htCtx.fillRect(0, 0, 256, 256);
 
-            // Sapphire & Aquamarine diamond mosaic tiles
+            // Carved sea-temple stone slabs
             const tileCols = 4, tileRows = 4;
             const tw = 256 / tileCols, th = 256 / tileRows;
             for (let r = 0; r < tileRows; r++) {
                 for (let c = 0; c < tileCols; c++) {
-                    htCtx.fillStyle = (r + c) % 2 === 0 ? '#0284c7' : '#0369a1';
+                    htCtx.fillStyle = (r + c) % 2 === 0 ? '#0d3b66' : '#072744';
                     htCtx.fillRect(c * tw + 3, r * th + 3, tw - 6, th - 6);
-                    htCtx.strokeStyle = '#38bdf8';
+                    htCtx.strokeStyle = '#0284c7';
                     htCtx.lineWidth = 2;
                     htCtx.strokeRect(c * tw + 3, r * th + 3, tw - 6, th - 6);
+
+                    // Shimmering Mother-of-Pearl central diamonds (มุกประกายคราม)
+                    htCtx.fillStyle = '#67e8f9';
+                    htCtx.beginPath();
+                    htCtx.arc(c * tw + tw * 0.5, r * th + th * 0.5, 4, 0, Math.PI * 2);
+                    htCtx.fill();
                 }
             }
 
-            // Golden Aquatic Border trim
-            htCtx.fillStyle = '#f59e0b';
-            htCtx.fillRect(0, 0, 24, 256);
-            htCtx.fillRect(232, 0, 24, 256);
+            // Sacred Golden Naga Scale Border trim (ลวดลายเกล็ดพญานาคสีทองคำ)
+            htCtx.fillStyle = '#d97706';
+            htCtx.fillRect(0, 0, 26, 256);
+            htCtx.fillRect(230, 0, 26, 256);
             htCtx.fillStyle = '#fbbf24';
-            for (let y = 0; y < 256; y += 32) {
-                htCtx.fillRect(4, y + 4, 16, 16);
-                htCtx.fillRect(236, y + 4, 16, 16);
+            for (let y = 0; y < 256; y += 24) {
+                // Naga scale chevron shapes
+                htCtx.beginPath();
+                htCtx.moveTo(2, y);
+                htCtx.lineTo(24, y + 12);
+                htCtx.lineTo(2, y + 24);
+                htCtx.fill();
+
+                htCtx.beginPath();
+                htCtx.moveTo(254, y);
+                htCtx.lineTo(232, y + 12);
+                htCtx.lineTo(254, y + 24);
+                htCtx.fill();
             }
+
+            // Border inner cyan glow line
+            htCtx.fillStyle = '#38bdf8';
+            htCtx.fillRect(26, 0, 3, 256);
+            htCtx.fillRect(227, 0, 3, 256);
         }
         this.hydroTrackTexture = new THREE.CanvasTexture(htCanvas);
         this.hydroTrackTexture.wrapS = THREE.RepeatWrapping;
         this.hydroTrackTexture.wrapT = THREE.RepeatWrapping;
 
-        // 2. Hydro Side: Submerged Classical Marble with Sea Moss Streaks
+        // 2. Causeway Retaining Wall: Submerged Naga Carved Stone with Sea Moss & Verdigris
         const hsCanvas = document.createElement('canvas');
         hsCanvas.width = 256;
         hsCanvas.height = 256;
         const hsCtx = hsCanvas.getContext('2d');
         if (hsCtx) {
-            hsCtx.fillStyle = '#0f2b3e'; // Dark aquatic stone
+            hsCtx.fillStyle = '#071e30'; // Dark undersea abyssal stone
             hsCtx.fillRect(0, 0, 256, 256);
-            hsCtx.strokeStyle = '#0284c7';
-            hsCtx.lineWidth = 3;
-            hsCtx.strokeRect(4, 4, 248, 248);
 
-            // Marble veins & aquatic verdigris
-            hsCtx.strokeStyle = '#38bdf8';
+            // Submerged masonry blocks
+            hsCtx.strokeStyle = '#0e4a6d';
+            hsCtx.lineWidth = 2.5;
+            for (let y = 0; y < 256; y += 64) {
+                hsCtx.beginPath();
+                hsCtx.moveTo(0, y);
+                hsCtx.lineTo(256, y);
+                hsCtx.stroke();
+
+                const xOffset = (y / 64) % 2 === 0 ? 0 : 64;
+                for (let x = xOffset; x < 256; x += 128) {
+                    hsCtx.beginPath();
+                    hsCtx.moveTo(x, y);
+                    hsCtx.lineTo(x, y + 64);
+                    hsCtx.stroke();
+                }
+            }
+
+            // Naga Wave engraving & verdigris emerald sea moss
+            hsCtx.strokeStyle = '#06b6d4';
             hsCtx.lineWidth = 2;
             hsCtx.beginPath();
-            hsCtx.moveTo(20, 4);
-            hsCtx.bezierCurveTo(80, 120, 180, 80, 240, 250);
+            hsCtx.moveTo(10, 10);
+            hsCtx.bezierCurveTo(70, 80, 190, 40, 246, 120);
+            hsCtx.bezierCurveTo(180, 200, 60, 170, 10, 246);
             hsCtx.stroke();
 
-            hsCtx.fillStyle = '#06b6d4';
-            hsCtx.fillRect(8, 8, 12, 12);
-            hsCtx.fillRect(236, 236, 12, 12);
+            // Golden studs
+            hsCtx.fillStyle = '#f59e0b';
+            hsCtx.fillRect(10, 10, 8, 8);
+            hsCtx.fillRect(238, 10, 8, 8);
+            hsCtx.fillRect(10, 238, 8, 8);
+            hsCtx.fillRect(238, 238, 8, 8);
         }
         this.hydroSideTexture = new THREE.CanvasTexture(hsCanvas);
         this.hydroSideTexture.wrapS = THREE.RepeatWrapping;
         this.hydroSideTexture.wrapT = THREE.RepeatWrapping;
 
-        // 3. Shimmering Caustic Water Surface Texture
+        // 3. Lanka Ocean Water Surface with Golden Mermaid Shimmer (Suvannamaccha's Deep)
         const hwCanvas = document.createElement('canvas');
         hwCanvas.width = 256;
         hwCanvas.height = 256;
         const hwCtx = hwCanvas.getContext('2d');
         if (hwCtx) {
+            // Sapphire blue deep ocean gradient
             hwCtx.fillStyle = '#0284c7';
             hwCtx.fillRect(0, 0, 256, 256);
-            hwCtx.fillStyle = 'rgba(255, 255, 255, 0.28)';
-            for (let i = 0; i < 20; i++) {
+
+            // Shimmering turquoise water caustic ripples
+            hwCtx.fillStyle = 'rgba(103, 232, 249, 0.32)';
+            for (let i = 0; i < 22; i++) {
                 hwCtx.beginPath();
-                hwCtx.arc(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 24, 0, Math.PI * 2);
+                hwCtx.arc(Math.random() * 256, Math.random() * 256, 10 + Math.random() * 22, 0, Math.PI * 2);
+                hwCtx.fill();
+            }
+
+            // Suvannamaccha Golden Mermaid Scale Glimmer (ประกายเกล็ดทองคำนางสุพรรณมัจฉา)
+            hwCtx.fillStyle = 'rgba(251, 191, 36, 0.38)';
+            for (let i = 0; i < 18; i++) {
+                hwCtx.beginPath();
+                hwCtx.arc(Math.random() * 256, Math.random() * 256, 4 + Math.random() * 8, 0, Math.PI * 2);
                 hwCtx.fill();
             }
         }
@@ -584,40 +636,62 @@ class World {
         this.hydroWaterTexture.wrapS = THREE.RepeatWrapping;
         this.hydroWaterTexture.wrapT = THREE.RepeatWrapping;
 
-        // Hydrocity Materials
+        // Lanka Ocean & Suvannamaccha Undersea Materials
         this.hydroWaterMat = new THREE.MeshBasicMaterial({
             map: this.hydroWaterTexture,
             color: 0x38bdf8,
             transparent: true,
-            opacity: 0.68,
+            opacity: 0.72,
             side: THREE.DoubleSide,
             depthWrite: false
         });
 
+        // Crystal Abyss Flume (อุโมงค์แก้วบาดาลเรืองแสง)
         this.hydroTubeMat = new THREE.MeshLambertMaterial({
-            color: 0x00f0ff,
+            color: 0x06b6d4,
             transparent: true,
-            opacity: 0.32,
+            opacity: 0.35,
             side: THREE.DoubleSide,
             depthWrite: false
         });
 
+        // Ancient Lanka Ocean Sea-Stone
         this.hydroPillarMat = new THREE.MeshStandardMaterial({
-            color: 0xe2e8f0,
-            metalness: 0.15,
-            roughness: 0.3
+            color: 0x0f293d,
+            metalness: 0.25,
+            roughness: 0.45
         });
 
-        this.hydroGoldTrimMat = new THREE.MeshStandardMaterial({
+        // Royal Naga Gold (ทองคำพญานาคราช)
+        this.nagaGoldMat = new THREE.MeshStandardMaterial({
             color: 0xf59e0b,
             metalness: 0.85,
-            roughness: 0.2,
+            roughness: 0.22,
             emissive: 0x452200
         });
+        this.hydroGoldTrimMat = this.nagaGoldMat; // Compatibility alias
 
-        this.hydroCoralPinkMat = new THREE.MeshLambertMaterial({ color: 0xf43f5e });
+        // Mother-of-Pearl Shell (ไข่มุกมรกตบาดาล)
+        this.pearlShellMat = new THREE.MeshStandardMaterial({
+            color: 0xf1f5f9,
+            metalness: 0.55,
+            roughness: 0.25
+        });
+
+        // Bioluminescent Sea Crystal (ผลึกแก้วมณีใต้สมุทร)
+        this.seaCrystalMat = new THREE.MeshBasicMaterial({
+            color: 0x38bdf8,
+            transparent: true,
+            opacity: 0.85
+        });
+
+        // Sacred Coral & Kelp Materials
+        this.coralPinkMat = new THREE.MeshLambertMaterial({ color: 0xf43f5e });
+        this.kelpGreenMat = new THREE.MeshLambertMaterial({ color: 0x059669 });
+        this.coralGoldMat = new THREE.MeshLambertMaterial({ color: 0xfbbf24 });
+        this.hydroCoralPinkMat = this.coralPinkMat;
         this.hydroCoralCyanMat = new THREE.MeshLambertMaterial({ color: 0x06b6d4 });
-        this.hydroCoralGoldMat = new THREE.MeshLambertMaterial({ color: 0xfbbf24 });
+        this.hydroCoralGoldMat = this.coralGoldMat;
     }
 
     createSkyAndLighting() {
@@ -688,21 +762,21 @@ class World {
             this.buildChemicalPlantCourse();
             this.buildChemicalPlantScenery();
         } else if (stageId === 'hydrocity') {
-            // Sunken Atlantis / Hydrocity Aquatic Atmosphere
-            this.scene.background = new THREE.Color(0x02182b);
-            this.scene.fog = new THREE.FogExp2(0x052841, 0.0019);
+            // Lanka Ocean & Suvannamaccha's Deep Atmosphere (มหาสมุทรลงกา & วังบาดาล)
+            this.scene.background = new THREE.Color(0x02182e);   // Deep sapphire-abyssal sea depth
+            this.scene.fog = new THREE.FogExp2(0x042c44, 0.0018); // Radiant turquoise deep sea mist
 
             this.hemiLight.color.setHex(0x38bdf8);      // Shimmering turquoise water sky reflection
-            this.hemiLight.groundColor.setHex(0x082f49); // Deep abyss indigo bounce
-            this.dirLight.color.setHex(0x7dd3fc);        // Sun rays filtering down through water
-            this.dirLight.intensity = 1.3;
+            this.hemiLight.groundColor.setHex(0x031926); // Abyssal sea trench floor bounce
+            this.dirLight.color.setHex(0x7dd3fc);        // Piercing celestial sun rays filtering through ocean waves
+            this.dirLight.intensity = 1.45;
 
-            // Spawn Floating Luminescent Oxygen Bubbles
-            for (let i = 0; i < 50; i++) {
+            // Spawn Floating Luminescent Oxygen Bubbles & Golden Mermaid Sparkles
+            for (let i = 0; i < 60; i++) {
                 const bubble = this.createWaterBubble();
                 bubble.position.set(
-                    (Math.random() - 0.5) * 450,
-                    10 + Math.random() * 45,
+                    (Math.random() - 0.5) * 480,
+                    8 + Math.random() * 50,
                     -Math.random() * 5000 + 40
                 );
                 this.scene.add(bubble);
@@ -1632,7 +1706,7 @@ class World {
     }
 
     buildHydrocityScenery() {
-        // Distribute Poseidon Pillars, Sunken Archways, Water Basins, and Coral Reefs
+        // Distribute Golden Naga Ocean Pillars, Suvannamaccha Archways, Water Basins, and Sacred Coral Reefs
         const totalPillars = 64;
         for (let i = 0; i < totalPillars; i++) {
             const side = (i % 2 === 0) ? 1 : -1;
@@ -1640,34 +1714,34 @@ class World {
             const z = 40 - progress * 5000;
             const dist = 32 + (i % 3) * 16;
 
-            // Classical Fluted Marble Column
-            const pillar = this.createPoseidonPillar(32 + Math.random() * 14, 2.0);
+            // Sacred Golden Naga Ocean Pillar (เสาศิลาพญานาคราชข้ามสมุทร)
+            const pillar = this.createNagaOceanPillar(32 + Math.random() * 14, 2.0);
             pillar.position.set(side * dist, 0, z);
             this.scene.add(pillar);
             this.stageMeshes.push(pillar);
             this.sceneryObjects.push(pillar);
 
-            // Coral Reef cluster beside pillar
+            // Sacred Coral & Kelp Reef cluster beside pillar
             if (i % 2 === 0) {
-                const coral = this.createCoralReef(6 + Math.random() * 4);
-                coral.position.set(side * (dist - 8), 0, z + (Math.random() - 0.5) * 12);
+                const coral = this.createSacredKelpReef(7 + Math.random() * 5);
+                coral.position.set(side * (dist - 8), 0, z + (Math.random() - 0.5) * 14);
                 this.scene.add(coral);
                 this.stageMeshes.push(coral);
                 this.sceneryObjects.push(coral);
             }
         }
 
-        // Triumphal Sunken Archways crossing overhead
+        // Triumphal Suvannamaccha Archways crossing overhead (ซุ้มประตูสุพรรณมัจฉาข้ามสมุทร)
         const archwaysZ = [-200, -500, -1350, -1650, -2350, -2550, -3450, -3750, -4200, -4450];
         archwaysZ.forEach(az => {
-            const arch = this.createAncientArchway(46, 26);
+            const arch = this.createSuvannamacchaArchway(46, 26);
             arch.position.set(0, 0, az);
             this.scene.add(arch);
             this.stageMeshes.push(arch);
             this.sceneryObjects.push(arch);
         });
 
-        // Water Basins along track sides
+        // Lanka Sacred Ocean Water Basins along track sides
         const basins = [
             { z: -350, w: 180, l: 300, y: -2 },
             { z: -1500, w: 220, l: 450, y: 1 },
@@ -1679,10 +1753,10 @@ class World {
         });
     }
 
-    addHydroTube(startX, startY, startZ, length, radius = 14.0) {
+    addCrystalAbyssFlume(startX, startY, startZ, length, radius = 14.0) {
         const group = new THREE.Group();
 
-        // Transparent Aqua-Glass Water Flume Cylinder
+        // Transparent Aqua-Glass Crystal Flume Cylinder (อุโมงค์แก้วผลึกบาดาล)
         const tubeGeo = new THREE.CylinderGeometry(radius, radius, length, 32, 1, true);
         const tubeMesh = new THREE.Mesh(tubeGeo, this.hydroTubeMat);
         tubeMesh.rotation.x = Math.PI * 0.5;
@@ -1690,11 +1764,11 @@ class World {
         tubeMesh.position.set(startX, centerY, startZ - length * 0.5);
         group.add(tubeMesh);
 
-        // Golden Aquatic Bracing Torus Rings every 24m
+        // Sacred Golden Naga Rib Torus Rings every 24m
         const numRings = Math.floor(length / 24);
         for (let i = 0; i <= numRings; i++) {
-            const ringGeo = new THREE.TorusGeometry(radius + 0.3, 0.45, 8, 32);
-            const ringMesh = new THREE.Mesh(ringGeo, (i % 2 === 0) ? this.hydroGoldTrimMat : this.neonCyanMat);
+            const ringGeo = new THREE.TorusGeometry(radius + 0.35, 0.5, 8, 32);
+            const ringMesh = new THREE.Mesh(ringGeo, (i % 2 === 0) ? this.nagaGoldMat : this.seaCrystalMat);
             ringMesh.position.set(startX, centerY, startZ - i * 24);
             group.add(ringMesh);
         }
@@ -1703,90 +1777,149 @@ class World {
         this.stageMeshes.push(group);
         return group;
     }
+    addHydroTube(startX, startY, startZ, length, radius = 14.0) {
+        return this.addCrystalAbyssFlume(startX, startY, startZ, length, radius);
+    }
 
-    createPoseidonPillar(height = 32, radius = 2.0) {
+    createNagaOceanPillar(height = 32, radius = 2.0) {
         const group = new THREE.Group();
 
-        // Main Fluted Marble Shaft
-        const colGeo = new THREE.CylinderGeometry(radius * 0.9, radius * 1.15, height, 16);
+        // 1. Base Octagonal Plinth (ฐานศิลารองรับเสา)
+        const baseGeo = new THREE.CylinderGeometry(radius * 2.8, radius * 3.2, 2.4, 8);
+        const base = new THREE.Mesh(baseGeo, this.hydroPillarMat);
+        base.position.y = 1.2;
+        group.add(base);
+
+        // Golden Lotus Trim on Base
+        const lotusRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 2.6, 0.4, 8, 16), this.nagaGoldMat);
+        lotusRing.rotation.x = Math.PI * 0.5;
+        lotusRing.position.y = 2.4;
+        group.add(lotusRing);
+
+        // 2. Main Fluted Sea-Stone Column Shaft (เสาศิลาใต้สมุทร)
+        const colGeo = new THREE.CylinderGeometry(radius * 0.95, radius * 1.2, height, 16);
         const col = new THREE.Mesh(colGeo, this.hydroPillarMat);
-        col.position.y = height * 0.5;
+        col.position.y = height * 0.5 + 1.5;
         col.castShadow = true;
         group.add(col);
 
-        // Golden Corinthian Capital Head
-        const capGeo = new THREE.BoxGeometry(radius * 2.8, 2.2, radius * 2.8);
-        const cap = new THREE.Mesh(capGeo, this.hydroGoldTrimMat);
-        cap.position.y = height;
+        // Coiled Naga Body Trim at mid-height
+        const midRing = new THREE.Mesh(new THREE.TorusGeometry(radius * 1.45, 0.35, 8, 24), this.nagaGoldMat);
+        midRing.rotation.x = Math.PI * 0.5;
+        midRing.position.y = height * 0.5;
+        group.add(midRing);
+
+        // 3. Golden Naga Capital Head on Top (หัวเสาพญานาคสีทองคำ)
+        const capGeo = new THREE.BoxGeometry(radius * 2.8, 2.6, radius * 2.8);
+        const cap = new THREE.Mesh(capGeo, this.nagaGoldMat);
+        cap.position.y = height + 1.5;
         group.add(cap);
 
-        // Base Plinth
-        const baseGeo = new THREE.BoxGeometry(radius * 3.0, 2.0, radius * 3.0);
-        const base = new THREE.Mesh(baseGeo, this.hydroPillarMat);
-        base.position.y = 1.0;
-        group.add(base);
+        // Naga Hood Wing Crests (ปีกเศียรนาคราช)
+        [-radius * 1.3, radius * 1.3].forEach(wx => {
+            const wingGeo = new THREE.ConeGeometry(radius * 0.7, 3.2, 5);
+            const wing = new THREE.Mesh(wingGeo, this.nagaGoldMat);
+            wing.position.set(wx, height + 3.0, 0);
+            wing.rotation.z = (wx > 0) ? -0.4 : 0.4;
+            group.add(wing);
+        });
 
-        // Glowing Sea-Orb on top
-        const orbGeo = new THREE.SphereGeometry(radius * 0.8, 12, 12);
-        const orb = new THREE.Mesh(orbGeo, this.hydroWaterMat);
-        orb.position.y = height + 2.0;
+        // 4. Glowing Deep-Sea Pearl Crystal Orb on Top (ลูกแก้วมณีสมุทรเรืองแสง)
+        const orbGeo = new THREE.SphereGeometry(radius * 0.9, 16, 16);
+        const orb = new THREE.Mesh(orbGeo, this.seaCrystalMat);
+        orb.position.y = height + 3.4;
         group.add(orb);
 
         return group;
     }
+    createPoseidonPillar(height = 32, radius = 2.0) {
+        return this.createNagaOceanPillar(height, radius);
+    }
 
-    createAncientArchway(span = 46, height = 26) {
+    createSuvannamacchaArchway(span = 46, height = 26) {
         const group = new THREE.Group();
 
-        // Left & Right Columns
+        // 1. Left & Right Naga Pillars (เสาพญานาคคู่ขนาบสะพาน)
         [-span * 0.45, span * 0.45].forEach(colX => {
-            const colGeo = new THREE.CylinderGeometry(1.8, 2.4, height, 12);
+            const colGeo = new THREE.CylinderGeometry(1.9, 2.6, height, 12);
             const col = new THREE.Mesh(colGeo, this.hydroPillarMat);
             col.position.set(colX, height * 0.5, 0);
             group.add(col);
+
+            // Golden Naga coil around pillar
+            const coilGeo = new THREE.TorusGeometry(2.8, 0.4, 8, 16);
+            const coil = new THREE.Mesh(coilGeo, this.nagaGoldMat);
+            coil.rotation.x = Math.PI * 0.5;
+            coil.position.set(colX, height * 0.65, 0);
+            group.add(coil);
+
+            // Capital lotus
+            const cap = new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.0, 5.2), this.nagaGoldMat);
+            cap.position.set(colX, height, 0);
+            group.add(cap);
         });
 
-        // Arch Beam across top
-        const beamGeo = new THREE.BoxGeometry(span, 3.2, 4.0);
-        const beam = new THREE.Mesh(beamGeo, this.hydroGoldTrimMat);
-        beam.position.set(0, height, 0);
+        // 2. Arch Beam across top with Golden Thai Wave Carvings
+        const beamGeo = new THREE.BoxGeometry(span, 3.4, 4.2);
+        const beam = new THREE.Mesh(beamGeo, this.nagaGoldMat);
+        beam.position.set(0, height + 0.8, 0);
         group.add(beam);
 
-        // Golden Trident Crest
-        const tridentStem = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 7, 8), this.hydroGoldTrimMat);
-        tridentStem.position.set(0, height + 4.5, 0);
-        group.add(tridentStem);
+        // 3. Suvannamaccha Golden Mermaid Crest at Center (ยอดซุ้มรูปหางสุพรรณมัจฉา & มุกมณีสมุทร)
+        // Center Naga/Mermaid Spire
+        const spireMesh = new THREE.Mesh(new THREE.ConeGeometry(1.6, 6.5, 8), this.nagaGoldMat);
+        spireMesh.position.set(0, height + 5.5, 0);
+        group.add(spireMesh);
 
-        [-2.5, 2.5].forEach(tx => {
-            const prong = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 5, 8), this.hydroGoldTrimMat);
-            prong.position.set(tx, height + 5.5, 0);
-            group.add(prong);
+        // Golden Mermaid Tail Flukes (ครีบหางสุพรรณมัจฉาสีทองคำ)
+        [-2.8, 2.8].forEach(fx => {
+            const flukeGeo = new THREE.ConeGeometry(0.9, 4.8, 6);
+            const fluke = new THREE.Mesh(flukeGeo, this.nagaGoldMat);
+            fluke.position.set(fx, height + 4.8, 0);
+            fluke.rotation.z = (fx > 0) ? -0.55 : 0.55;
+            group.add(fluke);
         });
+
+        // Center Radiant Ocean Pearl Medallion (มุกมณีแก้วกลางซุ้ม)
+        const pearlMesh = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 16), this.seaCrystalMat);
+        pearlMesh.position.set(0, height + 2.8, 0);
+        group.add(pearlMesh);
 
         return group;
     }
+    createAncientArchway(span = 46, height = 26) {
+        return this.createSuvannamacchaArchway(span, height);
+    }
 
-    createCoralReef(radius = 8) {
+    createSacredKelpReef(radius = 8) {
         const group = new THREE.Group();
-        const colors = [this.hydroCoralPinkMat, this.hydroCoralCyanMat, this.hydroCoralGoldMat];
+        const colors = [this.coralPinkMat, this.seaCrystalMat, this.coralGoldMat, this.kelpGreenMat];
 
-        const numBranches = 7;
+        const numBranches = 8;
         for (let b = 0; b < numBranches; b++) {
             const angle = (b / numBranches) * Math.PI * 2;
-            const dist = Math.random() * radius * 0.6;
-            const h = 4 + Math.random() * 8;
-            const r = 0.5 + Math.random() * 0.6;
+            const dist = Math.random() * radius * 0.65;
+            const h = 4 + Math.random() * 8.5;
+            const r = 0.5 + Math.random() * 0.65;
 
             const branchGeo = new THREE.ConeGeometry(r, h, 6);
             const mat = colors[b % colors.length];
             const branch = new THREE.Mesh(branchGeo, mat);
             branch.position.set(Math.cos(angle) * dist, h * 0.5, Math.sin(angle) * dist);
-            branch.rotation.z = (Math.random() - 0.5) * 0.35;
-            branch.rotation.x = (Math.random() - 0.5) * 0.35;
+            branch.rotation.z = (Math.random() - 0.5) * 0.38;
+            branch.rotation.x = (Math.random() - 0.5) * 0.38;
             group.add(branch);
         }
 
+        // Center glowing sea pearl
+        const centerPearl = new THREE.Mesh(new THREE.SphereGeometry(1.0, 12, 12), this.seaCrystalMat);
+        centerPearl.position.set(0, 1.2, 0);
+        group.add(centerPearl);
+
         return group;
+    }
+    createCoralReef(radius = 8) {
+        return this.createSacredKelpReef(radius);
     }
 
     addWaterBasin(x, z, width, length, y = 0) {
@@ -1802,10 +1935,10 @@ class World {
         return group;
     }
 
-    buildPoseidonColosseum(x, y, z, radius = 72) {
+    buildLankaCausewayPavilion(x, y, z, radius = 72) {
         const group = new THREE.Group();
 
-        // 1. Classical Sunken Arena Base
+        // 1. Classical Sunken Lanka Ocean Arena Base (ลานแท่นศิลาจองถนนข้ามสมุทร)
         const baseGeo = new THREE.CylinderGeometry(radius, radius, 14, 36);
         const baseMat = this.getHydroSideMaterial(8, 2);
         const topMat = this.getHydroTrackMaterial(12, 12);
@@ -1814,59 +1947,68 @@ class World {
         baseMesh.receiveShadow = true;
         group.add(baseMesh);
 
-        // 2. 16 Surrounding Classical Poseidon Marble Columns
+        // 2. 16 Surrounding Golden Naga Guardian Columns (เสาศิลาพญานาคราชล้อมรอบ)
         for (let i = 0; i < 16; i++) {
             const angle = (i / 16) * Math.PI * 2;
             const px = x + Math.cos(angle) * (radius - 5);
             const pz = z + Math.sin(angle) * (radius - 5);
 
-            const pillarGeo = new THREE.CylinderGeometry(2.0, 2.6, 38, 12);
+            const pillarGeo = new THREE.CylinderGeometry(2.1, 2.8, 38, 12);
             const pillar = new THREE.Mesh(pillarGeo, this.hydroPillarMat);
             pillar.position.set(px, y + 19, pz);
             pillar.castShadow = true;
             group.add(pillar);
 
-            // Golden Corinthian Capital on top
-            const capGeo = new THREE.BoxGeometry(5.2, 2.5, 5.2);
-            const cap = new THREE.Mesh(capGeo, this.hydroGoldTrimMat);
+            // Golden Naga Capital on top
+            const capGeo = new THREE.BoxGeometry(5.4, 2.6, 5.4);
+            const cap = new THREE.Mesh(capGeo, this.nagaGoldMat);
             cap.position.set(px, y + 38, pz);
             group.add(cap);
 
-            // Water Spout Fountain atop every alternate pillar
+            // Glowing Ocean Crystal Orb atop every alternate pillar
             if (i % 2 === 0) {
-                const orb = new THREE.Mesh(new THREE.SphereGeometry(1.6, 12, 12), this.hydroWaterMat);
+                const orb = new THREE.Mesh(new THREE.SphereGeometry(1.8, 14, 14), this.seaCrystalMat);
                 orb.position.set(px, y + 41, pz);
                 group.add(orb);
             }
         }
 
-        // 3. Grand Entrance Archway with Golden Trident
-        const archL = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.8, 30, 12), this.hydroPillarMat);
-        archL.position.set(x - 16, y + 15, z + 28);
+        // 3. Grand Entrance Archway with Suvannamaccha Mermaid Crest
+        const archL = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3.0, 32, 12), this.hydroPillarMat);
+        archL.position.set(x - 16, y + 16, z + 28);
         group.add(archL);
 
-        const archR = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.8, 30, 12), this.hydroPillarMat);
-        archR.position.set(x + 16, y + 15, z + 28);
+        const archR = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 3.0, 32, 12), this.hydroPillarMat);
+        archR.position.set(x + 16, y + 16, z + 28);
         group.add(archR);
 
-        const archBeam = new THREE.Mesh(new THREE.BoxGeometry(36, 4.0, 4.5), this.hydroGoldTrimMat);
-        archBeam.position.set(x, y + 30, z + 28);
+        const archBeam = new THREE.Mesh(new THREE.BoxGeometry(36, 4.2, 4.8), this.nagaGoldMat);
+        archBeam.position.set(x, y + 32, z + 28);
         group.add(archBeam);
 
-        // Giant Golden Trident Emblem atop the Arch
-        const tridentStem = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 9, 8), this.hydroGoldTrimMat);
-        tridentStem.position.set(x, y + 36, z + 28);
-        group.add(tridentStem);
+        // Suvannamaccha Golden Mermaid Tail & Spire Emblem atop the Arch
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(2.2, 9.5, 8), this.nagaGoldMat);
+        spire.position.set(x, y + 38.5, z + 28);
+        group.add(spire);
 
-        [-3.5, 3.5].forEach(tx => {
-            const prong = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 7, 8), this.hydroGoldTrimMat);
-            prong.position.set(x + tx, y + 37, z + 28);
-            group.add(prong);
+        [-3.8, 3.8].forEach(tx => {
+            const fluke = new THREE.Mesh(new THREE.ConeGeometry(1.2, 6.8, 6), this.nagaGoldMat);
+            fluke.position.set(x + tx, y + 38, z + 28);
+            fluke.rotation.z = (tx > 0) ? -0.55 : 0.55;
+            group.add(fluke);
         });
+
+        // Glowing center ocean pearl medallion
+        const centerPearl = new THREE.Mesh(new THREE.SphereGeometry(2.0, 16, 16), this.seaCrystalMat);
+        centerPearl.position.set(x, y + 33, z + 28);
+        group.add(centerPearl);
 
         this.scene.add(group);
         this.stageMeshes.push(group);
         return group;
+    }
+    buildPoseidonColosseum(x, y, z, radius = 72) {
+        return this.buildLankaCausewayPavilion(x, y, z, radius);
     }
 
     // ============================================================

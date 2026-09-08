@@ -50,7 +50,7 @@ class SonicGame {
         this.stageConfigs = {
             green_hill: { name: 'HIMAVANTA FOREST', act: 'ACT 1', totalDist: 5600, nextStage: 'chemical_plant', thaiTitle: 'ป่าหิมพานต์ • ธาราน้ำตกทิพย์' },
             chemical_plant: { name: 'KISHKINDHA KINGDOM', act: 'ACT 2', totalDist: 4800, nextStage: 'hydrocity', thaiTitle: 'นครขีดขิน • พระราชวังศิลาทอง' },
-            hydrocity: { name: 'HYDROCITY ZONE', act: 'ACT 3', totalDist: 5000, nextStage: 'green_hill' }
+            hydrocity: { name: 'LANKA OCEAN', act: 'ACT 3', totalDist: 5000, nextStage: 'green_hill', thaiTitle: 'มหาสมุทรลงกา • วังบาดาลสุพรรณมัจฉา' }
         };
 
         // Audio Settings Modal Elements
@@ -610,7 +610,7 @@ class SonicGame {
 
         if (zoneId === 'hydrocity') {
             if (pillHydrocity) pillHydrocity.classList.add('active');
-            if (badgeText) badgeText.textContent = 'HYDROCITY ZONE • ACT 3';
+            if (badgeText) badgeText.textContent = 'LANKA OCEAN • ACT 3';
         } else if (zoneId === 'chemical_plant') {
             if (pillChemical) pillChemical.classList.add('active');
             if (badgeText) badgeText.textContent = 'KISHKINDHA REALM • ACT 2';
@@ -1072,7 +1072,7 @@ class SonicGame {
 
         if (isFinalStage) {
             if (clearTitleEl) clearTitleEl.textContent = '🏆 ALL STAGES CLEARED!';
-            if (clearSubEl) clearSubEl.textContent = 'CONGRATULATIONS! YOU CONQUERED ALL 3 ZONES!';
+            if (clearSubEl) clearSubEl.textContent = 'หนุมานสร้างถนนข้ามสมุทรสำเร็จ และผูกมิตรกับนางสุพรรณมัจฉา!';
             if (nextBtn) {
                 nextBtn.textContent = 'PLAY AGAIN (เริ่มเล่นใหม่) ↺';
                 nextBtn.classList.add('grand-victory-btn');
@@ -1082,7 +1082,7 @@ class SonicGame {
             if (nextBtn) nextBtn.classList.remove('grand-victory-btn');
             if (this.currentStageId === 'chemical_plant') {
                 if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS PASSED KISHKINDHA KINGDOM!';
-                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: HYDROCITY ➔';
+                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: LANKA OCEAN ➔';
             } else {
                 if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS PASSED HIMAVANTA FOREST!';
                 if (nextBtn) nextBtn.textContent = 'NEXT STAGE: KISHKINDHA KINGDOM ➔';

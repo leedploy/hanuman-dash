@@ -800,6 +800,29 @@ class ObjectManager {
             }
         });
 
+        // --- 1.1 MULTIDIMENSIONAL 3D STAR FORMATIONS (ขบวนดาว 3 มิติในมหาสมุทรลงกา) ---
+        // 1. Slalom S-Curve Waves weaving along aqueducts & flumes
+        this.createSlalomRings(-20, -110, 16, 4.5, 0);       // Starting Rama's causeway bridge
+        this.createSlalomRings(-820, -960, 20, 5.0, 4);      // Inside Crystal Abyss Flume #1
+        this.createSlalomRings(-1860, -2100, 24, 6.0, 3.5);  // Lanka water-surface sprint
+        this.createSlalomRings(-2820, -3050, 22, 5.0, 6);    // Inside Crystal Abyss Flume #2
+        this.createSlalomRings(-4200, -4500, 26, 6.0, 8);    // Lanka grand canal final sprint
+
+        // 2. Parabolic Jump Arcs over hazards & ramps
+        this.createJumpArc(0, -110, -135, 6, 4.5);           // Arc over start hazards
+        this.createJumpArc(0, -590, -620, 7, 5.5);           // Arc plunge into Flume #1
+        this.createJumpArc(0, -2180, -2210, 7, 6.0);         // Arc leap over water-skimming ramp
+        this.createJumpArc(0, -2580, -2610, 7, 6.0);         // Arc launch into Flume #2
+        this.createJumpArc(0, -3780, -3810, 7, 5.5);         // Arc thrilling descent into Grand Canal
+
+        // 3. Wedge & Diamond Constellation Clusters
+        this.createWedgeCluster(0, -210, 0, 4.0, 2.5);       // Leading into climbing aqueduct
+        this.createDiamondCluster(0, -450, 12, 3.5);         // High Palace Aqueduct lookout
+        this.createDiamondCluster(0, -1980, 3.5, 4.0);       // Water skimming center oasis
+        this.createDiamondCluster(0, -2500, 16, 3.5);        // High Shelf panoramic vista
+        this.createWedgeCluster(0, -4600, 8, 4.0, 2.5);      // Approach to Lanka Causeway Pavilion
+        this.createDiamondCluster(0, -4850, 8, 4.5);         // Finish Pavilion approach
+
         // 360° Water Loop 1 & Loop 2 Ring Arcs
         this.spawnLoopRings(-1450, 16, 4, 10);
         this.spawnLoopRings(-3650, 18, 18, 10);
@@ -883,7 +906,28 @@ class ObjectManager {
             this.createSpikes(pos[0], spikeY, pos[2]);
         });
 
-        // --- 6. GIANT GOAL RING (At center of Poseidon Grand Colosseum, groundY = 8) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานข้ามสมุทรลงกา) ---
+        this.createAsuraSentinel(0, 0.1, -60, 5.0, 2.2);        // Causeway start sentinel
+        this.createAsuraSentinel(0, 12.1, -480, 4.0, 2.0);      // High aqueduct road
+        this.createAsuraSentinel(0, 4.1, -1000, 4.5, 2.4);      // Inside Flume #1
+        this.createAsuraSentinel(0, 3.6, -1950, 5.5, 2.4);      // Water-skimming causeway
+        this.createAsuraSentinel(0, 16.1, -2480, 4.0, 2.2);     // High shelf aqueduct
+        this.createAsuraSentinel(0, 6.1, -3000, 5.0, 2.4);      // Deep abyss flume #2
+        this.createAsuraSentinel(0, 18.1, -3600, 5.0, 2.4);     // High loop approach
+        this.createAsuraSentinel(0, 8.1, -4300, 6.0, 2.6);      // Lanka grand canal sprint
+        this.createAsuraSentinel(0, 8.1, -4700, 6.0, 2.8);      // Approach to finish pavilion
+
+        // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคบาดาล) ---
+        this.createNagaGeyser(-5, 0.1, -35, 0.0);
+        this.createNagaGeyser(5, 0.1, -35, 2.0);
+        this.createNagaGeyser(0, 12.1, -520, 1.0);
+        this.createNagaGeyser(-6, 3.6, -1900, 0.5);
+        this.createNagaGeyser(6, 3.6, -1900, 2.5);
+        this.createNagaGeyser(-6, 8.1, -4200, 1.0);
+        this.createNagaGeyser(6, 8.1, -4200, 3.0);
+        this.createNagaGeyser(0, 8.1, -4850, 1.5);
+
+        // --- 8. GIANT GOAL RING (At center of Lanka Causeway Pavilion, groundY = 8) ---
         this.createGoalRing(0, 8, -5000, 8.5);
     }
 
@@ -1885,8 +1929,24 @@ class ObjectManager {
 
         // 5. Grand Architectural Foundation Dais (Ground Stepped Plinth)
         const daisGeo = new THREE.CylinderGeometry(radius * 1.5, radius * 1.65, 1.4, 36);
+        let daisColor = 0x8b6540;
+        let pillarColor = 0xab8860;
+        let rimColor = 0xffd700;
+        let orbColor = 0xffd700;
+        if (this.currentStageId === 'chemical_plant') {
+            daisColor = 0xf8fafc;
+            pillarColor = 0xf1f5f9;
+            rimColor = 0xfbbf24;
+            orbColor = 0xfbbf24;
+        } else if (this.currentStageId === 'hydrocity') {
+            daisColor = 0x071e30; // Deep ocean slate
+            pillarColor = 0x0f293d; // Lanka ocean stone
+            rimColor = 0x38bdf8; // Radiant sea crystal cyan
+            orbColor = 0x67e8f9; // Bioluminescent ocean pearl
+        }
+
         const daisMat = new THREE.MeshStandardMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0xf8fafc : 0x8b6540,
+            color: daisColor,
             metalness: 0.3,
             roughness: 0.3
         });
@@ -1897,7 +1957,7 @@ class ObjectManager {
         // Dais Glowing Border Rim
         const daisRimGeo = new THREE.TorusGeometry(radius * 1.52, 0.18, 12, 36);
         const daisRimMat = new THREE.MeshBasicMaterial({
-            color: 0xffd700
+            color: rimColor
         });
         const daisRim = new THREE.Mesh(daisRimGeo, daisRimMat);
         daisRim.rotation.x = Math.PI / 2;
@@ -1907,13 +1967,13 @@ class ObjectManager {
         // 6. Grand Flanking Pylon Columns (Left & Right)
         const pillarColGeo = new THREE.CylinderGeometry(0.85, 1.15, radius * 1.85, 16);
         const pillarMat = new THREE.MeshStandardMaterial({
-            color: (this.currentStageId === 'chemical_plant') ? 0xf1f5f9 : 0xab8860,
+            color: pillarColor,
             metalness: 0.3,
             roughness: 0.3
         });
         const orbGeo = new THREE.SphereGeometry(1.2, 16, 16);
         const orbMat = new THREE.MeshBasicMaterial({
-            color: 0xffd700
+            color: orbColor
         });
 
         [-radius - 1.6, radius + 1.6].forEach(colX => {

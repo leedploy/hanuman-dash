@@ -202,7 +202,7 @@
             display: flex !important;
             align-items: center !important;
             gap: 10px !important;
-            margin-bottom: 22px !important;
+            margin-bottom: 14px !important;
             font-family: 'Press Start 2P', monospace, sans-serif !important;
             font-size: 11px !important;
             letter-spacing: 2px !important;
@@ -216,6 +216,86 @@
             border-radius: 50%;
             background: #48c734;
             box-shadow: 0 0 10px #48c734;
+        }
+
+        /* DEV / TEST ZONE SELECTOR (เลือกด่านสำหรับทดสอบ) */
+        .zone-selector-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 18px !important;
+            pointer-events: auto !important;
+            width: 100% !important;
+        }
+
+        .zone-selector-title {
+            font-family: 'Press Start 2P', monospace, sans-serif !important;
+            font-size: 9px !important;
+            letter-spacing: 1px !important;
+            color: #ffd700 !important;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7) !important;
+            text-align: center !important;
+        }
+
+        .zone-selector-pills {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+        }
+
+        .zone-pill {
+            background: rgba(10, 25, 60, 0.85) !important;
+            border: 2px solid rgba(255, 255, 255, 0.35) !important;
+            color: #c9d8f0 !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            padding: 7px 12px !important;
+            border-radius: 20px !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            pointer-events: auto !important;
+        }
+
+        .zone-pill:hover {
+            border-color: #00f0ff !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) scale(1.04) !important;
+            box-shadow: 0 6px 18px rgba(0, 240, 255, 0.4) !important;
+        }
+
+        .zone-pill.active {
+            border-color: #ffffff !important;
+            color: #ffffff !important;
+            transform: scale(1.06) !important;
+        }
+
+        #zone-pill-greenhill.active {
+            background: linear-gradient(135deg, #0d9488 0%, #16a34a 50%, #84cc16 100%) !important;
+            box-shadow: 0 0 22px rgba(34, 197, 94, 0.8), 0 4px 14px rgba(0, 0, 0, 0.8) !important;
+            border-color: #ffd700 !important;
+        }
+
+        #zone-pill-chemical.active {
+            background: linear-gradient(135deg, #b91c1c 0%, #d97706 50%, #ffd700 100%) !important;
+            box-shadow: 0 0 22px rgba(255, 215, 0, 0.85), 0 4px 14px rgba(0, 0, 0, 0.8) !important;
+            border-color: #ffffff !important;
+        }
+
+        #zone-pill-hydrocity.active {
+            background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 50%, #06b6d4 100%) !important;
+            box-shadow: 0 0 22px rgba(6, 182, 212, 0.85), 0 4px 14px rgba(0, 0, 0, 0.8) !important;
+            border-color: #a5f3fc !important;
         }
 
         .start-btn-group {
@@ -695,6 +775,25 @@
                 <span class="badge-dot"></span>
             </div>
 
+            <!-- DEV / TEST STAGE SELECTOR (เลือกด่านสำหรับทดสอบ - ลบออกได้เมื่อเกมเสร็จสมบูรณ์) -->
+            <div id="start-zone-selector" class="zone-selector-container">
+                <div class="zone-selector-title">⚡ เลือกด่านสำหรับทดสอบ (SELECT STAGE) ⚡</div>
+                <div class="zone-selector-pills">
+                    <button type="button" id="zone-pill-greenhill" class="zone-pill active" title="ด่าน 1: ป่าหิมพานต์">
+                        <span>🌿 ACT 1</span>
+                        <span style="font-size: 9px; opacity: 0.85;">(หิมพานต์)</span>
+                    </button>
+                    <button type="button" id="zone-pill-chemical" class="zone-pill" title="ด่าน 2: นครขีดขิน">
+                        <span>👑 ACT 2</span>
+                        <span style="font-size: 9px; opacity: 0.85;">(ขีดขิน)</span>
+                    </button>
+                    <button type="button" id="zone-pill-hydrocity" class="zone-pill" title="ด่าน 3: มหาสมุทรลงกา">
+                        <span>🌊 ACT 3</span>
+                        <span style="font-size: 9px; opacity: 0.85;">(ลงกา)</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="start-btn-group">
                 <button id="start-btn" class="hero-start-btn" aria-label="Start Game">
                     <span class="btn-icon-wrap">▶</span>
@@ -1031,13 +1130,13 @@
     </script>
     <script src="js/GLTFLoader.js"></script>
 
-    <!-- Game Scripts (v=9.0 Kishkindha Kingdom update) -->
-    <script src="js/audio.js?v=9.0"></script>
-    <script src="js/spritesheet.js?v=9.0"></script>
-    <script src="js/sonic.js?v=9.0"></script>
-    <script src="js/world.js?v=9.0"></script>
-    <script src="js/objects.js?v=9.0"></script>
-    <script src="js/leaderboard.js?v=9.0"></script>
-    <script src="js/game.js?v=9.0"></script>
+    <!-- Game Scripts (v=9.1 Lanka Ocean & Stage Selector update) -->
+    <script src="js/audio.js?v=9.1"></script>
+    <script src="js/spritesheet.js?v=9.1"></script>
+    <script src="js/sonic.js?v=9.1"></script>
+    <script src="js/world.js?v=9.1"></script>
+    <script src="js/objects.js?v=9.1"></script>
+    <script src="js/leaderboard.js?v=9.1"></script>
+    <script src="js/game.js?v=9.1"></script>
 </body>
 </html>
