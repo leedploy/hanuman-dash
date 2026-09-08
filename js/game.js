@@ -1549,10 +1549,6 @@ class SonicGame {
         if (modeLabel) {
             if (mode === 'hanuman') {
                 modeLabel.textContent = '3D HANUMAN DASH';
-            } else if (mode === 'fbx') {
-                modeLabel.textContent = '3D ANIMATED RUN';
-            } else if (mode === 'gltf') {
-                modeLabel.textContent = '3D SONIC DASH';
             } else if (mode === 'sprite') {
                 modeLabel.textContent = 'RETRO 2D SPRITE';
             } else {

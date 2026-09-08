@@ -58,7 +58,7 @@ class SonicPlayer {
         this.loopSpeed = 36;
         this.loopCooldown = 0;
 
-        // Render Mode: 'hanuman' (Hanuman Dash 3D), 'fbx' (Mixamo Animated Run 3D Model), 'gltf' (Authentic Sonic Dash 3D Model), 'mesh3d' (Articulated 3D Model) or 'sprite' (Retro 2D Sprite)
+        // Render Mode: 'hanuman' (Hanuman Dash 3D rigged model), 'mesh3d' (Articulated 3D Model) or 'sprite' (Retro 2D Sprite)
         this.renderMode = 'hanuman';
         this.hanumanModel = null;
         this.hanumanGroup = null;
@@ -71,21 +71,8 @@ class SonicPlayer {
         this.hanumanDanceAction = null;
         this.currentHanumanAnim = 'idle';
         this.isHanumanLoaded = false;
-
-        this.fbxModel = null;
-        this.fbxGroup = null;
-        this.fbxMixer = null;
-        this.fbxRunAction = null;
-        this.fbxJumpAction = null;
-        this.fbxDanceAction = null;
-        this.currentFBXAnim = 'run';
-        this.isFBXLoaded = false;
         this.isDancing = false;
         this.idleTimer = 0;
-
-        this.gltfScene = null;
-        this.gltfGroup = null;
-        this.isGLTFLoaded = false;
         
         // Visual groups
         this.group = new THREE.Group();
@@ -107,8 +94,6 @@ class SonicPlayer {
         this.buildBoostAura();
         this.buildEffects();
         this.loadHanumanModel();
-        this.loadGLTFModel();
-        this.loadFBXModel();
         
         this.group.add(this.modelGroup);
         this.group.add(this.ballMesh);
@@ -580,10 +565,7 @@ class SonicPlayer {
         };
 
         loader.load(primaryPath, setupHanumanGLTF, undefined, (err) => {
-            console.warn('Could not load assets/hanuman.glb, trying fallback:', fallbackPath, err);
-            loader.load(fallbackPath, setupHanumanGLTF, undefined, (err2) => {
-                console.warn('Could not load fallback Hanuman GLB:', err2);
-            });
+            console.warn('Could not load assets/hanuman.glb:', err);
         });
     }
 
@@ -610,206 +592,37 @@ class SonicPlayer {
         return null;
     }
 
-    loadGLTFModel() {
-        if (typeof THREE.GLTFLoader === 'undefined') {
-            console.warn('THREE.GLTFLoader is not available');
-            return;
-        }
-
-        const ASSET_BASE = (typeof window !== 'undefined' && window.GAME_ASSETS_URL) || 'https://cdn.1thaiai.com/gameprompt/006Sonic3d/';
-        const loader = new THREE.GLTFLoader();
-        loader.load(ASSET_BASE + 'Classic_Sonic_obj.glb', (gltf) => {
-            this.gltfScene = gltf.scene;
-
-            this.gltfScene.scale.set(1.45, 1.45, 1.45);
-
-            // Compute exact bounding box after scaling
-            const box = new THREE.Box3().setFromObject(this.gltfScene);
-            const size = new THREE.Vector3();
-            box.getSize(size);
-            const center = new THREE.Vector3();
-            box.getCenter(center);
-
-            // Enable cast & receive shadows, enhance material shading
-            this.gltfScene.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    if (child.material) {
-                        child.material.roughness = 0.35;
-                        child.material.metalness = 0.05;
-                    }
-                }
-            });
-
-            // Center base at feet Y=0, center X & Z
-            this.gltfScene.position.set(-center.x, -box.min.y, -center.z);
-
-            this.gltfGroup = new THREE.Group();
-            this.gltfGroup.add(this.gltfScene);
-            this.group.add(this.gltfGroup);
-
-            this.isGLTFLoaded = true;
-            if (!this.isFBXLoaded) {
-                this.renderMode = 'gltf';
-                this.applyRenderModeVisibility();
-                if (window.game && window.game.updateModeUI) {
-                    window.game.updateModeUI('gltf');
-                }
-            }
-        }, undefined, (err) => {
-            console.warn('Could not load Classic_Sonic_obj.glb:', err);
-        });
-    }
-
-    loadFBXModel() {
-        if (typeof THREE.FBXLoader === 'undefined') {
-            console.warn('THREE.FBXLoader is not available');
-            return;
-        }
-
-        const ASSET_BASE = (typeof window !== 'undefined' && window.GAME_ASSETS_URL) || 'https://cdn.1thaiai.com/gameprompt/006Sonic3d/';
-        const texLoader = new THREE.TextureLoader();
-        const tex0 = texLoader.load(ASSET_BASE + 'gltf_embedded_0.png');
-        const tex1 = texLoader.load(ASSET_BASE + 'gltf_embedded_1.png');
-        tex0.encoding = THREE.sRGBEncoding;
-        tex1.encoding = THREE.sRGBEncoding;
-
-        const loader = new THREE.FBXLoader();
-        loader.load(ASSET_BASE + 'Fast Run.fbx', (fbx) => {
-            fbx.scale.set(1.45, 1.45, 1.45);
-
-            fbx.traverse((c) => {
-                if (c.isMesh) {
-                    c.castShadow = true;
-                    c.receiveShadow = true;
-                    const map = (c.name === 'mesh_0') ? tex0 : tex1;
-                    c.material = new THREE.MeshStandardMaterial({
-                        map: map,
-                        roughness: 0.35,
-                        metalness: 0.05,
-                        skinning: true
-                    });
-                }
-            });
-
-            // Fast Run.fbx is grounded naturally at y = 0
-            fbx.position.set(0, 0, 0);
-
-            // Animation Mixer for running skeletal animation
-            if (fbx.animations && fbx.animations.length > 0) {
-                this.fbxMixer = new THREE.AnimationMixer(fbx);
-                this.fbxRunAction = this.fbxMixer.clipAction(fbx.animations[0]);
-                this.fbxRunAction.setLoop(THREE.LoopRepeat);
-                this.fbxRunAction.time = 0.28; // Athletic ready pose rather than T-pose
-                this.fbxRunAction.play();
-                this.fbxMixer.update(0);
-            }
-
-            this.fbxModel = fbx;
-            this.fbxGroup = new THREE.Group();
-            this.fbxGroup.add(fbx);
-            this.group.add(this.fbxGroup);
-
-            this.isFBXLoaded = true;
-            this.renderMode = 'fbx';
-            this.applyRenderModeVisibility();
-
-            if (window.game && window.game.updateModeUI) {
-                window.game.updateModeUI('fbx');
-            }
-
-            // Load Jump animation clip onto the same mixer
-            loader.load(ASSET_BASE + 'Jump.fbx', (jumpFbx) => {
-                if (jumpFbx.animations && jumpFbx.animations.length > 0 && this.fbxMixer) {
-                    const jumpClip = jumpFbx.animations[0];
-                    this.fbxJumpAction = this.fbxMixer.clipAction(jumpClip);
-                    this.fbxJumpAction.setLoop(THREE.LoopOnce);
-                    this.fbxJumpAction.clampWhenFinished = true;
-                }
-            }, undefined, (err) => {
-                console.warn('Could not load Jump.fbx:', err);
-            });
-
-            // Load Dance animation clip onto the same mixer
-            loader.load(ASSET_BASE + 'Dance.fbx', (danceFbx) => {
-                if (danceFbx.animations && danceFbx.animations.length > 0 && this.fbxMixer) {
-                    const danceClip = danceFbx.animations[0];
-                    this.fbxDanceAction = this.fbxMixer.clipAction(danceClip);
-                    this.fbxDanceAction.setLoop(THREE.LoopRepeat);
-                }
-            }, undefined, (err) => {
-                console.warn('Could not load Dance.fbx:', err);
-            });
-        }, undefined, (err) => {
-            console.warn('Could not load Fast Run.fbx:', err);
-        });
-    }
-
     toggleRenderMode() {
         if (this.renderMode === 'hanuman') {
-            this.renderMode = this.isFBXLoaded ? 'fbx' : (this.isGLTFLoaded ? 'gltf' : 'mesh3d');
-        } else if (this.renderMode === 'fbx') {
-            this.renderMode = this.isGLTFLoaded ? 'gltf' : 'mesh3d';
-        } else if (this.renderMode === 'gltf') {
-            this.renderMode = 'mesh3d';
-        } else if (this.renderMode === 'mesh3d') {
             this.renderMode = 'sprite';
+        } else if (this.renderMode === 'sprite') {
+            this.renderMode = 'mesh3d';
         } else {
-            // 'sprite' -> hanuman if loaded, else fbx, gltf, mesh3d
-            if (this.isHanumanLoaded) {
-                this.renderMode = 'hanuman';
-            } else if (this.isFBXLoaded) {
-                this.renderMode = 'fbx';
-            } else if (this.isGLTFLoaded) {
-                this.renderMode = 'gltf';
-            } else {
-                this.renderMode = 'mesh3d';
-            }
+            this.renderMode = this.isHanumanLoaded ? 'hanuman' : 'mesh3d';
         }
         this.applyRenderModeVisibility();
         return this.renderMode;
     }
 
     applyRenderModeVisibility() {
-        const isBall = (this.renderMode === 'fbx' || this.renderMode === 'hanuman')
+        const isBall = (this.renderMode === 'hanuman')
             ? ((this.isSpinning && !this.isJumping) || this.isChargingSpinDash)
             : (this.isSpinning || this.isJumping || this.isChargingSpinDash);
 
         if (this.renderMode === 'sprite') {
             this.spriteAnimator.mesh.visible = true;
             this.modelGroup.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = false;
             if (this.hanumanGroup) this.hanumanGroup.visible = false;
             this.ballMesh.visible = false;
         } else if (this.renderMode === 'hanuman') {
             this.spriteAnimator.mesh.visible = false;
             this.modelGroup.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = false;
             if (this.hanumanGroup) this.hanumanGroup.visible = !isBall;
-            this.ballMesh.visible = isBall;
-        } else if (this.renderMode === 'fbx') {
-            this.spriteAnimator.mesh.visible = false;
-            this.modelGroup.visible = false;
-            if (this.hanumanGroup) this.hanumanGroup.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = !isBall;
-            this.ballMesh.visible = isBall;
-        } else if (this.renderMode === 'gltf') {
-            this.spriteAnimator.mesh.visible = false;
-            this.modelGroup.visible = false;
-            if (this.hanumanGroup) this.hanumanGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = !isBall;
             this.ballMesh.visible = isBall;
         } else {
             // mesh3d
             this.spriteAnimator.mesh.visible = false;
             if (this.hanumanGroup) this.hanumanGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = false;
             this.modelGroup.visible = !isBall;
             this.ballMesh.visible = isBall;
         }
@@ -855,8 +668,8 @@ class SonicPlayer {
             this.position.y += this.velocity.y * dt;
             this.group.position.copy(this.position);
             // Dramatic flinch / tilt back during fatal drop
-            if (this.fbxGroup) {
-                this.fbxGroup.rotation.x = -0.55;
+            if (this.hanumanGroup) {
+                this.hanumanGroup.rotation.x = -0.55;
             } else if (this.modelGroup) {
                 this.modelGroup.rotation.x = -0.55;
             }
@@ -951,8 +764,7 @@ class SonicPlayer {
             : ((input.left ? 0.32 : 0) - (input.right ? 0.32 : 0));
         this.bankingAngle += (targetBank - this.bankingAngle) * Math.min(1.0, 12.0 * dt);
         this.characterModel.rotation.z = this.bankingAngle;
-        if (this.gltfGroup) this.gltfGroup.rotation.z = this.bankingAngle;
-        if (this.fbxGroup) this.fbxGroup.rotation.z = this.bankingAngle;
+        if (this.hanumanGroup) this.hanumanGroup.rotation.z = this.bankingAngle;
 
         // 2. SPIN DASH REVVING SYSTEM
         // When grounded and holding Down: tapping Jump revs the spin dash
@@ -1023,7 +835,7 @@ class SonicPlayer {
                 this.isGrounded = false;
                 this.isJumping = true;
                 this.isSpringBouncing = false;
-                this.isSpinning = (this.renderMode !== 'fbx' && this.renderMode !== 'hanuman');
+                this.isSpinning = (this.renderMode !== 'hanuman');
                 window.soundManager.playJump();
             }
 
@@ -1054,8 +866,6 @@ class SonicPlayer {
         this.modelGroup.rotation.y = this.rotationY;
         this.ballMesh.rotation.y = this.rotationY;
         this.spriteAnimator.mesh.rotation.y = this.rotationY;
-        if (this.gltfGroup) this.gltfGroup.rotation.y = this.rotationY;
-        if (this.fbxGroup) this.fbxGroup.rotation.y = this.rotationY;
 
         // Gravity
         this.velocity.y -= this.gravity * dt;
@@ -1127,10 +937,10 @@ class SonicPlayer {
                 this.leftArm.elbow.rotation.x = 0.55 + Math.abs(swing) * 0.35;
                 this.rightArm.elbow.rotation.x = 0.55 + Math.abs(swing) * 0.35;
             }
-            if (this.fbxMixer && this.fbxRunAction) {
-                this.fbxRunAction.paused = false;
-                this.fbxRunAction.timeScale = Math.max(1.8, horizSpeed / 17.0);
-                this.fbxMixer.update(dt);
+            if (this.hanumanMixer && this.hanumanFastRunAction) {
+                this.hanumanFastRunAction.paused = false;
+                this.hanumanFastRunAction.timeScale = Math.max(1.8, horizSpeed / 17.0);
+                this.hanumanMixer.update(dt);
             }
             return;
         }
@@ -1140,16 +950,14 @@ class SonicPlayer {
         this.spriteAnimator.update(dt, spriteState, horizSpeed, this.isGrounded, this.isBoosting);
 
         // 2. Update 3D Model Animations
-        const isBallMode = (this.renderMode === 'fbx' || this.renderMode === 'hanuman')
+        const isBallMode = (this.renderMode === 'hanuman')
             ? ((this.isSpinning && !this.isJumping) || this.isChargingSpinDash)
             : (this.isSpinning || this.isJumping || this.isChargingSpinDash);
         if (isBallMode) {
             // Spin Ball Mode
             this.characterModel.visible = false;
-            if (this.gltfGroup) this.gltfGroup.visible = false;
-            if (this.fbxGroup) this.fbxGroup.visible = false;
             if (this.hanumanGroup) this.hanumanGroup.visible = false;
-            this.ballMesh.visible = (this.renderMode === 'mesh3d' || this.renderMode === 'gltf' || this.renderMode === 'fbx' || this.renderMode === 'hanuman');
+            this.ballMesh.visible = (this.renderMode === 'mesh3d' || this.renderMode === 'hanuman');
             this.ballMesh.rotation.x -= Math.max(22, horizSpeed * 1.8) * dt;
         } else {
             // Regular 3D Character Mode
@@ -1216,32 +1024,7 @@ class SonicPlayer {
                 this.headGroup.position.y = 1.54 + idleBreath;
             }
 
-            // B. Authentic Sonic Dash 3D GLTF Model Motion
-            if (this.isGLTFLoaded && this.gltfGroup) {
-                this.gltfGroup.visible = (this.renderMode === 'gltf');
-                if (this.renderMode === 'gltf') {
-                    this.gltfGroup.rotation.y = this.rotationY;
-                    this.gltfGroup.rotation.z = this.bankingAngle;
-
-                    if (horizSpeed > 1.5) {
-                        // Dynamic running stride vertical bobbing
-                        const runFreq = Math.min(26, horizSpeed * 0.7 + 6.0);
-                        const bounce = Math.abs(Math.sin(this.animTime * runFreq)) * 0.12;
-                        this.gltfGroup.position.y = bounce;
-
-                        // Aerodynamic forward lean into the wind
-                        const forwardLean = Math.min(0.35, (horizSpeed / this.maxSpeed) * 0.35);
-                        this.gltfGroup.rotation.x = forwardLean;
-                    } else {
-                        // Idle gentle breathing bob
-                        const idleBreath = Math.sin(this.animTime * 3.0) * 0.025;
-                        this.gltfGroup.position.y = idleBreath;
-                        this.gltfGroup.rotation.x = 0;
-                    }
-                }
-            }
-
-            // C. Hanuman Skinned Skeletal 3D Motion (Idle, Run, FastRun, Jump, Dance)
+            // B. Hanuman Skinned Skeletal 3D Motion (Idle, Run, FastRun, Jump, Dance)
             if (this.isHanumanLoaded && this.hanumanGroup) {
                 this.hanumanGroup.visible = (this.renderMode === 'hanuman' && !isBallMode);
                 if (this.renderMode === 'hanuman') {
@@ -1318,96 +1101,11 @@ class SonicPlayer {
                     }
                 }
             }
-
-            // D. Mixamo Skinned Skeletal 3D FBX Motion (Run & Jump Blend)
-            if (this.isFBXLoaded && this.fbxGroup) {
-                this.fbxGroup.visible = (this.renderMode === 'fbx' && !isBallMode);
-                if (this.renderMode === 'fbx') {
-                    this.fbxGroup.rotation.y = this.rotationY;
-                    this.fbxGroup.rotation.z = this.bankingAngle;
-
-                    const inAir = this.isJumping || (!this.isGrounded && (this.position.y - (this.worldGroundHeight || 0)) > 2.2);
-
-                    if (inAir) {
-                        // In-Air Jump Pose / Animation
-                        this.isDancing = false;
-                        this.idleTimer = 0;
-                        if (this.currentFBXAnim !== 'jump' && this.fbxJumpAction) {
-                            this.currentFBXAnim = 'jump';
-                            if (this.fbxRunAction) this.fbxRunAction.fadeOut(0.12);
-                            if (this.fbxDanceAction) this.fbxDanceAction.fadeOut(0.12);
-                            this.fbxJumpAction.reset().fadeIn(0.12).play();
-                        }
-
-                        // Aerodynamic forward lean while in the air
-                        const forwardLean = Math.min(0.25, (horizSpeed / this.maxSpeed) * 0.25);
-                        this.fbxGroup.rotation.x = forwardLean;
-                        this.fbxGroup.position.y = 0;
-
-                        if (this.fbxMixer) {
-                            this.fbxMixer.update(dt);
-                        }
-                    } else {
-                        // Ground / Run / Dance / Idle State
-                        if (this.isDancing && this.fbxDanceAction) {
-                            if (this.currentFBXAnim !== 'dance') {
-                                this.currentFBXAnim = 'dance';
-                                if (this.fbxRunAction) this.fbxRunAction.fadeOut(0.25);
-                                if (this.fbxJumpAction) this.fbxJumpAction.fadeOut(0.25);
-                                this.fbxDanceAction.reset().fadeIn(0.25).play();
-                            }
-                            this.fbxGroup.rotation.x = 0;
-                            this.fbxGroup.position.y = 0;
-                            if (this.fbxMixer) {
-                                this.fbxMixer.update(dt);
-                            }
-                        } else {
-                            if (this.currentFBXAnim !== 'run') {
-                                this.currentFBXAnim = 'run';
-                                if (this.fbxJumpAction) this.fbxJumpAction.fadeOut(0.15);
-                                if (this.fbxDanceAction) this.fbxDanceAction.fadeOut(0.15);
-                                if (this.fbxRunAction) {
-                                    this.fbxRunAction.reset().fadeIn(0.15).play();
-                                }
-                            }
-
-                            if (horizSpeed > 1.2) {
-                                const isReversing = (this.forwardSpeed < -0.5);
-                                // Forward lean into the wind as Sonic accelerates; slight backward lean if reversing
-                                const forwardLean = isReversing ? -0.12 : Math.min(0.35, (horizSpeed / this.maxSpeed) * 0.35);
-                                this.fbxGroup.rotation.x = forwardLean;
-                                this.fbxGroup.position.y = 0;
-
-                                if (this.fbxMixer && this.fbxRunAction) {
-                                    this.fbxRunAction.paused = false;
-                                    // Scale playback rate proportional to velocity (smooth reverse stepping if backing up)
-                                    const playbackRate = isReversing ? -0.65 : Math.max(0.65, horizSpeed / 17.0);
-                                    this.fbxRunAction.timeScale = playbackRate;
-                                    this.fbxMixer.update(dt);
-                                }
-                            } else {
-                                // Idle gentle breathing bob
-                                const idleBreath = Math.sin(this.animTime * 3.0) * 0.025;
-                                this.fbxGroup.position.y = idleBreath;
-                                this.fbxGroup.rotation.x = 0;
-
-                                if (this.fbxMixer && this.fbxRunAction) {
-                                    if (this.fbxRunAction.time < 0.05) {
-                                        this.fbxRunAction.time = 0.28;
-                                        this.fbxMixer.update(0);
-                                    }
-                                    this.fbxRunAction.paused = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         // 3. Boost / Spin Energy Aura
         if (this.boostAura) {
-            const showAura = (this.isBoosting || this.isChargingSpinDash) && (this.renderMode === 'mesh3d' || this.renderMode === 'gltf' || this.renderMode === 'fbx' || this.renderMode === 'hanuman');
+            const showAura = (this.isBoosting || this.isChargingSpinDash) && (this.renderMode === 'mesh3d' || this.renderMode === 'hanuman');
             this.boostAura.visible = showAura;
             if (showAura) {
                 this.boostAura.rotation.y += dt * 8.0;
@@ -1425,7 +1123,7 @@ class SonicPlayer {
         this.isGrounded = false;
         this.isJumping = true;
         this.isSpringBouncing = true;
-        this.isSpinning = (this.renderMode !== 'fbx' && this.renderMode !== 'hanuman');
+        this.isSpinning = (this.renderMode !== 'hanuman');
         window.soundManager.playSpring();
     }
 
@@ -1440,7 +1138,7 @@ class SonicPlayer {
         this.velocity.z = Math.cos(this.rotationY) * this.forwardSpeed;
         this.isDashing = true;
         this.dashTimer = 1.25; // 1.25s sustained dash surge!
-        this.isSpinning = (this.renderMode !== 'fbx' && this.renderMode !== 'hanuman');
+        this.isSpinning = (this.renderMode !== 'hanuman');
 
         if (window.soundManager && window.soundManager.playDash) {
             window.soundManager.playDash();
@@ -1468,11 +1166,8 @@ class SonicPlayer {
             if (window.soundManager.playSpring) window.soundManager.playSpring();
         }
 
-        if (this.currentFBXAnim !== 'run') {
-            this.currentFBXAnim = 'run';
-            if (this.fbxJumpAction) this.fbxJumpAction.fadeOut(0.1);
-            if (this.fbxDanceAction) this.fbxDanceAction.fadeOut(0.1);
-            if (this.fbxRunAction) this.fbxRunAction.reset().fadeIn(0.1).play();
+        if (this.currentHanumanAnim !== 'runFast' && this.hanumanFastRunAction) {
+            this.switchHanumanAnim('runFast', 0.1);
         }
     }
 
@@ -1600,13 +1295,8 @@ class SonicPlayer {
 
         this.characterModel.rotation.set(0, 0, 0);
         this.modelGroup.rotation.set(totalPitch, this.rotationY, this.bankingAngle, 'YXZ');
-        if (this.gltfGroup) {
-            this.gltfGroup.rotation.set(totalPitch, this.rotationY, this.bankingAngle, 'YXZ');
-            const runFreq = this.loopSpeed * 0.6 + 6.0;
-            this.gltfGroup.position.y = Math.abs(Math.sin(this.animTime * runFreq)) * 0.12;
-        }
-        if (this.fbxGroup) {
-            this.fbxGroup.rotation.set(totalPitch, this.rotationY, this.bankingAngle, 'YXZ');
+        if (this.hanumanGroup) {
+            this.hanumanGroup.rotation.set(totalPitch, this.rotationY, this.bankingAngle, 'YXZ');
         }
         if (this.ballMesh) {
             this.ballMesh.rotation.set(totalPitch, this.rotationY, this.bankingAngle, 'YXZ');
@@ -1632,8 +1322,7 @@ class SonicPlayer {
             this.loopPitch = 0;
             this.characterModel.rotation.set(0, 0, 0);
             this.modelGroup.rotation.set(0, this.rotationY, 0);
-            if (this.gltfGroup) this.gltfGroup.rotation.set(0, this.rotationY, 0);
-            if (this.fbxGroup) this.fbxGroup.rotation.set(0, this.rotationY, 0);
+            if (this.hanumanGroup) this.hanumanGroup.rotation.set(0, this.rotationY, 0);
             this.strafeVelLateral = 0;
             this.strafeVelX = 0;
             this.forwardSpeed = Math.max(this.loopSpeed, 46);
