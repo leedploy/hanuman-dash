@@ -808,147 +808,132 @@ class ObjectManager {
     }
 
     spawnGreenHillObjects() {
-        // --- 1. GOLDEN RINGS (Over 450+ rings following terrain slopes and elevations) ---
-        const ringRows = [
-            // Starting straight (z: 0 to -120)
-            { startZ: -10, count: 5, spacing: 5, x: 0 },
-            { startZ: -45, count: 7, spacing: 4.5, x: -4 },
-            { startZ: -45, count: 7, spacing: 4.5, x: 4 },
+        // =========================================================================
+        // DYNAMIC MULTIDIMENSIONAL STAR FORMATIONS (ป่าหิมพานต์ 5,600m)
+        // Slalom S-Curves, Airborne Jump Arcs, Diamond Constellations & Wedge Clusters
+        // =========================================================================
 
-            // Slope 1 climbing (z: -120 to -240, rising from 0 to 22)
-            { startZ: -125, count: 18, spacing: 6.0, x: 0 },
+        // --- ZONE 1: Starting Sacred Avenue (z: 0 to -120) ---
+        this.createWedgeCluster(0, -12, -1);
+        this.createSlalomRings(-30, 48, 10, 4.5, 1.5);
+        this.createJumpArc(0, 0, -80, 24, 8.5, 7); // Parabolic Jump Arc over start gap into Spring Pad!
 
-            // Plateau 1 (z: -240 to -360)
-            { startZ: -250, count: 6, spacing: 6, x: -5 },
-            { startZ: -250, count: 6, spacing: 6, x: 5 },
-            { startZ: -300, count: 8, spacing: 5, x: 0 },
+        // --- ZONE 2: Sacred Slope Climbing (z: -120 to -240, rising from 0 to 22m) ---
+        this.createTwinLaneRings(-4.5, 4.5, -125, 8, 6.5);
+        this.createDiamondCluster(0, -185, 3.8);
+        this.createJumpArc(0, 0, -205, 26, 7.5, 7); // Cresting the hill into high plateau
 
-            // Downhill Slope 1 (z: -360 to -460, dipping from 22 down to 4) - perfectly follows slope descent!
-            { startZ: -365, count: 16, spacing: 6.0, x: 0 },
-            { startZ: -375, count: 8, spacing: 8.0, x: -4 },
-            { startZ: -375, count: 8, spacing: 8.0, x: 4 },
+        // --- ZONE 3: High Plateau & Asura Brambles (z: -240 to -360) ---
+        this.createWedgeCluster(0, -245, -1);
+        this.createSlalomRings(-265, 55, 11, 5.2, 1.5); // Weaving between brambles at -315
+        this.createDiamondCluster(0, -325, 3.8);
+        this.createJumpArc(0, 0, -340, 26, 9.0, 7); // Jump Arc over plateau launch into Crescent Moon!
 
-            // Valley & Bridge (z: -460 to -690)
-            { startZ: -470, count: 6, spacing: 6, x: 0 },
-            { startZ: -580, count: 12, spacing: 7, x: 0 },
+        // --- ZONE 4: Downhill Thrill Drop (z: -360 to -460, plunging 22m down to 4m) ---
+        this.createSlalomRings(-368, 72, 13, 5.5, 2.0); // High-speed downhill S-curve!
+        this.createJumpArc(0, 0, -445, 20, 6.5, 6); // Jump Arc over valley floor brambles
 
-            // Mid-Course Highway (z: -690 to -1080)
-            { startZ: -710, count: 8, spacing: 5, x: -3 },
-            { startZ: -710, count: 8, spacing: 5, x: 3 },
-            { startZ: -780, count: 12, spacing: 7, x: 0 },
-            { startZ: -890, count: 14, spacing: 8, x: -5 },
-            { startZ: -890, count: 14, spacing: 8, x: 5 },
-            { startZ: -1010, count: 10, spacing: 7, x: 0 },
+        // --- ZONE 5: Loop #1 & Sacred Cascade Bridge (z: -460 to -690) ---
+        this.createLoopRings(0, 4, -510, 16, -2.5, 2.5, 12); // Inside Loop #1 360° Ring Arc!
+        this.createWedgeCluster(0, -542, -1);
+        this.createSlalomRings(-575, 75, 12, 4.5, 1.5); // Weaving across the turquoise cascade bridge
+        this.createDiamondCluster(0, -660, 3.8);
 
-            // Mountain Ramp Climb (z: -1080 to -1220, rising from 8 to 26)
-            { startZ: -1090, count: 17, spacing: 7.0, x: 0 },
+        // --- ZONE 6: Mid-Course Himavanta Highway (z: -690 to -1080) ---
+        this.createTwinLaneRings(-4.5, 4.5, -700, 7, 6.0);
+        this.createJumpArc(0, 0, -735, 22, 7.0, 6); // Jump Arc over bramble at -740
+        this.createSlalomRings(-770, 85, 13, 5.2, 1.5);
+        this.createWedgeCluster(0, -870, -1);
+        this.createTwinLaneRings(-5.0, 5.0, -895, 8, 6.5);
+        this.createDiamondCluster(0, -960, 4.0);
+        this.createJumpArc(0, 0, -980, 25, 7.5, 7);
 
-            // High Ridge Plateau (z: -1220 to -1360)
-            { startZ: -1240, count: 8, spacing: 6, x: -4 },
-            { startZ: -1240, count: 8, spacing: 6, x: 4 },
-            { startZ: -1300, count: 8, spacing: 6, x: 0 },
+        // --- ZONE 7: Mountain Ramp Climb & Corkscrew Ridge (z: -1080 to -1360, rising to 26m) ---
+        this.createSlalomRings(-1085, 95, 14, 4.8, 1.5); // Climbing up mountain ramp
+        this.createDiamondCluster(0, -1195, 4.0); // Checkpoint 2 vista
+        this.createTwinLaneRings(-4.5, 4.5, -1220, 7, 6.0);
+        this.createJumpArc(0, 0, -1265, 22, 7.0, 6); // Jump Arc over brambles at -1270
+        this.createWedgeCluster(0, -1300, -1);
 
-            // Sky Islands & Bridges (z: -1360 to -1680)
-            { startZ: -1380, count: 8, spacing: 7, x: 0 },
-            { startZ: -1520, count: 7, spacing: 7, x: -10 },
-            { startZ: -1520, count: 7, spacing: 7, x: 10 },
+        // --- ZONE 8: Sky Islands & Ravine Bridges (z: -1360 to -1680) ---
+        this.createSlalomRings(-1370, 75, 11, 4.5, 1.5);
+        // Split routes onto Sky Islands
+        for (let i = 0; i < 6; i++) {
+            const z = -1510 - i * 6.5;
+            this.createRing(-10, this.getSafeRingY(-10, z), z);
+            this.createRing(10, this.getSafeRingY(10, z), z);
+        }
+        this.createRingArc(0, 36, -1630, 10, 20); // Massive Parabolic Jump Arc across Sky Ravine!
 
-            // Rollercoaster Dip & Rise (z: -1680 to -2000)
-            // Downhill drop: z: -1680 to -1840 (dropping from 28 to 4)
-            { startZ: -1690, count: 18, spacing: 8.0, x: 0 },
-            { startZ: -1850, count: 8, spacing: 7.5, x: 0 },
-            // Uphill rise: z: -1920 to -2000 (rising from 4 to 12)
-            { startZ: -1925, count: 10, spacing: 7.0, x: 0 },
+        // --- ZONE 9: Rollercoaster Dip & Rise (z: -1680 to -2000) ---
+        this.createSlalomRings(-1685, 105, 14, 5.5, 2.0); // Sweeping 40m drop rollercoaster weave
+        this.createDiamondCluster(0, -1810, 4.2);
+        this.createWedgeCluster(0, -1880, -1);
+        this.createJumpArc(0, 0, -1905, 22, 7.5, 6); // Jump Arc onto hill
+        this.createSlalomRings(-1930, 65, 10, 4.5, 1.5);
 
-            // Loop 2 Entrance & Approach (z: -2000 to -2060)
-            { startZ: -2005, count: 8, spacing: 6.5, x: 0 },
-            { startZ: -2070, count: 6, spacing: 6, x: 0 },
-
-            // Winding Emerald Canyon (z: -2240 to -2540)
-            // Canyon slope: z: -2180 to -2240 (rising from 6 to 10)
-            { startZ: -2185, count: 8, spacing: 6.5, x: 0 },
-            { startZ: -2260, count: 10, spacing: 7, x: -4 },
-            { startZ: -2260, count: 10, spacing: 7, x: 4 },
-            { startZ: -2380, count: 12, spacing: 7, x: 0 },
-            { startZ: -2470, count: 10, spacing: 6, x: 0 },
-
-            // Supersonic Finish Speedway (z: -2540 to -2840)
-            // Speedway slope: z: -2540 to -2620 (rising from 10 to 12)
-            { startZ: -2545, count: 10, spacing: 7.0, x: 0 },
-            { startZ: -2560, count: 10, spacing: 7, x: -5 },
-            { startZ: -2560, count: 10, spacing: 7, x: 5 },
-            { startZ: -2660, count: 14, spacing: 6, x: 0 },
-            { startZ: -2770, count: 12, spacing: 6, x: -3 },
-            { startZ: -2770, count: 12, spacing: 6, x: 3 },
-
-            // Zone 15: Sky Highway & Cloud Aqueduct (z: -2900 to -3400)
-            { startZ: -2910, count: 18, spacing: 7.0, x: 0 },
-            { startZ: -3080, count: 12, spacing: 6.5, x: -4 },
-            { startZ: -3080, count: 12, spacing: 6.5, x: 4 },
-            { startZ: -3200, count: 10, spacing: 6.0, x: -11 }, // Left cloud split
-            { startZ: -3200, count: 10, spacing: 6.0, x: 11 },  // Right cloud split
-            { startZ: -3320, count: 10, spacing: 6.5, x: 0 },
-
-            // Zone 16: Approach to Loop #3 & Coastal Waterfall (z: -3400 to -3700)
-            { startZ: -3410, count: 12, spacing: 7.0, x: 0 },
-            { startZ: -3580, count: 14, spacing: 7.0, x: 0 },
-
-            // Zone 17: Coastal Sunset Bay & Water Bridge (z: -3700 to -4250)
-            { startZ: -3720, count: 12, spacing: 7.0, x: 0 },
-            { startZ: -3840, count: 14, spacing: 6.5, x: 0 },
-            { startZ: -3980, count: 12, spacing: 7.0, x: -5 },
-            { startZ: -4160, count: 12, spacing: 7.0, x: 5 },
-
-            // Zone 18: Rollercoaster Triple S-Curves (z: -4250 to -4850)
-            { startZ: -4260, count: 16, spacing: 7.0, x: 0 },
-            { startZ: -4400, count: 14, spacing: 7.0, x: 0 },
-            { startZ: -4530, count: 14, spacing: 7.0, x: 0 },
-            { startZ: -4670, count: 12, spacing: 7.0, x: 0 },
-
-            // Zone 19: Grand Supersonic Speedway & Mega Boost Strip (z: -4850 to -5450)
-            { startZ: -4870, count: 18, spacing: 7.5, x: -5 },
-            { startZ: -4870, count: 18, spacing: 7.5, x: 5 },
-            { startZ: -5050, count: 24, spacing: 7.0, x: 0 },
-            { startZ: -5260, count: 18, spacing: 7.5, x: -4 },
-            { startZ: -5260, count: 18, spacing: 7.5, x: 4 },
-
-            // Zone 20: Victory Colosseum & Giant Goal Approach (z: -5450 to -5600)
-            { startZ: -5460, count: 12, spacing: 6.0, x: 0 },
-            { startZ: -5540, count: 8, spacing: 5.5, x: -3 },
-            { startZ: -5540, count: 8, spacing: 5.5, x: 3 },
-
-            // Secret Upper Paths (Sky platforms)
-            { startZ: -140, count: 6, spacing: 6, x: -18 },
-            { startZ: -290, count: 5, spacing: 6, x: 18 },
-            { startZ: -1400, count: 8, spacing: 7, x: -16 },
-            { startZ: -2340, count: 8, spacing: 7, x: 16 }
-        ];
-
-        ringRows.forEach(row => {
-            for (let i = 0; i < row.count; i++) {
-                const z = row.startZ - (i * row.spacing);
-                let y = 1.35;
-                
-                // Dynamic ground elevation query: guarantees rings on slopes or hills
-                // are ALWAYS positioned cleanly at eye level (+1.35m) above the ground
-                const world = this.world || (window.game && window.game.world);
-                if (world && world.getGroundHeight) {
-                    const groundY = world.getGroundHeight(row.x, z);
-                    if (groundY > -40) {
-                        y = groundY + 1.35;
-                    }
-                }
-                this.createRing(row.x, y, z);
-            }
-        });
-
-        // High Jump Ring Arcs (Arching across springs & loops)
-        this.createRingArc(0, 24, -95, 8, 12);
-        this.createLoopRings(0, 4, -510, 16, -2.5, 2.5, 10);  // Inside Loop #1 360° Ring Arc
-        this.createRingArc(0, 36, -1630, 9, 16);  // Over Sky Island Gap
+        // --- ZONE 10: Loop #2 Entrance & 360° Arc (z: -2000 to -2240) ---
         this.createLoopRings(0, 6, -2120, 18, -2.5, 2.5, 12); // Inside Loop #2 360° Ring Arc!
+        this.createWedgeCluster(0, -2155, -1);
+        this.createTwinLaneRings(-4.5, 4.5, -2185, 7, 6.0);
+
+        // --- ZONE 11: Winding Emerald Canyon (z: -2240 to -2540) ---
+        this.createSlalomRings(-2240, 95, 14, 5.4, 2.5); // Tight curves hugging canyon walls
+        this.createJumpArc(0, 0, -2315, 22, 7.0, 6); // Jump Arc over canyon brambles at -2320
+        this.createDiamondCluster(0, -2390, 4.0);
+        this.createSlalomRings(-2430, 75, 11, 4.5, 1.5);
+
+        // --- ZONE 12: Supersonic Finish Speedway (z: -2540 to -2840) ---
+        this.createTwinLaneRings(-5.0, 5.0, -2545, 9, 6.5);
+        this.createJumpArc(0, 0, -2635, 22, 7.0, 6); // Jump Arc over brambles at -2640
+        this.createWedgeCluster(0, -2675, -1);
+        this.createSlalomRings(-2710, 85, 13, 5.0, 1.5);
+        this.createDiamondCluster(0, -2810, 4.0);
+
+        // --- ZONE 13: Sky Highway & Cloud Aqueduct (z: -2900 to -3400) ---
+        this.createSlalomRings(-2910, 115, 15, 5.5, 2.0); // High sky highway weave
+        this.createDiamondCluster(0, -3050, 4.2);
+        // Cloud Path Split (Left & Right)
+        for (let i = 0; i < 7; i++) {
+            const z = -3190 - i * 6.5;
+            this.createRing(-11, this.getSafeRingY(-11, z), z);
+            this.createRing(11, this.getSafeRingY(11, z), z);
+        }
+        this.createJumpArc(0, 0, -3345, 32, 11.0, 8); // Grand Sky Launch Jump Arc into Crescent Moon!
+
+        // --- ZONE 14: Giant Loop #3 & Coastal Waterfall (z: -3400 to -3700) ---
         this.createLoopRings(0, 10, -3530, 20, -2.5, 2.5, 14); // Inside Giant Loop #3 360° Ring Arc!
-        this.createRingArc(0, 16, -5570, 8, 14); // Final Ring Arc leading into Giant Goal Ring!
+        this.createWedgeCluster(0, -3575, -1);
+        this.createSlalomRings(-3620, 70, 10, 4.5, 1.5);
+
+        // --- ZONE 15: Coastal Sunset Lagoon & Water Bridge (z: -3700 to -4250) ---
+        this.createSlalomRings(-3715, 95, 14, 5.2, 2.0);
+        this.createJumpArc(0, 0, -3795, 24, 7.0, 6); // Jump Arc over lagoon brambles at -3800
+        this.createDiamondCluster(0, -3880, 4.2);
+        this.createTwinLaneRings(-4.5, 4.5, -3950, 9, 6.5);
+        this.createSlalomRings(-4060, 95, 14, 5.0, 2.0);
+        this.createJumpArc(0, 0, -4195, 22, 7.0, 6);
+
+        // --- ZONE 16: Rollercoaster Triple S-Curves (z: -4250 to -4850) ---
+        this.createSlalomRings(-4250, 125, 18, 6.0, 2.5); // High-speed acrobatic slalom wave!
+        this.createJumpArc(0, 0, -4355, 22, 7.0, 6); // Jump Arc over brambles at -4360
+        this.createDiamondCluster(0, -4480, 4.2);
+        this.createSlalomRings(-4530, 105, 15, 5.5, 2.0);
+        this.createWedgeCluster(0, -4670, -1);
+
+        // --- ZONE 17: Grand Supersonic Speedway (z: -4850 to -5450) ---
+        this.createTwinLaneRings(-5.0, 5.0, -4870, 8, 6.5);
+        this.createJumpArc(0, 0, -4975, 24, 7.0, 6); // Jump Arc over brambles at -4980
+        this.createDiamondCluster(0, -5040, 4.2);
+        this.createSlalomRings(-5080, 105, 15, 5.4, 2.0);
+        this.createJumpArc(0, 0, -5175, 22, 7.0, 6); // Jump Arc over brambles at -5180
+        this.createWedgeCluster(0, -5230, -1);
+        this.createTwinLaneRings(-4.5, 4.5, -5260, 9, 6.5);
+
+        // --- ZONE 18: Victory Pavilion & Himavanta Pinnacle (z: -5450 to -5600) ---
+        this.createDiamondCluster(0, -5465, 4.0);
+        this.createSlalomRings(-5485, 60, 10, 4.2, 1.5);
+        this.createRingArc(0, 16, -5570, 8.5, 16); // Royal Triumphal Ring Arc into Giant Goal Ring!
 
         // --- CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง หาวเป็นดาวเป็นเดือน) ---
         this.createMoon(0, 32, -95);      // Apex of Spring Launch #1
@@ -1143,6 +1128,63 @@ class ObjectManager {
             const y = groundY + radius * (1 - Math.cos(theta)) + 1.2;
             const x = centerX + entryX + (exitX - entryX) * ((i + 0.5) / count);
             this.createRing(x, y, z);
+        }
+    }
+
+    createSlalomRings(startZ, length, count = 10, amplitude = 5.0, cycles = 1.5, offsetX = 0) {
+        for (let i = 0; i < count; i++) {
+            const t = i / (count - 1);
+            const z = startZ - t * length;
+            const x = offsetX + Math.sin(t * Math.PI * 2 * cycles) * amplitude;
+            const y = this.getSafeRingY(x, z);
+            this.createRing(x, y, z);
+        }
+    }
+
+    createJumpArc(startX, endX, startZ, length, arcHeight = 7.5, count = 7) {
+        for (let i = 0; i < count; i++) {
+            const t = i / (count - 1);
+            const x = startX + (endX - startX) * t;
+            const z = startZ - t * length;
+            const baseGroundY = this.getSafeGroundY(x, z, 0);
+            const y = baseGroundY + 1.35 + Math.sin(t * Math.PI) * arcHeight;
+            this.createRing(x, y, z);
+        }
+    }
+
+    createWedgeCluster(centerX, centerZ, dir = -1) {
+        // 6-star aerodynamic V-wedge constellation
+        const positions = [
+            [centerX, centerZ],
+            [centerX - 2.5, centerZ + dir * 3.5], [centerX + 2.5, centerZ + dir * 3.5],
+            [centerX - 5.0, centerZ + dir * 7.0], [centerX, centerZ + dir * 7.0], [centerX + 5.0, centerZ + dir * 7.0]
+        ];
+        positions.forEach(p => {
+            const y = this.getSafeRingY(p[0], p[1]);
+            this.createRing(p[0], y, p[1]);
+        });
+    }
+
+    createDiamondCluster(centerX, centerZ, radius = 3.8) {
+        // 5-star diamond constellation
+        const positions = [
+            [centerX, centerZ],
+            [centerX, centerZ - radius],
+            [centerX, centerZ + radius],
+            [centerX - radius, centerZ],
+            [centerX + radius, centerZ]
+        ];
+        positions.forEach(p => {
+            const y = this.getSafeRingY(p[0], p[1]);
+            this.createRing(p[0], y, p[1]);
+        });
+    }
+
+    createTwinLaneRings(leftX = -4.5, rightX = 4.5, startZ, count = 8, spacing = 6.0) {
+        for (let i = 0; i < count; i++) {
+            const z = startZ - i * spacing;
+            this.createRing(leftX, this.getSafeRingY(leftX, z), z);
+            this.createRing(rightX, this.getSafeRingY(rightX, z), z);
         }
     }
 
