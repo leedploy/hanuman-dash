@@ -647,6 +647,7 @@ class SonicGame {
     }
 
     setStage(stageId) {
+        this.clearFloatingNumbers();
         this.currentStageId = stageId;
         if (this.world) this.world.loadStage(stageId);
         if (this.objects) this.objects.loadStageObjects(stageId);
@@ -915,6 +916,7 @@ class SonicGame {
     }
 
     quitToTitleScreen() {
+        this.clearFloatingNumbers();
         this.hideHelpModal();
         this.hideSettingsModal();
         this.hideStandaloneLeaderboard();
@@ -990,6 +992,7 @@ class SonicGame {
     }
 
     restartGame() {
+        this.clearFloatingNumbers();
         this.clearAllTallyTimers();
         this.isTallying = false;
         if (this.stageClearScreen) this.stageClearScreen.classList.add('hidden');
@@ -1613,6 +1616,88 @@ class SonicGame {
         }
     }
 
+    spawnFloatingStarScore(count = 1, isMoon = false) {
+        if (this.state !== 'PLAYING') return;
+        if (!this.sonic || !this.camera) return;
+
+        if (!this.floatingContainer) {
+            this.floatingContainer = document.getElementById('floating-numbers-container');
+            if (!this.floatingContainer) {
+                this.floatingContainer = document.createElement('div');
+                this.floatingContainer.id = 'floating-numbers-container';
+                document.body.appendChild(this.floatingContainer);
+            }
+        }
+
+        // Limit concurrent floating elements to max 18 for high performance
+        while (this.floatingContainer.children.length >= 18) {
+            this.floatingContainer.removeChild(this.floatingContainer.firstElementChild);
+        }
+
+        // Calculate 3D position above Hanuman's head
+        // Hanuman is centered at this.sonic.position, height ~1.6m
+        // We place it at +3.2m in Y so it floats high above his head / celestial crown
+        const headPos = new THREE.Vector3(
+            this.sonic.position.x,
+            this.sonic.position.y + 3.2,
+            this.sonic.position.z
+        );
+
+        // Project 3D coordinate to NDC (-1 to +1)
+        headPos.project(this.camera);
+
+        // If behind camera (z > 1.0), discard
+        if (headPos.z > 1.0) return;
+
+        // Convert NDC to screen pixels
+        let screenX = (headPos.x * 0.5 + 0.5) * window.innerWidth;
+        let screenY = (-(headPos.y * 0.5) + 0.5) * window.innerHeight;
+
+        // Clamp inside visible viewport
+        screenX = Math.max(50, Math.min(window.innerWidth - 50, screenX));
+        screenY = Math.max(70, Math.min(window.innerHeight - 80, screenY));
+
+        const el = document.createElement('div');
+        el.className = isMoon ? 'floating-star-num moon-burst' : 'floating-star-num';
+
+        // Arcade jitter & tilt so rapid star pickup forms a sparkling fountain
+        const driftX = (Math.random() - 0.5) * 52;
+        const driftY = (Math.random() - 0.5) * 16;
+        const popRot = (Math.random() - 0.5) * 22;
+
+        el.style.left = `${screenX.toFixed(1)}px`;
+        el.style.top = `${screenY.toFixed(1)}px`;
+        el.style.setProperty('--drift-x', `${driftX.toFixed(1)}px`);
+        el.style.setProperty('--drift-y', `${driftY.toFixed(1)}px`);
+        el.style.setProperty('--pop-rot', `${popRot.toFixed(1)}deg`);
+
+        if (isMoon) {
+            el.innerHTML = `<span>+${count}</span><span class="star-icon">🌙</span>`;
+        } else {
+            el.innerHTML = `<span>+${count}</span><span class="star-icon">⭐</span>`;
+        }
+
+        this.floatingContainer.appendChild(el);
+
+        const removeEl = () => {
+            if (el.parentNode === this.floatingContainer) {
+                this.floatingContainer.removeChild(el);
+            }
+        };
+
+        el.addEventListener('animationend', removeEl, { once: true });
+        setTimeout(removeEl, isMoon ? 1200 : 750);
+    }
+
+    clearFloatingNumbers() {
+        if (!this.floatingContainer) {
+            this.floatingContainer = document.getElementById('floating-numbers-container');
+        }
+        if (this.floatingContainer) {
+            this.floatingContainer.innerHTML = '';
+        }
+    }
+
     updateHUD() {
         if (this.scoreEl) this.scoreEl.textContent = this.sonic.score.toString().padStart(6, '0');
         if (this.timeEl) this.timeEl.textContent = this.formatTime(this.gameTime);
@@ -1806,6 +1891,7 @@ class SonicGame {
 
     onGameOver() {
         if (this.state === 'GAMEOVER') return;
+        this.clearFloatingNumbers();
         this.state = 'GAMEOVER';
         window.soundManager.stopBGM();
         if (window.soundManager.playGameOver) {

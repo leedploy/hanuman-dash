@@ -1349,8 +1349,9 @@ class SonicPlayer {
         if (window.soundManager) {
             window.soundManager.playRing();
         }
-        if (window.game && window.game.triggerHudRingBounce) {
-            window.game.triggerHudRingBounce();
+        if (window.game) {
+            if (window.game.triggerHudRingBounce) window.game.triggerHudRingBounce();
+            if (window.game.spawnFloatingStarScore) window.game.spawnFloatingStarScore(count, false);
         }
     }
 
@@ -1367,8 +1368,9 @@ class SonicPlayer {
         } else if (window.soundManager) {
             window.soundManager.playRing();
         }
-        if (window.game && window.game.triggerHudRingBounce) {
-            window.game.triggerHudRingBounce();
+        if (window.game) {
+            if (window.game.triggerHudRingBounce) window.game.triggerHudRingBounce();
+            if (window.game.spawnFloatingStarScore) window.game.spawnFloatingStarScore(20, true);
         }
         if (window.game && window.game.showToast) {
             window.game.showToast('🌙 หาวเป็นเดือน! วายุบูสต์ 100% +5,000 PTS!', true, 2400);
