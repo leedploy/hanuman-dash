@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Hanuman Dash 3D - วายุบุตรพญาพานร • Himavanta Speed Runner</title>
-    <link rel="stylesheet" href="style.css?v=11.3">
+    <link rel="stylesheet" href="style.css?v=11.4">
     <style>
         /* Modals & Screens Critical Fixed Overlay Styles */
         .modal-overlay {
@@ -693,6 +693,13 @@
     <!-- 3D Canvas Container -->
     <div id="game-container"></div>
 
+    <!-- Dynamic Above-Head Star Counter Badge (แสดงจำนวนดาวสะสมเหนือหัวหนุมาน) -->
+    <div id="head-star-badge" class="head-star-badge hidden">
+        <span id="head-star-icon" class="badge-star-icon">⭐</span>
+        <span id="head-star-val" class="badge-star-val">0</span>
+        <span id="head-star-inc" class="badge-star-inc">+1</span>
+    </div>
+
     <!-- Floating Star / Ring Collection Numbers Overlay (Arcade Pop Above Head) -->
     <div id="floating-numbers-container"></div>
 
@@ -1186,13 +1193,13 @@
     </script>
     <script src="js/GLTFLoader.js"></script>
 
-    <!-- Game Scripts (v=11.3 Floating Star Numbers) -->
-    <script src="js/audio.js?v=11.3"></script>
-    <script src="js/spritesheet.js?v=11.3"></script>
-    <script src="js/sonic.js?v=11.3"></script>
-    <script src="js/world.js?v=11.3"></script>
-    <script src="js/objects.js?v=11.3"></script>
-    <script src="js/leaderboard.js?v=11.3"></script>
-    <script src="js/game.js?v=11.3"></script>
+    <!-- Game Scripts (v=11.4 Above-Head Star Counter) -->
+    <script src="js/audio.js?v=11.4"></script>
+    <script src="js/spritesheet.js?v=11.4"></script>
+    <script src="js/sonic.js?v=11.4"></script>
+    <script src="js/world.js?v=11.4"></script>
+    <script src="js/objects.js?v=11.4"></script>
+    <script src="js/leaderboard.js?v=11.4"></script>
+    <script src="js/game.js?v=11.4"></script>
 </body>
 </html>
