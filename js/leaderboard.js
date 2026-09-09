@@ -3,7 +3,7 @@
 
 class LeaderboardManager {
     constructor() {
-        this.storageKey = 'sonic3d_leaderboard_v1';
+        this.storageKey = 'hanuman_leaderboard_v1';
         this.apiUrl = '/api/leaderboard';
         this.maxEntries = 10;
         this.currentMode = 'global'; // 'global' or 'local'
@@ -11,11 +11,11 @@ class LeaderboardManager {
         this.isLoading = false;
         this.globalScores = null;
         this.defaultScores = [
-            { name: 'SONIC', score: 165000, time: '3:12:45', timeSec: 192.45, rings: 120, date: '06/09/2026' },
-            { name: 'SHADOW', score: 148000, time: '3:25:80', timeSec: 205.80, rings: 95, date: '06/09/2026' },
-            { name: 'TAILS', score: 124000, time: '3:42:10', timeSec: 222.10, rings: 80, date: '06/09/2026' },
-            { name: 'KNUCKLES', score: 105000, time: '3:58:30', timeSec: 238.30, rings: 65, date: '06/09/2026' },
-            { name: 'AMY', score: 88000, time: '4:15:90', timeSec: 255.90, rings: 50, date: '06/09/2026' }
+            { name: 'HANUMAN', score: 185000, time: '3:12:45', timeSec: 192.45, rings: 120, date: '09/09/2026' },
+            { name: 'SUGREEVA', score: 168000, time: '3:25:80', timeSec: 205.80, rings: 95, date: '09/09/2026' },
+            { name: 'ONGKOT', score: 144000, time: '3:42:10', timeSec: 222.10, rings: 80, date: '09/09/2026' },
+            { name: 'NILAPAT', score: 125000, time: '3:58:30', timeSec: 238.30, rings: 65, date: '09/09/2026' },
+            { name: 'MACHANU', score: 98000, time: '4:15:90', timeSec: 255.90, rings: 50, date: '09/09/2026' }
         ];
 
         // Background probe to check if Cloudflare API is reachable

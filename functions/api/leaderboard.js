@@ -3,11 +3,11 @@
 // Supports Cloudflare KV (binding: LEADERBOARD_KV) with memory/default fallback
 
 const DEFAULT_SCORES = [
-    { name: 'SONIC', score: 165000, time: '3:12:45', timeSec: 192.45, rings: 120, date: 'GLOBAL' },
-    { name: 'SHADOW', score: 148000, time: '3:25:80', timeSec: 205.80, rings: 95, date: 'GLOBAL' },
-    { name: 'TAILS', score: 124000, time: '3:42:10', timeSec: 222.10, rings: 80, date: 'GLOBAL' },
-    { name: 'KNUCKLES', score: 105000, time: '3:58:30', timeSec: 238.30, rings: 65, date: 'GLOBAL' },
-    { name: 'AMY', score: 88000, time: '4:15:90', timeSec: 255.90, rings: 50, date: 'GLOBAL' }
+    { name: 'HANUMAN', score: 185000, time: '3:12:45', timeSec: 192.45, rings: 120, date: 'GLOBAL' },
+    { name: 'SUGREEVA', score: 168000, time: '3:25:80', timeSec: 205.80, rings: 95, date: 'GLOBAL' },
+    { name: 'ONGKOT', score: 144000, time: '3:42:10', timeSec: 222.10, rings: 80, date: 'GLOBAL' },
+    { name: 'NILAPAT', score: 125000, time: '3:58:30', timeSec: 238.30, rings: 65, date: 'GLOBAL' },
+    { name: 'MACHANU', score: 98000, time: '4:15:90', timeSec: 255.90, rings: 50, date: 'GLOBAL' }
 ];
 
 const CORS_HEADERS = {
@@ -35,7 +35,10 @@ export async function onRequestGet(context) {
 
         if (kv) {
             try {
-                const kvData = await kv.get('sonic3d_leaderboard_top10', 'json');
+                let kvData = await kv.get('hanuman_leaderboard_top10', 'json');
+                if (!kvData || !Array.isArray(kvData) || kvData.length === 0) {
+                    kvData = await kv.get('sonic3d_leaderboard_top10', 'json');
+                }
                 if (Array.isArray(kvData) && kvData.length > 0) {
                     scores = kvData;
                     storageSource = 'cloudflare_kv';
@@ -96,9 +99,9 @@ export async function onRequestPost(context) {
         const { name, score, timeSec, time, rings } = payload || {};
 
         // Validation & Sanitization: Supports English, Numbers, Thai (\u0E00-\u0E7F), spaces, dashes (Max 12 chars)
-        const rawName = typeof name === 'string' ? name.trim() : 'SONIC';
+        const rawName = typeof name === 'string' ? name.trim() : 'HANUMAN';
         const sanitized = rawName.replace(/[^a-zA-Z0-9\u0E00-\u0E7F _-]/g, '');
-        const cleanName = sanitized.substring(0, 12).trim() || 'SONIC';
+        const cleanName = sanitized.substring(0, 12).trim() || 'HANUMAN';
         const numScore = Math.min(Math.max(0, parseInt(score, 10) || 0), 9999999);
         const numTimeSec = Math.min(Math.max(1, parseFloat(timeSec) || 60), 7200);
         const numRings = Math.min(Math.max(0, parseInt(rings, 10) || 0), 999);
@@ -129,7 +132,10 @@ export async function onRequestPost(context) {
 
         if (kv) {
             try {
-                const kvData = await kv.get('sonic3d_leaderboard_top10', 'json');
+                let kvData = await kv.get('hanuman_leaderboard_top10', 'json');
+                if (!kvData || !Array.isArray(kvData) || kvData.length === 0) {
+                    kvData = await kv.get('sonic3d_leaderboard_top10', 'json');
+                }
                 if (Array.isArray(kvData) && kvData.length > 0) {
                     scores = kvData;
                 }
@@ -173,7 +179,7 @@ export async function onRequestPost(context) {
         // Save to KV if available
         if (kv) {
             try {
-                await kv.put('sonic3d_leaderboard_top10', JSON.stringify(scores));
+                await kv.put('hanuman_leaderboard_top10', JSON.stringify(scores));
                 storageSource = 'cloudflare_kv';
             } catch (kvErr) {
                 console.warn('Error writing to Cloudflare KV:', kvErr);
