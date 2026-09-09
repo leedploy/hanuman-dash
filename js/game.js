@@ -39,15 +39,6 @@ class SonicGame {
         this.gameOverModal = document.getElementById('game-over-modal');
         this.isDying = false;
 
-        // Dynamic Above-Head Star Counter Badge (Mario / Sonic Odyssey Style)
-        this.headStarBadgeEl = document.getElementById('head-star-badge');
-        this.headStarValEl = document.getElementById('head-star-val');
-        this.headStarIncEl = document.getElementById('head-star-inc');
-        this.headStarIconEl = document.getElementById('head-star-icon');
-        this.headStarActive = false;
-        this.headStarHideTimer = null;
-        this.headStarFadeTimer = null;
-
         // In-Game Help & Video Background Elements
         this.helpModal = document.getElementById('help-modal');
         this.startBgVideo = document.getElementById('start-bg-video');
@@ -1625,116 +1616,8 @@ class SonicGame {
         }
     }
 
-    spawnFloatingStarScore(totalStars, isMoon = false, count = 1) {
-        if (this.state !== 'PLAYING') return;
-        if (!this.sonic || !this.camera) return;
-
-        if (!this.headStarBadgeEl) {
-            this.headStarBadgeEl = document.getElementById('head-star-badge');
-            this.headStarValEl = document.getElementById('head-star-val');
-            this.headStarIncEl = document.getElementById('head-star-inc');
-            this.headStarIconEl = document.getElementById('head-star-icon');
-        }
-        if (!this.headStarBadgeEl) return;
-
-        // Clear existing hide timers
-        if (this.headStarHideTimer) {
-            clearTimeout(this.headStarHideTimer);
-            this.headStarHideTimer = null;
-        }
-        if (this.headStarFadeTimer) {
-            clearTimeout(this.headStarFadeTimer);
-            this.headStarFadeTimer = null;
-        }
-
-        this.headStarActive = true;
-        this.headStarBadgeEl.classList.remove('hidden', 'fade-out');
-
-        // Update Total Star Count (แสดงจำนวนดาวสะสม)
-        if (this.headStarValEl) {
-            this.headStarValEl.textContent = totalStars;
-            this.headStarValEl.classList.remove('val-punch');
-            void this.headStarValEl.offsetWidth;
-            this.headStarValEl.classList.add('val-punch');
-        }
-
-        // Configure Icon & Moon/Star mode
-        if (isMoon) {
-            this.headStarBadgeEl.classList.add('moon-mode');
-            if (this.headStarIconEl) this.headStarIconEl.textContent = '🌙';
-            if (this.headStarIncEl) this.headStarIncEl.textContent = `+${count || 20} 🌟`;
-        } else {
-            this.headStarBadgeEl.classList.remove('moon-mode');
-            if (this.headStarIconEl) this.headStarIconEl.textContent = '⭐';
-            if (this.headStarIncEl) this.headStarIncEl.textContent = `+${count || 1}`;
-        }
-
-        // Trigger star icon spin
-        this.headStarBadgeEl.classList.remove('icon-spin');
-        void this.headStarBadgeEl.offsetWidth;
-        this.headStarBadgeEl.classList.add('icon-spin');
-
-        // Trigger floating +1 / +20 increment popup
-        if (this.headStarIncEl) {
-            this.headStarIncEl.classList.remove('inc-pop');
-            void this.headStarIncEl.offsetWidth;
-            this.headStarIncEl.classList.add('inc-pop');
-        }
-
-        // Immediate position update
-        this.updateHeadStarBadgePosition();
-
-        // Auto fade out after 1.5 seconds of no star pickup
-        this.headStarHideTimer = setTimeout(() => {
-            if (this.headStarBadgeEl) {
-                this.headStarBadgeEl.classList.add('fade-out');
-                this.headStarFadeTimer = setTimeout(() => {
-                    if (this.headStarBadgeEl) {
-                        this.headStarBadgeEl.classList.add('hidden');
-                        this.headStarBadgeEl.classList.remove('fade-out');
-                    }
-                    this.headStarActive = false;
-                }, 450);
-            }
-        }, 1500);
-    }
-
-    updateHeadStarBadgePosition() {
-        if (!this.headStarActive || !this.headStarBadgeEl || !this.sonic || !this.camera) return;
-
-        const headPos = new THREE.Vector3(
-            this.sonic.position.x,
-            this.sonic.position.y + 3.2,
-            this.sonic.position.z
-        );
-        headPos.project(this.camera);
-
-        if (headPos.z > 1.0) {
-            this.headStarBadgeEl.style.opacity = '0';
-            return;
-        }
-
-        let screenX = (headPos.x * 0.5 + 0.5) * window.innerWidth;
-        let screenY = (-(headPos.y * 0.5) + 0.5) * window.innerHeight;
-
-        screenX = Math.max(70, Math.min(window.innerWidth - 70, screenX));
-        screenY = Math.max(60, Math.min(window.innerHeight - 80, screenY));
-
-        this.headStarBadgeEl.style.left = `${screenX.toFixed(1)}px`;
-        this.headStarBadgeEl.style.top = `${screenY.toFixed(1)}px`;
-    }
-
     clearFloatingNumbers() {
-        if (this.headStarHideTimer) clearTimeout(this.headStarHideTimer);
-        if (this.headStarFadeTimer) clearTimeout(this.headStarFadeTimer);
-        this.headStarActive = false;
-        if (this.headStarBadgeEl) {
-            this.headStarBadgeEl.classList.add('hidden');
-            this.headStarBadgeEl.classList.remove('fade-out');
-        }
-        if (this.floatingContainer) {
-            this.floatingContainer.innerHTML = '';
-        }
+        // No-op (Above-head star counter removed)
     }
 
     updateHUD() {
@@ -1747,11 +1630,6 @@ class SonicGame {
             } else {
                 this.ringsEl.classList.remove('pulse-zero');
             }
-        }
-
-        // Update Above-Head Star Badge 3D tracking
-        if (this.headStarActive) {
-            this.updateHeadStarBadgePosition();
         }
 
         // Lives HUD update
