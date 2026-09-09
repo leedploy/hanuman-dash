@@ -57,8 +57,8 @@
 
 โปรเจกต์นี้ใช้สถาปัตยกรรม **Ultra-Lightweight Repository**:
 - โค้ด HTML, CSS, JavaScript มีขนาดรวมเพียง **~1.5 MB**
-- ไฟล์โมเดล 3D (`.fbx`, `.glb`), เพลงประกอบ (`.mp3`), และวิดีโอ (`.mp4`) ทั้งหมด ถูกโฮสต์บน **Cloudflare R2 Global Edge Storage**:
-  - **Base URL**: `https://cdn.1thaiai.com/gameprompt/006Sonic3d/`
+- ไฟล์โมเดล 3D (`.glb`), เพลงประกอบ (`.mp3`), และวิดีโอ (`.mp4`) ทั้งหมด ถูกโฮสต์บน **Cloudflare R2 Global Edge Storage**:
+  - **Base URL**: `https://cdn.1thaiai.com/gameprompt/007Hanuman/`
   - มีการเปิด **CORS (`Access-Control-Allow-Origin: *`)** เรียบร้อยแล้ว ทำให้สามารถ Clone หรือ Deploy ไปรันบน Vercel, GitHub Pages หรือ Localhost ได้ทันทีโดยไม่ต้องดาวน์โหลดไฟล์ขนาดใหญ่ลงเครื่อง!
 
 ---
@@ -71,8 +71,8 @@
 ### วิธีที่ 2: ใช้ Python หรือ Node.js
 ```bash
 # Clone repository
-git clone https://github.com/leedploy/sonic3d.git
-cd sonic3d
+git clone https://github.com/leedploy/hanuman-dash.git
+cd hanuman-dash
 
 # รัน Local Server ด้วย Python
 python -m http.server 8000

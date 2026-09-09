@@ -596,12 +596,23 @@ class SonicPlayer {
                     this.hanumanActions[clip.name] = action;
                 });
 
-                // Exact clip mappings from Meshy
-                this.hanumanIdleAction = this.hanumanActions['Idle_3'] || this.hanumanActions['restpose'] || Object.values(this.hanumanActions)[0];
-                this.hanumanRunAction = this.hanumanActions['Running'] || Object.values(this.hanumanActions)[0];
-                this.hanumanFastRunAction = this.hanumanActions['RunFast'] || this.hanumanRunAction;
-                this.hanumanJumpAction = this.hanumanActions['Jump_Over_Obstacle_2'] || this.hanumanActions['Jump_and_Grab_Wall'] || this.hanumanRunAction;
-                this.hanumanDanceAction = this.hanumanActions['Not_Your_Mom'] || this.hanumanIdleAction;
+                // Clip mappings (supports Idle_9, Regular_Jump, and future model variations)
+                const findAction = (names, fallback) => {
+                    for (const n of names) {
+                        if (this.hanumanActions[n]) return this.hanumanActions[n];
+                    }
+                    for (const n of names) {
+                        const key = Object.keys(this.hanumanActions).find(k => new RegExp(n, 'i').test(k) && !k.toLowerCase().includes('restpose'));
+                        if (key) return this.hanumanActions[key];
+                    }
+                    return fallback;
+                };
+
+                this.hanumanIdleAction = findAction(['Idle_9', 'Idle_3', 'idle', 'stand'], null) || Object.values(this.hanumanActions)[0];
+                this.hanumanRunAction = findAction(['Running', 'run'], Object.values(this.hanumanActions)[0]);
+                this.hanumanFastRunAction = findAction(['RunFast', 'sprint', 'fast'], this.hanumanRunAction);
+                this.hanumanJumpAction = findAction(['Regular_Jump', 'Jump_Over_Obstacle_2', 'Jump_and_Grab_Wall', 'jump'], this.hanumanRunAction);
+                this.hanumanDanceAction = findAction(['Not_Your_Mom', 'dance'], this.hanumanIdleAction);
 
                 if (this.hanumanIdleAction) {
                     this.hanumanIdleAction.setLoop(THREE.LoopRepeat);
@@ -632,8 +643,12 @@ class SonicPlayer {
             console.log('Hanuman 3D Model successfully loaded! Clips:', Object.keys(this.hanumanActions || {}));
         };
 
+        const cdnPath = 'https://cdn.1thaiai.com/gameprompt/007Hanuman/hanuman.glb';
         loader.load(primaryPath, setupHanumanGLTF, undefined, (err) => {
-            console.warn('Could not load assets/hanuman.glb:', err);
+            console.log('Local assets/hanuman.glb not found, streaming from Cloudflare R2 CDN...');
+            loader.load(cdnPath, setupHanumanGLTF, undefined, (cdnErr) => {
+                console.warn('Could not load hanuman.glb from local or CDN:', cdnErr);
+            });
         });
     }
 

@@ -45,12 +45,14 @@ class SonicGame {
         this.isHelpOpen = false;
         this.isLeaderboardOpen = false;
 
-        // Multi-Stage System (Stage 1: Green Hill, Stage 2: Chemical Plant, Stage 3: Hydrocity)
+        // Multi-Stage System (Stage 1: Green Hill, Stage 2: Chemical Plant, Stage 3: Hydrocity, Stage 4: Molten Ravine)
         this.currentStageId = 'green_hill';
         this.stageConfigs = {
             green_hill: { name: 'HIMAVANTA FOREST', act: 'ACT 1', totalDist: 5600, nextStage: 'chemical_plant', thaiTitle: 'ป่าหิมพานต์ • ธาราน้ำตกทิพย์' },
             chemical_plant: { name: 'KISHKINDHA KINGDOM', act: 'ACT 2', totalDist: 4800, nextStage: 'hydrocity', thaiTitle: 'นครขีดขิน • พระราชวังศิลาทอง' },
-            hydrocity: { name: 'LANKA OCEAN', act: 'ACT 3', totalDist: 5000, nextStage: 'green_hill', thaiTitle: 'มหาสมุทรลงกา • วังบาดาลสุพรรณมัจฉา' }
+            hydrocity: { name: 'LANKA OCEAN', act: 'ACT 3', totalDist: 5000, nextStage: 'molten_ravine', thaiTitle: 'มหาสมุทรลงกา • วังบาดาลสุพรรณมัจฉา' },
+            molten_ravine: { name: 'MOLTEN RAVINE', act: 'ACT 4', totalDist: 4550, nextStage: 'celestial_sanctuary', thaiTitle: 'หุบเหวศิลาเพลิง • ปราการลาวาลงกา' },
+            celestial_sanctuary: { name: 'CELESTIAL SANCTUARY', act: 'ACT 5', totalDist: 5200, nextStage: 'green_hill', thaiTitle: 'วิมานลอยฟ้า • สรวงสวรรค์เขาไกรลาส' }
         };
 
         // Audio Settings Modal Elements
@@ -166,6 +168,18 @@ class SonicGame {
     }
 
     bindEvents() {
+        // Helper to bind robust click & pointer events
+        const bindButton = (el, callback) => {
+            if (!el) return;
+            el.addEventListener('click', (e) => {
+                if (e.cancelable) e.preventDefault();
+                e.stopPropagation();
+                callback();
+            });
+            el.addEventListener('pointerdown', (e) => e.stopPropagation());
+            el.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+        };
+
         // Keyboard inputs
         window.addEventListener('keydown', (e) => {
             if (this.state === 'CLEARED' && this.isTallying) {
@@ -237,7 +251,7 @@ class SonicGame {
 
         // 360° Mouse / Pointer Orbit Drag (Left click or Right click)
         window.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#hud-overlay') || e.target.closest('#touch-controls') || e.target.closest('.modal-overlay') || e.target.closest('#stage-progress-container') || e.target.closest('#top-right-btns')) return;
+            if (e.target.closest('#hud-overlay') || e.target.closest('#touch-controls') || e.target.closest('.modal-overlay') || e.target.closest('#start-screen') || e.target.closest('#stage-progress-container') || e.target.closest('#top-right-btns')) return;
             // Allow left button (0) or right button (2)
             if (e.button === 0 || e.button === 2) {
                 this.isPointerOrbiting = true;
@@ -280,7 +294,7 @@ class SonicGame {
 
         // Double click or middle click resets camera view
         window.addEventListener('dblclick', (e) => {
-            if (e.target.closest('#hud-overlay') || e.target.closest('#touch-controls') || e.target.closest('.modal-overlay') || e.target.closest('#top-right-btns')) return;
+            if (e.target.closest('#hud-overlay') || e.target.closest('#touch-controls') || e.target.closest('.modal-overlay') || e.target.closest('#start-screen') || e.target.closest('#top-right-btns')) return;
             this.resetCameraView();
         });
         window.addEventListener('auxclick', (e) => {
@@ -324,7 +338,7 @@ class SonicGame {
         // Start screen button
         const startBtn = document.getElementById('start-btn');
         if (startBtn) {
-            startBtn.addEventListener('click', () => this.startGame());
+            bindButton(startBtn, () => this.startGame());
         }
 
         // Restart button
@@ -344,18 +358,6 @@ class SonicGame {
                 }
             });
         }
-
-        // Helper to bind robust click & pointer events
-        const bindButton = (el, callback) => {
-            if (!el) return;
-            el.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                callback();
-            });
-            el.addEventListener('pointerdown', (e) => e.stopPropagation());
-            el.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-        };
 
         // Leaderboard Buttons
         const startLeaderboardBtn = document.getElementById('start-leaderboard-btn');
@@ -403,6 +405,8 @@ class SonicGame {
         const pillGreenHill = document.getElementById('zone-pill-greenhill');
         const pillChemical = document.getElementById('zone-pill-chemical');
         const pillHydrocity = document.getElementById('zone-pill-hydrocity');
+        const pillMolten = document.getElementById('zone-pill-molten');
+        const pillCelestial = document.getElementById('zone-pill-celestial');
         if (pillGreenHill) {
             bindButton(pillGreenHill, () => this.selectZone('green_hill'));
         }
@@ -411,6 +415,12 @@ class SonicGame {
         }
         if (pillHydrocity) {
             bindButton(pillHydrocity, () => this.selectZone('hydrocity'));
+        }
+        if (pillMolten) {
+            bindButton(pillMolten, () => this.selectZone('molten_ravine'));
+        }
+        if (pillCelestial) {
+            bindButton(pillCelestial, () => this.selectZone('celestial_sanctuary'));
         }
 
         // Stage Clear Click to Skip Tally
@@ -443,7 +453,7 @@ class SonicGame {
         }
 
         const gameoverRestartBtn = document.getElementById('gameover-restart-btn');
-        bindButton(gameoverRestartBtn, () => this.restartGame());
+        bindButton(gameoverRestartBtn, () => this.quitToTitleScreen());
 
         // In-Game Help Button & Modal Buttons
         const hudHelpBtn = document.getElementById('hud-help-btn');
@@ -602,13 +612,23 @@ class SonicGame {
         const pillGreenHill = document.getElementById('zone-pill-greenhill');
         const pillChemical = document.getElementById('zone-pill-chemical');
         const pillHydrocity = document.getElementById('zone-pill-hydrocity');
+        const pillMolten = document.getElementById('zone-pill-molten');
+        const pillCelestial = document.getElementById('zone-pill-celestial');
         const badgeText = document.getElementById('start-badge-text');
 
         if (pillGreenHill) pillGreenHill.classList.remove('active');
         if (pillChemical) pillChemical.classList.remove('active');
         if (pillHydrocity) pillHydrocity.classList.remove('active');
+        if (pillMolten) pillMolten.classList.remove('active');
+        if (pillCelestial) pillCelestial.classList.remove('active');
 
-        if (zoneId === 'hydrocity') {
+        if (zoneId === 'celestial_sanctuary') {
+            if (pillCelestial) pillCelestial.classList.add('active');
+            if (badgeText) badgeText.textContent = 'CELESTIAL SANCTUARY • ACT 5';
+        } else if (zoneId === 'molten_ravine') {
+            if (pillMolten) pillMolten.classList.add('active');
+            if (badgeText) badgeText.textContent = 'MOLTEN RAVINE • ACT 4';
+        } else if (zoneId === 'hydrocity') {
             if (pillHydrocity) pillHydrocity.classList.add('active');
             if (badgeText) badgeText.textContent = 'LANKA OCEAN • ACT 3';
         } else if (zoneId === 'chemical_plant') {
@@ -617,6 +637,10 @@ class SonicGame {
         } else {
             if (pillGreenHill) pillGreenHill.classList.add('active');
             if (badgeText) badgeText.textContent = 'HIMAVANTA REALM • ACT 1';
+        }
+
+        if (window.soundManager && typeof window.soundManager.playRing === 'function') {
+            try { window.soundManager.playRing(); } catch (e) {}
         }
 
         this.setStage(zoneId);
@@ -633,9 +657,9 @@ class SonicGame {
         this.clearAllTallyTimers();
         this.isTallying = false;
 
-        const isFinalStage = (this.currentStageId === 'hydrocity');
+        const isFinalStage = (this.currentStageId === 'celestial_sanctuary');
         if (isFinalStage) {
-            // Completed all stages! Restart full campaign run
+            // Completed all 5 stages! Restart full campaign run
             this.restartGame();
             return;
         }
@@ -705,7 +729,11 @@ class SonicGame {
 
         const titleEl = document.getElementById('countdown-title');
         if (titleEl) {
-            if (this.currentStageId === 'hydrocity') {
+            if (this.currentStageId === 'celestial_sanctuary') {
+                titleEl.innerHTML = 'CELESTIAL SANCTUARY &bull; ACT 5';
+            } else if (this.currentStageId === 'molten_ravine') {
+                titleEl.innerHTML = 'MOLTEN RAVINE &bull; ACT 4';
+            } else if (this.currentStageId === 'hydrocity') {
                 titleEl.innerHTML = 'HYDROCITY ZONE &bull; ACT 3';
             } else if (this.currentStageId === 'chemical_plant') {
                 titleEl.innerHTML = 'KISHKINDHA KINGDOM &bull; ACT 2';
@@ -1065,14 +1093,14 @@ class SonicGame {
         this.lastTimeBonus = timeBonus;
         this.lastRingBonus = ringBonus;
 
-        const isFinalStage = (this.currentStageId === 'hydrocity');
+        const isFinalStage = (this.currentStageId === 'celestial_sanctuary');
         const clearTitleEl = document.querySelector('#stage-clear-card .clear-title');
         const clearSubEl = document.getElementById('clear-stage-subtitle');
         const nextBtn = document.getElementById('next-stage-btn');
 
         if (isFinalStage) {
             if (clearTitleEl) clearTitleEl.textContent = '🏆 ALL STAGES CLEARED!';
-            if (clearSubEl) clearSubEl.textContent = 'หนุมานสร้างถนนข้ามสมุทรสำเร็จ และผูกมิตรกับนางสุพรรณมัจฉา!';
+            if (clearSubEl) clearSubEl.textContent = 'หนุมานทะยานสู่ยอดเขาไกรลาส วิมานลอยฟ้าแห่งทวยเทพ พิชิตภารกิจสมบูรณ์แบบ!';
             if (nextBtn) {
                 nextBtn.textContent = 'PLAY AGAIN (เริ่มเล่นใหม่) ↺';
                 nextBtn.classList.add('grand-victory-btn');
@@ -1080,7 +1108,13 @@ class SonicGame {
         } else {
             if (clearTitleEl) clearTitleEl.textContent = 'STAGE CLEAR!';
             if (nextBtn) nextBtn.classList.remove('grand-victory-btn');
-            if (this.currentStageId === 'chemical_plant') {
+            if (this.currentStageId === 'molten_ravine') {
+                if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS CONQUERED MOLTEN RAVINE!';
+                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: CELESTIAL SANCTUARY ➔';
+            } else if (this.currentStageId === 'hydrocity') {
+                if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS CROSSED LANKA OCEAN!';
+                if (nextBtn) nextBtn.textContent = 'NEXT STAGE: MOLTEN RAVINE ➔';
+            } else if (this.currentStageId === 'chemical_plant') {
                 if (clearSubEl) clearSubEl.textContent = 'HANUMAN HAS PASSED KISHKINDHA KINGDOM!';
                 if (nextBtn) nextBtn.textContent = 'NEXT STAGE: LANKA OCEAN ➔';
             } else {
@@ -1241,7 +1275,7 @@ class SonicGame {
         // Hide skip prompt
         if (this.tallySkipHint) this.tallySkipHint.classList.add('hidden');
 
-        const isFinalStage = (this.currentStageId === 'hydrocity');
+        const isFinalStage = (this.currentStageId === 'celestial_sanctuary');
         if (isFinalStage) {
             // ONLY reveal name entry on the final stage!
             if (this.clearNameSection) {
@@ -1647,7 +1681,7 @@ class SonicGame {
         }
         if (this.progressBarEl) {
             // Stage progress calculation across extended courses
-            const totalCourseDist = (this.currentStageId === 'hydrocity') ? 5000 : ((this.currentStageId === 'chemical_plant') ? 4800 : 5600);
+            const totalCourseDist = (this.stageConfigs[this.currentStageId] && this.stageConfigs[this.currentStageId].totalDist) || 4550;
             const progress = Math.min(100, Math.max(0, (-this.sonic.position.z / totalCourseDist) * 100));
             this.progressBarEl.style.width = `${progress.toFixed(1)}%`;
             if (this.progressTextEl) {
@@ -1974,6 +2008,18 @@ window.restartGameFromLeaderboard = () => {
     }
     if (window.game && typeof window.game.restartGame === 'function') {
         window.game.restartGame();
+    }
+};
+
+window.startGameNow = () => {
+    if (window.game && typeof window.game.startGame === 'function') {
+        window.game.startGame();
+    }
+};
+
+window.selectStageZone = (zoneId) => {
+    if (window.game && typeof window.game.selectZone === 'function') {
+        window.game.selectZone(zoneId);
     }
 };
 

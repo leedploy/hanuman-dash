@@ -16,25 +16,31 @@ class ObjectManager {
         this.goalRing = null;
         this.sparkles = [];
 
+        // 3D Enemy Model System (assets/enemy001.glb)
+        this.enemyModelTemplate = null;
+        this.enemyAnimations = null;
+        this.isEnemyModelLoaded = false;
+        this.loadEnemy3DModel();
+
         this.initMaterials();
         this.initRingFXPools();
         this.loadStageObjects('green_hill');
     }
 
     initMaterials() {
-        // Celestial Golden Star Materials
+        // Celestial Brilliant 24K Royal Gold Star Materials
         this.goldMat = new THREE.MeshStandardMaterial({
-            color: 0xffea38,
-            metalness: 0.88,
-            roughness: 0.16,
-            emissive: 0xffaa00,
-            emissiveIntensity: 0.42
+            color: 0xffe600,       // Radiant 24K sun-gold
+            metalness: 0.32,       // Moderate metalness so bright gold diffuse color shines through cleanly without dark ground reflections
+            roughness: 0.14,       // Polished mirror shine with brilliant specular highlights
+            emissive: 0xff9900,    // Warm golden-amber radiant self-glow
+            emissiveIntensity: 0.72 // Luminous celestial radiance - pops clearly in any lighting or shadow
         });
         this.starMat = this.goldMat;
         this.starCoreMat = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
-            opacity: 0.95
+            opacity: 0.98
         });
 
         // Radiant Crescent Moon Materials
@@ -99,25 +105,99 @@ class ObjectManager {
         this.asuraEyeMat = new THREE.MeshBasicMaterial({ color: 0xff1500 });
         this.asuraClubMat = new THREE.MeshLambertMaterial({ color: 0x241722, roughness: 0.8 });
 
-        // Naga Poison Geyser Materials
-        this.geyserBaseMat = new THREE.MeshLambertMaterial({ color: 0x122418 });
-        this.geyserWarningMat = new THREE.MeshBasicMaterial({
-            color: 0x10b981,
+        // Asura Vanguard Crimson Fire Minion Materials (enemy002)
+        this.asuraCrimsonSkinMat = new THREE.MeshLambertMaterial({ color: 0x8b1010 });
+        this.asuraCrimsonClothMat = new THREE.MeshLambertMaterial({ color: 0x1a0f12 });
+        this.asuraCrimsonEyeMat = new THREE.MeshBasicMaterial({ color: 0xffbb00 });
+
+        // Naga Poison Geyser Materials (Volcanic Serpent Maw & Toxic Acid Steam)
+        this.geyserBaseMat = new THREE.MeshStandardMaterial({
+            color: 0x16221b,
+            roughness: 0.88,
+            metalness: 0.15
+        });
+        this.geyserStoneRimMat = new THREE.MeshStandardMaterial({
+            color: 0x1e3a29,
+            roughness: 0.55,
+            metalness: 0.25
+        });
+        this.geyserFangMat = new THREE.MeshStandardMaterial({
+            color: 0x183826,
+            emissive: 0x059669,
+            emissiveIntensity: 0.45,
+            roughness: 0.3,
+            metalness: 0.2
+        });
+        this.geyserRuneMat = new THREE.MeshBasicMaterial({
+            color: 0x34d399,
             transparent: true,
-            opacity: 0.55
+            opacity: 0.85
+        });
+        this.geyserAcidPoolMat = new THREE.MeshStandardMaterial({
+            color: 0x10b981,
+            emissive: 0x059669,
+            emissiveIntensity: 0.85,
+            roughness: 0.2,
+            metalness: 0.1
+        });
+        this.geyserBubbleMat = new THREE.MeshStandardMaterial({
+            color: 0x6ee7b7,
+            emissive: 0x10b981,
+            emissiveIntensity: 0.9,
+            roughness: 0.15,
+            transparent: true,
+            opacity: 0.85
+        });
+        this.geyserWarningMat = new THREE.MeshBasicMaterial({
+            color: 0x34d399,
+            transparent: true,
+            opacity: 0.65,
+            blending: THREE.AdditiveBlending
         });
         this.geyserColumnMat = new THREE.MeshBasicMaterial({
             color: 0x059669,
             transparent: true,
-            opacity: 0.78,
+            opacity: 0.82,
             side: THREE.DoubleSide,
             blending: THREE.AdditiveBlending
         });
         this.geyserCoreMat = new THREE.MeshBasicMaterial({
+            color: 0xa7f3d0,
+            transparent: true,
+            opacity: 0.95,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+        });
+        this.geyserShockwaveMat = new THREE.MeshBasicMaterial({
             color: 0x34d399,
             transparent: true,
-            opacity: 0.88,
-            side: THREE.DoubleSide
+            opacity: 0.85,
+            side: THREE.DoubleSide,
+            blending: THREE.AdditiveBlending
+        });
+        this.geyserSmokeDarkMat = new THREE.MeshLambertMaterial({
+            color: 0x064e3b,
+            transparent: true,
+            opacity: 0.78,
+            roughness: 0.85
+        });
+        this.geyserSmokeMat = new THREE.MeshLambertMaterial({
+            color: 0x059669,
+            transparent: true,
+            opacity: 0.72,
+            roughness: 0.80
+        });
+        this.geyserSmokeLimeMat = new THREE.MeshLambertMaterial({
+            color: 0x65a30d,
+            transparent: true,
+            opacity: 0.68,
+            roughness: 0.80
+        });
+        this.geyserDropletMat = new THREE.MeshBasicMaterial({
+            color: 0xbbf7d0,
+            transparent: true,
+            opacity: 0.95,
+            blending: THREE.AdditiveBlending
         });
 
         this.springRedMat = this.lotusPetalMat;
@@ -308,7 +388,40 @@ class ObjectManager {
             const scale = 0.7 + Math.random() * 0.5;
             sp.baseScale = scale;
             sp.mesh.scale.set(scale, scale, scale);
+            sp.material.color.setHex((i % 3 === 0) ? 0x64ffda : 0xffe838);
             sp.material.opacity = 0.65;
+            sp.mesh.visible = true;
+        }
+    }
+
+    // Emerald Toxic Splash FX: Triggered when stepping into erupting Naga Poison Geyser
+    spawnPoisonSplashFX(x, y, z) {
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+            const sp = this.sparklePool.find(item => !item.active);
+            if (!sp) break;
+
+            sp.active = true;
+            const duration = 0.28 + Math.random() * 0.18;
+            sp.life = duration;
+            sp.maxLife = duration;
+
+            const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+            const speed = 3.5 + Math.random() * 4.0;
+            sp.vx = Math.cos(angle) * speed;
+            sp.vy = 2.5 + Math.random() * 4.5;
+            sp.vz = Math.sin(angle) * speed;
+
+            sp.rotX = (Math.random() - 0.5) * 16.0;
+            sp.rotY = (Math.random() - 0.5) * 16.0;
+            sp.rotZ = (Math.random() - 0.5) * 16.0;
+
+            sp.mesh.position.set(x, y, z);
+            const scale = 0.9 + Math.random() * 0.6;
+            sp.baseScale = scale;
+            sp.mesh.scale.set(scale, scale, scale);
+            sp.material.color.setHex(0x10b981); // Emerald poison burst
+            sp.material.opacity = 0.85;
             sp.mesh.visible = true;
         }
     }
@@ -382,7 +495,7 @@ class ObjectManager {
         const removeGroup = (arr) => {
             if (!arr) return;
             arr.forEach(item => {
-                const obj = item.mesh || item;
+                const obj = item.group || item.mesh || item;
                 if (obj && obj.parent) {
                     obj.parent.remove(obj);
                 } else if (obj) {
@@ -390,6 +503,13 @@ class ObjectManager {
                 }
             });
         };
+
+        // Stop any active enemy animation mixers
+        if (this.sentinels) {
+            this.sentinels.forEach(s => {
+                if (s.mixer) s.mixer.stopAllAction();
+            });
+        }
 
         removeGroup(this.rings);
         removeGroup(this.springs);
@@ -425,6 +545,10 @@ class ObjectManager {
             this.spawnChemicalPlantObjects();
         } else if (stageId === 'hydrocity') {
             this.spawnHydrocityObjects();
+        } else if (stageId === 'molten_ravine') {
+            this.spawnMoltenRavineObjects();
+        } else if (stageId === 'celestial_sanctuary') {
+            this.spawnCelestialSanctuaryObjects();
         } else {
             this.spawnGreenHillObjects();
         }
@@ -671,7 +795,7 @@ class ObjectManager {
             this.createSpikes(pos[0], spikeY, pos[2]);
         });
 
-        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานขีดขิน) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานขีดขิน - ขวางถนนซ้ายขวา) ---
         this.createAsuraSentinel(0, 0.1, -70, 5.0, 2.2);        // Marble bridge sentinel
         this.createAsuraSentinel(0, 24.1, -590, 4.0, 2.0);      // High skyway catwalk
         this.createAsuraSentinel(0, 5.1, -1300, 4.5, 2.4);      // Low Anodat bridge
@@ -681,6 +805,11 @@ class ObjectManager {
         this.createAsuraSentinel(0, 8.1, -3050, 6.0, 2.6);      // Kishkindha superhighway
         this.createAsuraSentinel(0, 8.1, -3500, 6.0, 2.6);      // Kishkindha superhighway
         this.createAsuraSentinel(0, 8.1, -3820, 6.0, 2.8);      // Approach to finish arena
+
+        // --- 6.5 ASURA VANGUARDS (enemy002 - ทหารยักษ์เพลิงกาลสูร เดินสวนทางตามสะพานศิลาทอง) ---
+        this.createAsuraVanguard(-4.0, 0.1, -260, 16.0, 0.90);   // Marble bridge left lane
+        this.createAsuraVanguard(4.0, 8.1, -2750, 18.0, 1.05);   // Gold highway right lane
+        this.createAsuraVanguard(0, 8.1, -3350, 18.0, 1.15);     // Colosseum approach center lane
 
         // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคคูเมือง) ---
         this.createNagaGeyser(-6, 0.1, -40, 0.0);
@@ -906,7 +1035,7 @@ class ObjectManager {
             this.createSpikes(pos[0], spikeY, pos[2]);
         });
 
-        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานข้ามสมุทรลงกา) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ลาดตระเวนสะพานข้ามสมุทรลงกา - ขวางถนนซ้ายขวา) ---
         this.createAsuraSentinel(0, 2.0, -60, 4.5, 2.2);        // Causeway start sentinel
         this.createAsuraSentinel(0, 6.0, -480, 4.0, 2.0);      // Viaduct aqueduct road
         this.createAsuraSentinel(0, 1.0, -1000, 4.5, 2.4);     // Inside Flume #1
@@ -916,6 +1045,11 @@ class ObjectManager {
         this.createAsuraSentinel(0, 2.0, -3600, 5.0, 2.4);     // Water loop approach
         this.createAsuraSentinel(0, 2.0, -4300, 6.0, 2.6);     // Lanka grand canal sprint
         this.createAsuraSentinel(0, 2.5, -4700, 6.0, 2.8);     // Approach to finish pavilion
+
+        // --- 6.5 ASURA VANGUARDS (enemy002 - ทหารยักษ์เพลิงกาลสูร บุกตามทางสะพานสมุทรลงกา) ---
+        this.createAsuraVanguard(-3.5, 2.0, -260, 16.0, 0.90);   // Causeway viaduct left lane
+        this.createAsuraVanguard(3.5, 0.8, -1700, 18.0, 1.05);   // Causeway right lane
+        this.createAsuraVanguard(0, 2.0, -4000, 18.0, 1.15);     // Grand canal sprint center lane
 
         // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคบาดาล) ---
         this.createNagaGeyser(-5, 2.0, -35, 0.0);
@@ -929,6 +1063,354 @@ class ObjectManager {
 
         // --- 8. GIANT GOAL RING (At center of Lanka Causeway Pavilion, groundY = 2.5) ---
         this.createGoalRing(0, 2.5, -5000, 8.5);
+    }
+
+    spawnMoltenRavineObjects() {
+        // ========================================================
+        // STAGE 4: LANKA MOLTEN RAVINE OBJECT PLACEMENT (4,550m)
+        // ========================================================
+
+        // --- 1. GOLDEN STAR RINGS (Over chasms, straightaways, and floating islands) ---
+        const moltenRings = [
+            // Starting straightaway (z: 20 to -260)
+            { startZ: -20, count: 8, spacing: 5.0, x: 0 },
+            { startZ: -80, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -80, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -160, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -240, count: 8, spacing: 4.5, x: 0 },
+
+            // After Chasm 1 landing: High-speed straightaway (z: -380 to -540)
+            { startZ: -380, count: 10, spacing: 5.5, x: 0 },
+            { startZ: -450, count: 12, spacing: 5.0, x: -3.0 },
+            { startZ: -450, count: 12, spacing: 5.0, x: 3.0 },
+
+            // Descending slope into straightaway before Chasm 2 (z: -560 to -760)
+            { startZ: -570, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -660, count: 16, spacing: 5.0, x: 0 },
+
+            // Floating Basalt Island between Chasm 2 gaps (z: -820 to -850)
+            { startZ: -820, count: 6, spacing: 5.0, x: 0 },
+
+            // Landing Road after Chasm 2 (z: -900 to -1420)
+            { startZ: -920, count: 16, spacing: 5.5, x: 0 },
+            { startZ: -1020, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -1020, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -1120, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -1240, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -1340, count: 12, spacing: 5.0, x: 0 },
+
+            // Landing Road after 100m Abyss Vault (z: -1560 to -2020)
+            { startZ: -1570, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -1660, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -1660, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -1760, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -1880, count: 14, spacing: 5.5, x: 0 },
+
+            // Exit Road after Loop (z: -2220 to -2760)
+            { startZ: -2240, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -2340, count: 14, spacing: 5.0, x: -3.5 },
+            { startZ: -2340, count: 14, spacing: 5.0, x: 3.5 },
+            { startZ: -2440, count: 18, spacing: 5.0, x: 0 },
+            { startZ: -2560, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -2680, count: 12, spacing: 5.0, x: 0 },
+
+            // Landing Road after Triple Stepping Islands (z: -2960 to -3420)
+            { startZ: -2980, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -3080, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -3080, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -3180, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -3280, count: 14, spacing: 5.5, x: 0 },
+
+            // Landing Road after Supersonic Gale Launch (z: -3600 to -4080)
+            { startZ: -3620, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -3720, count: 14, spacing: 5.0, x: -3.5 },
+            { startZ: -3720, count: 14, spacing: 5.0, x: 3.5 },
+            { startZ: -3840, count: 18, spacing: 5.0, x: 0 },
+            { startZ: -3960, count: 16, spacing: 5.5, x: 0 },
+
+            // Inside Ravana's Obsidian Fortress Arena (z: -4260 to -4480)
+            { startZ: -4280, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -4360, count: 12, spacing: 5.0, x: -5.0 },
+            { startZ: -4360, count: 12, spacing: 5.0, x: 5.0 },
+            { startZ: -4440, count: 10, spacing: 4.5, x: 0 }
+        ];
+
+        moltenRings.forEach(cfg => {
+            for (let i = 0; i < cfg.count; i++) {
+                const z = cfg.startZ - i * cfg.spacing;
+                const safeY = this.getSafeRingY(cfg.x, z, 1.8);
+                this.createRing(cfg.x, safeY, z);
+            }
+        });
+
+        // --- 2. PARABOLIC JUMP ARCS (แนวโค้งดาวทองนำทางข้ามหุบเหว) ---
+        // Jump Arc 1: Over Chasm 1 (z: -325 to -355, 30m)
+        this.createJumpArc(0, 3.5, -340, 30, 4.5, 6);
+
+        // Jump Arc 2: Into Stepping Island (z: -780 to -808, 28m)
+        this.createJumpArc(0, 1.5, -794, 28, 4.0, 5);
+        // Jump Arc 3: Off Stepping Island (z: -848 to -876, 28m)
+        this.createJumpArc(0, 1.5, -862, 28, 4.0, 5);
+
+        // Jump Arc 4: Over Chasm 3 (z: -1450 to -1482, 32m)
+        this.createJumpArc(0, 3.5, -1466, 32, 5.0, 6);
+
+        // Jump Arc 5: 3D Loop Rings (z: -2150)
+        this.createLoopRings(0, 2.0, -2150, 24, -2.5, 2.5, 14);
+
+        // Jump Arc 6: Over Triple Stepping Islands (z: -2780 to -2955, 25m each)
+        this.createJumpArc(-3, 2.5, -2805, 25, 4.0, 4);
+        this.createJumpArc(3, 3.5, -2855, 25, 5.0, 4);
+        this.createJumpArc(0, 2.5, -2905, 25, 4.0, 4);
+
+        // Jump Arc 7: Over Chasm 5 (z: -3450 to -3482, 32m)
+        this.createJumpArc(0, 5.0, -3466, 32, 5.0, 6);
+
+        // Jump Arc 8: Final Ski-Jump Leap into Fortress Arena (z: -4160 to -4190, 30m)
+        this.createJumpArc(0, 9.0, -4175, 30, 5.5, 6);
+
+        // --- 3. RADIANT CRESCENT MOONS (ดวงจันทร์เสี้ยวศักดิ์สิทธิ์) ---
+        this.createCrescentMoon(0, 6.5, -340);    // Peak of Chasm 1 leap
+        this.createCrescentMoon(0, 7.5, -1466);  // Peak of Chasm 3 Cataract
+        this.createCrescentMoon(5, 7.5, -2867);  // High stepping island #2
+        this.createCrescentMoon(0, 8.5, -3466);  // Mid-air over Chasm 5
+        this.createCrescentMoon(0, 12.0, -4175); // Final ski leap apex
+
+        // --- 4. SPRING PADS (แท่นดอกบัวสปริงดีดตัว) ---
+        // Helping spring before Chasm 1 ramp
+        this.createSpring(0, 0.1, -295, 24);
+        // Triple Lotus Springs at lip of Chasm 3 (z: -1445) - Center and flanks
+        this.createSpring(0, 0.1, -1445, 28);
+        this.createSpring(-6, 0.1, -1445, 28);
+        this.createSpring(6, 0.1, -1445, 28);
+
+        // --- 5. DASH PADS & VAYU GALE PADS (แท่นพุ่งความเร็วสูง) ---
+        // Launch booster before Chasm 5
+        this.createDashPad(0, 2.1, -3435);
+
+        // Speed boosters on straightaways
+        this.createDashPad(0, 0.1, -120);
+        this.createDashPad(0, 0.1, -680);
+        this.createDashPad(0, 0.1, -1150);
+        this.createDashPad(0, 2.1, -1850);
+        this.createDashPad(0, 2.1, -2550);
+        this.createDashPad(0, 4.1, -3800);
+
+        // --- 6. CHECKPOINTS (STAR POSTS - เสาเซฟหน้าหุบเหวทุกจุด) ---
+        this.createStarPost(0, 0, -270, 0);     // Checkpoint 1: Before Chasm 1
+        this.createStarPost(0, 0, -740, 1);     // Checkpoint 2: Before Chasm 2
+        this.createStarPost(0, 0, -1410, 2);    // Checkpoint 3: Before 100m Abyss
+        this.createStarPost(0, 2.0, -1960, 3);  // Checkpoint 4: Before 3D Loop
+        this.createStarPost(0, 2.0, -2740, 4);  // Checkpoint 5: Before Triple Stepping Islands
+        this.createStarPost(0, 2.0, -3380, 5);  // Checkpoint 6: Before Supersonic Gale Chasm
+        this.createStarPost(0, 4.0, -4060, 6);  // Checkpoint 7: Before Final Ski-Jump
+
+        // --- 7. ASURA SENTINELS (enemy001 - ทหารยักษ์ลาดตระเวนซ้ายขวา) ---
+        this.createAsuraSentinel(0, 0, -180, 5.0, 2.2);
+        this.createAsuraSentinel(0, 3.5, -480, 5.5, 2.4);
+        this.createAsuraSentinel(0, 0, -1000, 5.0, 2.2);
+        this.createAsuraSentinel(0, 0, -1280, 6.0, 2.5);
+        this.createAsuraSentinel(0, 2.0, -1700, 5.5, 2.4);
+        this.createAsuraSentinel(0, 2.0, -2400, 5.5, 2.4);
+        this.createAsuraSentinel(0, 2.0, -3100, 6.0, 2.6);
+        this.createAsuraSentinel(0, 4.0, -3750, 5.5, 2.4);
+        this.createAsuraSentinel(0, 6.0, -4380, 7.0, 2.8);
+
+        // --- 8. ASURA VANGUARDS (enemy002 - ทหารยักษ์เพลิงกาลสูรเดินหน้าถอยหลังตามถนน) ---
+        this.createAsuraVanguard(-3.5, 0, -210, 16.0, 0.95);
+        this.createAsuraVanguard(3.5, 0, -1180, 18.0, 1.05);
+        this.createAsuraVanguard(-3.5, 2.0, -2500, 18.0, 1.05);
+        this.createAsuraVanguard(0, 4.0, -3900, 18.0, 1.15);
+
+        // --- 9. NAGA POISON GEYSERS (แท่นพ่นไอพิษพญานาคภูเขาไฟ) ---
+        this.createNagaGeyser(-5, 0, -90, 0.0);
+        this.createNagaGeyser(5, 0, -90, 2.0);
+        this.createNagaGeyser(-5, 3.5, -430, 1.0);
+        this.createNagaGeyser(5, 3.5, -430, 3.0);
+        this.createNagaGeyser(0, 0, -1080, 0.5);
+        this.createNagaGeyser(-5, 2.0, -1800, 1.5);
+        this.createNagaGeyser(5, 2.0, -1800, 3.5);
+        this.createNagaGeyser(0, 2.0, -2600, 0.8);
+        this.createNagaGeyser(-5, 4.0, -3680, 1.2);
+        this.createNagaGeyser(5, 4.0, -3680, 3.2);
+
+        // --- 10. GIANT GOAL RING (At center of Ravana's Obsidian Arena, groundY = 6.0, z = -4480) ---
+        this.createGoalRing(0, 6.0, -4480, 9.5);
+    }
+
+    spawnCelestialSanctuaryObjects() {
+        // ========================================================
+        // STAGE 5: CELESTIAL CLOUD SANCTUARY (เขาไกรลาส - 5,200m)
+        // ========================================================
+
+        // --- 1. GOLDEN STAR RINGS (Along terrace, floating cloud sanctuaries, loops & chasms) ---
+        const celestialRings = [
+            // Starting straightaway (z: 20 to -280)
+            { startZ: -20, count: 8, spacing: 5.0, x: 0 },
+            { startZ: -80, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -80, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -160, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -240, count: 8, spacing: 4.5, x: 0 },
+
+            // After Chasm 1 landing: Heavenly Cloudway (z: -380 to -560)
+            { startZ: -380, count: 10, spacing: 5.5, x: 0 },
+            { startZ: -450, count: 12, spacing: 5.0, x: -3.0 },
+            { startZ: -450, count: 12, spacing: 5.0, x: 3.0 },
+
+            // Descending slope before Chasm 2 (z: -580 to -780)
+            { startZ: -590, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -680, count: 16, spacing: 5.0, x: 0 },
+
+            // Floating Stepping Island between Chasm 2 gaps (z: -840 to -870)
+            { startZ: -842, count: 6, spacing: 5.0, x: 0 },
+
+            // Landing Road after Chasm 2 (z: -920 to -1420)
+            { startZ: -920, count: 16, spacing: 5.5, x: 0 },
+            { startZ: -1020, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -1020, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -1120, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -1240, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -1340, count: 12, spacing: 5.0, x: 0 },
+
+            // Landing Road after Chasm 3 Lotus Leap (z: -1500 to -2000)
+            { startZ: -1510, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -1600, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -1600, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -1700, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -1840, count: 14, spacing: 5.5, x: 0 },
+
+            // Exit Road after 3D Celestial Loop (z: -2230 to -2750)
+            { startZ: -2240, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -2340, count: 14, spacing: 5.0, x: -3.5 },
+            { startZ: -2340, count: 14, spacing: 5.0, x: 3.5 },
+            { startZ: -2440, count: 18, spacing: 5.0, x: 0 },
+            { startZ: -2560, count: 14, spacing: 5.5, x: 0 },
+            { startZ: -2680, count: 12, spacing: 5.0, x: 0 },
+
+            // Triple Stepping Cloud Sanctuaries (z: -2810 to -2920)
+            { startZ: -2810, count: 4, spacing: 5.0, x: -5 },
+            { startZ: -2860, count: 4, spacing: 5.0, x: 5 },
+            { startZ: -2910, count: 4, spacing: 5.0, x: 0 },
+
+            // Landing Road after Triple Sanctuaries (z: -2970 to -3420)
+            { startZ: -2980, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -3080, count: 12, spacing: 5.0, x: -3.5 },
+            { startZ: -3080, count: 12, spacing: 5.0, x: 3.5 },
+            { startZ: -3180, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -3280, count: 14, spacing: 5.5, x: 0 },
+
+            // Landing Road after Supersonic Catapult (z: -3500 to -4100)
+            { startZ: -3520, count: 16, spacing: 5.0, x: 0 },
+            { startZ: -3640, count: 14, spacing: 5.0, x: -3.5 },
+            { startZ: -3640, count: 14, spacing: 5.0, x: 3.5 },
+            { startZ: -3760, count: 18, spacing: 5.0, x: 0 },
+            { startZ: -3900, count: 16, spacing: 5.5, x: 0 },
+
+            // Grand Kailash Palace Summit Approach (z: -4240 to -5080)
+            { startZ: -4260, count: 14, spacing: 5.0, x: 0 },
+            { startZ: -4380, count: 16, spacing: 5.0, x: -4.0 },
+            { startZ: -4380, count: 16, spacing: 5.0, x: 4.0 },
+            { startZ: -4520, count: 20, spacing: 5.0, x: 0 },
+            { startZ: -4700, count: 20, spacing: 5.0, x: 0 },
+            { startZ: -4880, count: 22, spacing: 5.0, x: 0 },
+            { startZ: -5020, count: 16, spacing: 5.0, x: 0 }
+        ];
+
+        celestialRings.forEach(row => {
+            for (let i = 0; i < row.count; i++) {
+                const z = row.startZ - i * row.spacing;
+                const ringY = this.getSafeRingY(row.x, z, row.y || 1.8);
+                this.createRing(row.x, ringY, z);
+            }
+        });
+
+        // --- 2. MULTIDIMENSIONAL 3D FORMATIONS & CHASM JUMP ARCS ---
+        // Chasm Jump Arcs (Airborne parabolic trails across chasms)
+        this.createJumpArc(0, 3.5, -349, 28, 8.5, 7);   // Chasm 1: 28m rift leap
+        this.createJumpArc(0, 0, -823, 26, 7.5, 6);      // Chasm 2 Gap 1: 26m leap
+        this.createJumpArc(0, 0, -889, 26, 7.5, 6);      // Chasm 2 Gap 2: 26m leap
+        this.createJumpArc(0, 2.0, -1465, 30, 9.5, 8);   // Chasm 3: 30m lotus leap
+        this.createJumpArc(0, 4.0, -3465, 30, 9.0, 8);   // Chasm 5: 30m supersonic catapult leap
+        this.createJumpArc(0, 8.0, -4195, 30, 10.5, 8);  // Chasm 6: 30m Kailash summit ski leap
+
+        // Inside Suspended 3D Loop (z: -2150)
+        this.spawnLoopRings(-2150, 24, 2.0, 14);
+
+        // Diamond Clusters & Slalom Waves along scenic stretches
+        this.createSlalomRings(-180, 80, 14, 5.0, 1.5);
+        this.createDiamondCluster(0, -730, 3.5);
+        this.createSlalomRings(-1150, 110, 16, 5.5, 2.0);
+        this.createDiamondCluster(0, -1750, 3.8);
+        this.createSlalomRings(-2460, 120, 18, 5.5, 2.0);
+        this.createDiamondCluster(0, -3200, 3.8);
+        this.createSlalomRings(-3780, 130, 18, 5.5, 2.0);
+        this.createDiamondCluster(0, -4600, 4.5);
+        this.createDiamondCluster(0, -4900, 4.5);
+
+        // --- 3. CRESCENT MOONS (พระจันทร์เสี้ยวเรืองแสง มหามงคลสวรรค์) ---
+        this.createMoon(0, 12, -349);     // Over Chasm 1 leap
+        this.createMoon(0, 8, -856);      // Above Twin Islets
+        this.createMoon(0, 14, -1465);    // Apex of Lotus Leap
+        this.createMoon(0, 52, -2150);    // High above 3D Loop
+        this.createMoon(0, 10, -2867);    // Over Triple Stepping Sanctuaries
+        this.createMoon(0, 14, -3465);    // Above Supersonic Catapult
+        this.createMoon(0, 20, -4195);    // Apex of Kailash Summit Ski Leap!
+        this.createMoon(0, 14, -5040);    // Golden Torana Entrance Gate of Kailash Palace!
+
+        // --- 4. STAR POST CHECKPOINTS (4 Checkpoints across 5,200m) ---
+        this.createStarPost(-3.8, 0, -800, 0);    // Checkpoint 1: Before Chasm 2
+        this.createStarPost(-3.8, 2.0, -2010, 1); // Checkpoint 2: Before 3D Loop
+        this.createStarPost(-3.8, 2.0, -2760, 2); // Checkpoint 3: Before Triple Sanctuaries
+        this.createStarPost(-3.8, 4.0, -4100, 3); // Checkpoint 4: Before Kailash Summit Ski-Jump
+
+        // --- 5. DASH BOOST PADS (Supersonic Thrill) ---
+        this.createDashPad(0, 0, -290, 0, -1, 48);     // Charge into Chasm 1 ramp!
+        this.createDashPad(0, 0, -760, 0, -1, 46);     // Approach to Chasm 2
+        this.createDashPad(0, 0, -1380, 0, -1, 48);    // Sprint toward Chasm 3
+        this.createDashPad(0, 2.0, -2000, 0, -1, 52);  // Launch into 3D Loop!
+        this.createDashPad(0, 2.0, -2220, 0, -1, 48);  // Loop exit acceleration
+        this.createDashPad(0, 2.0, -2760, 0, -1, 46);  // Approach to Triple Sanctuaries
+        this.createDashPad(0, 2.0, -3380, 0, -1, 52);  // Approach to Chasm 5 Catapult!
+        this.createDashPad(0, 4.0, -3435, 0, -1, 54);  // Supersonic Catapult Boost!
+        this.createDashPad(0, 4.0, -4080, 0, -1, 52);  // High speed toward Kailash Ski-Jump!
+        this.createDashPad(0, 6.0, -4320, 0, -1, 50);  // Palace Speedway 1
+        this.createDashPad(0, 6.0, -4650, 0, -1, 52);  // Palace Speedway 2
+        this.createDashPad(0, 6.0, -4950, 0, -1, 55);  // Final sprint into Giant Goal Ring!
+
+        // --- 6. GOLDEN LOTUS SPRINGS ---
+        this.createSpring(0, 2.0, -1445, 34);  // Golden Lotus Spring for Chasm 3 Leap
+
+        // --- 7. CELESTIAL HAZARDS & SPIKES ---
+        this.createSpikes(-5, 0, -120);
+        this.createSpikes(5, 0, -120);
+        this.createSpikes(-4, 3.5, -480);
+        this.createSpikes(4, 3.5, -480);
+        this.createSpikes(0, 0, -1000);
+        this.createSpikes(-5, 0, -1280);
+        this.createSpikes(5, 0, -1280);
+        this.createSpikes(-5, 2.0, -1650);
+        this.createSpikes(5, 2.0, -1650);
+        this.createSpikes(0, 2.0, -2380);
+        this.createSpikes(-5, 2.0, -2620);
+        this.createSpikes(5, 2.0, -2620);
+        this.createSpikes(0, 2.0, -3100);
+        this.createSpikes(-5, 4.0, -3700);
+        this.createSpikes(5, 4.0, -3700);
+        this.createSpikes(-6, 6.0, -4450);
+        this.createSpikes(6, 6.0, -4450);
+        this.createSpikes(-6, 6.0, -4800);
+        this.createSpikes(6, 6.0, -4800);
+
+        // --- 8. PATROLLING ASURA SENTINELS ---
+        this.createAsuraSentinel(0, 0, -200, 16.0, 0.95);
+        this.createAsuraSentinel(0, 3.5, -510, 16.0, 0.95);
+        this.createAsuraSentinel(0, 0, -1180, 16.0, 1.0);
+        this.createAsuraVanguard(0, 2.0, -1800, 18.0, 1.05);
+        this.createAsuraVanguard(0, 2.0, -2520, 18.0, 1.05);
+        this.createAsuraVanguard(0, 4.0, -3850, 18.0, 1.15);
+
+        // --- 9. GIANT GOAL RING (Grand Kailash Summit Arena, groundY = 6.0, z = -5120) ---
+        this.createGoalRing(0, 6.0, -5120, 9.5);
     }
 
     spawnGreenHillObjects() {
@@ -1146,7 +1628,7 @@ class ObjectManager {
         this.createSpikes(6, 10, -4980);
         this.createSpikes(0, 10, -5180);
 
-        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ตรวจการณ์ - กระโดดเหยียบได้ + พุ่งชนได้) ---
+        // --- 6. PATROLLING ASURA SENTINELS (ทหารยักษ์ตรวจการณ์ - ขวางถนนซ้ายขวา) ---
         this.createAsuraSentinel(0, 16, -180, 4.5, 2.2);   // Mountain slope patrol
         this.createAsuraSentinel(0, 5, -620, 3.8, 2.0);    // Cascade bridge patrol
         this.createAsuraSentinel(0, 8, -840, 5.0, 2.3);    // Mid-course highway patrol
@@ -1155,6 +1637,11 @@ class ObjectManager {
         this.createAsuraSentinel(0, 10, -2480, 4.2, 2.2);  // Canyon exit patrol
         this.createAsuraSentinel(0, 10, -4120, 5.0, 2.3);  // Coastal lagoon bridge patrol
         this.createAsuraSentinel(0, 10, -5120, 5.5, 2.5);  // Grand speedway final patrol
+
+        // --- 6.5 ASURA VANGUARDS (enemy002 - ทหารยักษ์เพลิงกาลสูร เดินสวนทางตามถนน) ---
+        this.createAsuraVanguard(-3.5, 8, -980, 16.0, 0.95);    // Highway left lane patrol
+        this.createAsuraVanguard(3.5, 10, -2650, 18.0, 1.05);   // Canyon exit right lane patrol
+        this.createAsuraVanguard(0, 10, -4700, 18.0, 1.15);     // Final speedway center lane patrol
 
         // --- 7. NAGA POISON GEYSERS (เสาไอพิษพญานาคพุ่งปะทุ - Timing Hazard) ---
         this.createNagaGeyser(0, 22, -285, 0.0);           // High plateau geyser
@@ -1193,7 +1680,7 @@ class ObjectManager {
 
         // Core Sparkling Diamond Glint
         if (!this.starCoreGeo) {
-            this.starCoreGeo = new THREE.OctahedronGeometry(0.16, 0);
+            this.starCoreGeo = new THREE.OctahedronGeometry(0.18, 0);
         }
         const coreMesh = new THREE.Mesh(this.starCoreGeo, this.starCoreMat);
         group.add(coreMesh);
@@ -1209,6 +1696,10 @@ class ObjectManager {
             collected: false,
             radius: 1.1
         });
+    }
+
+    createCrescentMoon(x, y, z) {
+        return this.createMoon(x, y, z);
     }
 
     createMoon(x, y, z) {
@@ -1330,6 +1821,10 @@ class ObjectManager {
             this.createRing(leftX, this.getSafeRingY(leftX, z), z);
             this.createRing(rightX, this.getSafeRingY(rightX, z), z);
         }
+    }
+
+    createSpringPad(x, y, z, color = 'pink', power = 35) {
+        return this.createSpring(x, y, z, power);
     }
 
     createSpring(x, y, z, power = 35) {
@@ -1529,21 +2024,141 @@ class ObjectManager {
         });
     }
 
-    createAsuraSentinel(x, y, z, patrolRange = 5.0, patrolSpeed = 2.0) {
-        const world = this.world || (window.game && window.game.world);
-        if (world && world.getGroundHeight) {
-            const groundY = world.getGroundHeight(x, z);
-            if (groundY > -40) y = groundY;
+    loadEnemy3DModel() {
+        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') {
+            return;
         }
 
-        const group = new THREE.Group();
-        group.position.set(x, y, z);
+        const loader = new THREE.GLTFLoader();
+        const localEnemyPath = 'assets/enemy001.glb';
+        const cdnEnemyPath = 'https://cdn.1thaiai.com/gameprompt/007Hanuman/enemy001.glb';
 
-        const charGroup = new THREE.Group();
+        const setupEnemyGLTF = (gltf) => {
+            this.enemyModelTemplate = gltf.scene;
+            this.enemyAnimations = gltf.animations || [];
+            this.isEnemyModelLoaded = true;
+
+            // Optimize materials on template
+            this.enemyModelTemplate.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    if (child.material) {
+                        child.material.roughness = 0.55;
+                        child.material.metalness = 0.2;
+                    }
+                }
+            });
+
+            // Upgrade any already-spawned sentinels across the active stage
+            if (this.sentinels && this.sentinels.length > 0) {
+                this.sentinels.forEach(s => {
+                    if (!s.has3DModel) {
+                        this.attach3DEnemyModel(s);
+                    }
+                });
+            }
+
+            console.log('Asura Sentinel 3D Model (enemy001.glb) successfully loaded! Clips:', this.enemyAnimations.map(a => a.name));
+        };
+
+        loader.load(localEnemyPath, setupEnemyGLTF, undefined, (err) => {
+            console.log('Local assets/enemy001.glb not found, streaming from Cloudflare R2 CDN...');
+            loader.load(cdnEnemyPath, setupEnemyGLTF, undefined, (cdnErr) => {
+                console.warn('Could not load enemy001.glb from local or CDN (using procedural fallback):', cdnErr);
+            });
+        });
+    }
+
+    cloneSkinnedMesh(source) {
+        if (typeof THREE.SkeletonUtils !== 'undefined' && THREE.SkeletonUtils.clone) {
+            return THREE.SkeletonUtils.clone(source);
+        }
+
+        const sourceLookup = new Map();
+        const cloneLookup = new Map();
+        const clone = source.clone();
+
+        const parallelTraverse = (a, b) => {
+            sourceLookup.set(b, a);
+            cloneLookup.set(a, b);
+            for (let i = 0; i < a.children.length; i++) {
+                if (b.children[i]) {
+                    parallelTraverse(a.children[i], b.children[i]);
+                }
+            }
+        };
+        parallelTraverse(source, clone);
+
+        clone.traverse((node) => {
+            if (!node.isSkinnedMesh) return;
+            const clonedMesh = node;
+            const sourceMesh = sourceLookup.get(node);
+            if (!sourceMesh || !sourceMesh.skeleton) return;
+            const sourceBones = sourceMesh.skeleton.bones;
+
+            clonedMesh.skeleton = sourceMesh.skeleton.clone();
+            clonedMesh.bindMatrix.copy(sourceMesh.bindMatrix);
+            clonedMesh.skeleton.bones = sourceBones.map(bone => cloneLookup.get(bone) || bone);
+            clonedMesh.bind(clonedMesh.skeleton, clonedMesh.bindMatrix);
+        });
+
+        return clone;
+    }
+
+    attach3DEnemyModel(s) {
+        if (!this.enemyModelTemplate) return;
+
+        // Clear existing procedural fallback meshes
+        while (s.charGroup.children.length > 0) {
+            s.charGroup.remove(s.charGroup.children[0]);
+        }
+
+        const enemy3D = this.cloneSkinnedMesh(this.enemyModelTemplate);
+        // Demon minion scale: 1.35 * 1.70m = ~2.30m height (menacing proportion matching course gauge)
+        enemy3D.scale.set(1.35, 1.35, 1.35);
+        enemy3D.position.set(0, 0, 0); // Grounded base at feet Y=0
+
+        enemy3D.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                // enemy002: Fiery Ruby-Crimson Demon Variant (ทหารยักษ์เพลิงกาลสูร)
+                if (s.variant === 'crimson' && child.material) {
+                    child.material = child.material.clone();
+                    child.material.color.setHex(0xff3333); // Fiery Blood-Crimson Demon Skin
+                    child.material.emissive.setHex(0x991100); // Lava core ember glow
+                    child.material.emissiveIntensity = 0.55;
+                    child.material.roughness = 0.42;
+                }
+            }
+        });
+
+        let mixer = null;
+        if (this.enemyAnimations && this.enemyAnimations.length > 0) {
+            mixer = new THREE.AnimationMixer(enemy3D);
+            const walkClip = this.enemyAnimations.find(a => /walk/i.test(a.name)) || this.enemyAnimations[0];
+            const action = mixer.clipAction(walkClip);
+            action.setLoop(THREE.LoopRepeat);
+            action.time = Math.random() * 2.0; // Desynchronize footsteps across sentinels
+            action.play();
+        }
+
+        s.charGroup.add(enemy3D);
+        s.model3D = enemy3D;
+        s.mixer = mixer;
+        s.has3DModel = true;
+    }
+
+    buildProceduralSentinel(s) {
+        const charGroup = s.charGroup;
+        const skinMat = (s.variant === 'crimson') ? this.asuraCrimsonSkinMat : this.asuraSkinMat;
+        const clothMat = (s.variant === 'crimson') ? this.asuraCrimsonClothMat : this.asuraLoinclothMat;
+        const eyeMat = (s.variant === 'crimson') ? this.asuraCrimsonEyeMat : this.asuraEyeMat;
 
         // 1. Torso & Armor (ลำตัวยักษ์ & เกราะทอง)
         const chestGeo = new THREE.BoxGeometry(1.0, 0.9, 0.65);
-        const chest = new THREE.Mesh(chestGeo, this.asuraSkinMat);
+        const chest = new THREE.Mesh(chestGeo, skinMat);
         chest.position.y = 1.25;
         chest.castShadow = true;
         charGroup.add(chest);
@@ -1554,7 +2169,7 @@ class ObjectManager {
         charGroup.add(breast);
 
         const clothGeo = new THREE.BoxGeometry(0.95, 0.42, 0.68);
-        const cloth = new THREE.Mesh(clothGeo, this.asuraLoinclothMat);
+        const cloth = new THREE.Mesh(clothGeo, clothMat);
         cloth.position.y = 0.75;
         charGroup.add(cloth);
 
@@ -1566,7 +2181,7 @@ class ObjectManager {
 
         // 2. Head & Golden Crown (หัวยักษ์ & ชฎายอดแหลม)
         const headGeo = new THREE.BoxGeometry(0.72, 0.72, 0.65);
-        const head = new THREE.Mesh(headGeo, this.asuraSkinMat);
+        const head = new THREE.Mesh(headGeo, skinMat);
         head.position.y = 2.05;
         head.castShadow = true;
         charGroup.add(head);
@@ -1574,7 +2189,7 @@ class ObjectManager {
         // Fiery glowing eyes
         [-0.18, 0.18].forEach(eyeX => {
             const eyeGeo = new THREE.BoxGeometry(0.14, 0.09, 0.12);
-            const eye = new THREE.Mesh(eyeGeo, this.asuraEyeMat);
+            const eye = new THREE.Mesh(eyeGeo, eyeMat);
             eye.position.set(eyeX, 2.12, 0.32);
             charGroup.add(eye);
         });
@@ -1630,33 +2245,65 @@ class ObjectManager {
         const legGeo = new THREE.CylinderGeometry(0.18, 0.16, 0.65, 8);
         legGeo.translate(0, -0.32, 0);
 
-        const leftLeg = new THREE.Mesh(legGeo, this.asuraSkinMat);
+        const leftLeg = new THREE.Mesh(legGeo, skinMat);
         leftLeg.position.set(-0.28, 0.65, 0);
         charGroup.add(leftLeg);
 
-        const rightLeg = new THREE.Mesh(legGeo, this.asuraSkinMat);
+        const rightLeg = new THREE.Mesh(legGeo, skinMat);
         rightLeg.position.set(0.28, 0.65, 0);
         charGroup.add(rightLeg);
 
+        s.leftLeg = leftLeg;
+        s.rightLeg = rightLeg;
+        s.clubGroup = clubGroup;
+    }
+
+    createAsuraSentinel(x, y, z, patrolRange = 5.0, patrolSpeed = 2.0, patrolAxis = 'x', variant = 'green') {
+        const world = this.world || (window.game && window.game.world);
+        if (world && world.getGroundHeight) {
+            const groundY = world.getGroundHeight(x, z);
+            if (groundY > -40) y = groundY;
+        }
+
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+
+        const charGroup = new THREE.Group();
         group.add(charGroup);
         this.scene.add(group);
 
-        this.sentinels.push({
+        const sentinelData = {
             group: group,
             charGroup: charGroup,
-            leftLeg: leftLeg,
-            rightLeg: rightLeg,
-            clubGroup: clubGroup,
             startX: x,
+            startZ: z,
             y: y,
             z: z,
             currentX: x,
+            currentZ: z,
             patrolRange: patrolRange,
             patrolSpeed: patrolSpeed,
+            patrolAxis: patrolAxis,
+            variant: variant,
             patrolTimer: Math.random() * Math.PI * 2,
             alive: true,
-            defeatTimer: 0
-        });
+            defeatTimer: 0,
+            has3DModel: false,
+            mixer: null,
+            model3D: null
+        };
+
+        if (this.isEnemyModelLoaded && this.enemyModelTemplate) {
+            this.attach3DEnemyModel(sentinelData);
+        } else {
+            this.buildProceduralSentinel(sentinelData);
+        }
+
+        this.sentinels.push(sentinelData);
+    }
+
+    createAsuraVanguard(x, y, z, patrolRange = 16.0, patrolSpeed = 0.95, variant = 'crimson') {
+        return this.createAsuraSentinel(x, y, z, patrolRange, patrolSpeed, 'z', variant);
     }
 
     createNagaGeyser(x, y, z, cycleOffset = 0) {
@@ -1669,51 +2316,175 @@ class ObjectManager {
         const group = new THREE.Group();
         group.position.set(x, y, z);
 
-        // 1. Serpentine Stone Crater Maw (ปากปล่องหินพญานาค)
-        const craterGeo = new THREE.CylinderGeometry(1.4, 1.7, 0.24, 10);
+        // 1. Serpentine Stone Crater Maw (ปากปล่องศิลาพญานาคภูเขาไฟ)
+        const craterGeo = new THREE.CylinderGeometry(1.6, 2.0, 0.38, 14);
         const crater = new THREE.Mesh(craterGeo, this.geyserBaseMat);
-        crater.position.y = 0.12;
+        crater.position.y = 0.19;
         crater.receiveShadow = true;
         group.add(crater);
 
-        const rimGeo = new THREE.TorusGeometry(1.2, 0.1, 6, 16);
-        const rim = new THREE.Mesh(rimGeo, this.geyserWarningMat);
+        // Stone rim around crater
+        const rimGeo = new THREE.TorusGeometry(1.5, 0.16, 8, 20);
+        const rim = new THREE.Mesh(rimGeo, this.geyserStoneRimMat);
         rim.rotation.x = Math.PI / 2;
-        rim.position.y = 0.22;
+        rim.position.y = 0.36;
         group.add(rim);
 
-        // 2. Warning Steam Sphere
-        const warnGeo = new THREE.SphereGeometry(0.75, 10, 8);
+        // Toxic Acid Pool in center of crater
+        const poolGeo = new THREE.CircleGeometry(1.35, 20);
+        poolGeo.rotateX(-Math.PI / 2);
+        const pool = new THREE.Mesh(poolGeo, this.geyserAcidPoolMat.clone());
+        pool.position.y = 0.33;
+        group.add(pool);
+
+        // 8 Inward-pointing Serpentine Fangs on crater rim (เขี้ยวอสรพิษศิลาอาบยาพิษ)
+        const fangs = [];
+        const fangGeo = new THREE.ConeGeometry(0.14, 0.52, 5);
+        fangGeo.translate(0, 0.24, 0);
+        fangGeo.rotateX(-0.42);
+        for (let f = 0; f < 8; f++) {
+            const fangAngle = (f / 8) * Math.PI * 2;
+            const fang = new THREE.Mesh(fangGeo, this.geyserFangMat);
+            fang.position.set(Math.cos(fangAngle) * 1.45, 0.36, Math.sin(fangAngle) * 1.45);
+            fang.rotation.y = -fangAngle - Math.PI / 2;
+            group.add(fang);
+            fangs.push({ mesh: fang, baseRotY: fang.rotation.y, baseAngle: fangAngle });
+        }
+
+        // 4 Glowing Naga Emerald Runes embedded on the stone rim
+        const runes = [];
+        const runeGeo = new THREE.SphereGeometry(0.12, 8, 6);
+        for (let r = 0; r < 4; r++) {
+            const rAngle = (r / 4) * Math.PI * 2 + Math.PI / 8;
+            const rune = new THREE.Mesh(runeGeo, this.geyserRuneMat.clone());
+            rune.position.set(Math.cos(rAngle) * 1.5, 0.42, Math.sin(rAngle) * 1.5);
+            rune.scale.set(1.0, 0.4, 1.0);
+            group.add(rune);
+            runes.push(rune);
+        }
+
+        // 4 Animated Boiling Acid Bubbles inside the pool
+        const bubbles = [];
+        const bubbleGeo = new THREE.SphereGeometry(0.18, 8, 6);
+        for (let b = 0; b < 4; b++) {
+            const bubble = new THREE.Mesh(bubbleGeo, this.geyserBubbleMat.clone());
+            const bAngle = Math.random() * Math.PI * 2;
+            const bDist = 0.2 + Math.random() * 0.75;
+            bubble.position.set(Math.cos(bAngle) * bDist, 0.34, Math.sin(bAngle) * bDist);
+            group.add(bubble);
+            bubbles.push({
+                mesh: bubble,
+                phase: Math.random() * Math.PI * 2,
+                speed: 3.2 + Math.random() * 2.6,
+                baseRadius: bDist,
+                angle: bAngle,
+                maxScale: 0.8 + Math.random() * 0.5
+            });
+        }
+
+        // 2. Warning Steam Sphere & Vapor Dome (ฟองไอพิษเตือนภัย)
+        const warnGeo = new THREE.SphereGeometry(0.9, 10, 8);
         const warnMesh = new THREE.Mesh(warnGeo, this.geyserWarningMat);
-        warnMesh.position.y = 0.5;
+        warnMesh.position.y = 0.6;
         warnMesh.visible = false;
         group.add(warnMesh);
 
-        // 3. Erupting Poison Gas Cylinder Column (เสาไอพิษพุ่งปะทุ)
-        const colGeo = new THREE.CylinderGeometry(1.1, 1.45, 6.5, 12, 1, true);
-        colGeo.translate(0, 3.25, 0);
+        // 3. Ground Shockwave Blast Ring (วงคลื่นระเบิดไอพิษกระแทกพื้น)
+        const blastGeo = new THREE.RingGeometry(1.3, 1.6, 24);
+        blastGeo.rotateX(-Math.PI / 2);
+        const blastMesh = new THREE.Mesh(blastGeo, this.geyserShockwaveMat.clone());
+        blastMesh.position.y = 0.38;
+        blastMesh.visible = false;
+        group.add(blastMesh);
+
+        // 4. Erupting Poison Gas Cylinder Column (เสาไอเพลิงพิษพุ่งปะทุ)
+        const colGeo = new THREE.CylinderGeometry(1.2, 1.65, 7.5, 14, 1, true);
+        colGeo.translate(0, 3.75, 0);
         const colMesh = new THREE.Mesh(colGeo, this.geyserColumnMat);
         colMesh.visible = false;
         group.add(colMesh);
 
-        const coreGeo = new THREE.CylinderGeometry(0.65, 0.9, 6.2, 8, 1, true);
-        coreGeo.translate(0, 3.1, 0);
+        const coreGeo = new THREE.CylinderGeometry(0.68, 0.95, 7.2, 10, 1, true);
+        coreGeo.translate(0, 3.6, 0);
         const coreMesh = new THREE.Mesh(coreGeo, this.geyserCoreMat);
         coreMesh.visible = false;
         group.add(coreMesh);
+
+        // 5. Billowing Volcanic Toxic Smoke Clouds (ก้อนควันไอพิษพวยพุ่งระเบิดขึ้นฟ้า)
+        const smokePuffs = [];
+        const smokeGeo = new THREE.DodecahedronGeometry(0.65, 1);
+        const smokeMaterials = [this.geyserSmokeDarkMat, this.geyserSmokeMat, this.geyserSmokeLimeMat];
+        for (let i = 0; i < 9; i++) {
+            const mat = smokeMaterials[i % 3].clone();
+            const smk = new THREE.Mesh(smokeGeo, mat);
+            smk.visible = false;
+            smk.userData = {
+                speedY: 5.5 + Math.random() * 3.8,
+                rotSpeed: (Math.random() - 0.5) * 5.0,
+                baseScale: 0.7 + Math.random() * 0.5,
+                maxHeight: 7.8 + Math.random() * 1.8,
+                angle: (i / 9) * Math.PI * 2,
+                radiusSpread: 0.4 + Math.random() * 0.5,
+                mat: mat
+            };
+            group.add(smk);
+            smokePuffs.push(smk);
+        }
+
+        // 6. Splattering Acid Magma Droplets / Embers (ประกายสะเก็ดพิษสาดกระจาย)
+        const droplets = [];
+        const dropGeo = new THREE.OctahedronGeometry(0.14, 0);
+        for (let d = 0; d < 8; d++) {
+            const drop = new THREE.Mesh(dropGeo, this.geyserDropletMat);
+            drop.visible = false;
+            group.add(drop);
+            droplets.push({
+                mesh: drop,
+                x: 0, y: 0.38, z: 0,
+                vx: 0, vy: 0, vz: 0,
+                active: false
+            });
+        }
+
+        // 7. Surging Toxic Spiral Rings (วงแหวนไอพิษหมุนวนพุ่งขึ้นฟ้า)
+        const toxicRings = [];
+        const tRingGeo = new THREE.TorusGeometry(1.05, 0.09, 6, 18);
+        tRingGeo.rotateX(Math.PI / 2);
+        for (let i = 0; i < 3; i++) {
+            const tr = new THREE.Mesh(tRingGeo, this.geyserWarningMat);
+            tr.visible = false;
+            tr.userData = {
+                phase: i / 3,
+                speed: 1.9
+            };
+            group.add(tr);
+            toxicRings.push(tr);
+        }
 
         this.scene.add(group);
 
         this.geysers.push({
             group: group,
+            craterMesh: crater,
+            rimMesh: rim,
+            poolMesh: pool,
+            fangs: fangs,
+            runes: runes,
+            bubbles: bubbles,
+            blastMesh: blastMesh,
             columnMesh: colMesh,
             coreMesh: coreMesh,
             warningMesh: warnMesh,
+            smokePuffs: smokePuffs,
+            droplets: droplets,
+            toxicRings: toxicRings,
             x: x, y: y, z: z,
-            radius: 1.6,
+            radius: 1.7,
             timer: cycleOffset % 4.0,
             cycleDuration: 4.0,
-            state: 'dormant'
+            state: 'dormant',
+            hasWarnSoundPlayed: false,
+            hasEruptSoundPlayed: false
         });
     }
 
@@ -1877,10 +2648,11 @@ class ObjectManager {
         // 1. Colossal Golden Torus Outer Ring
         const ringGeo = new THREE.TorusGeometry(radius, 0.85, 24, 48);
         const goldMat = new THREE.MeshStandardMaterial({
-            color: 0xffd700,
-            metalness: 0.92,
-            roughness: 0.16,
-            emissive: 0x553800
+            color: 0xffea00,
+            metalness: 0.38,
+            roughness: 0.14,
+            emissive: 0xff9900,
+            emissiveIntensity: 0.65
         });
         const ringMesh = new THREE.Mesh(ringGeo, goldMat);
         ringMesh.castShadow = true;
@@ -1914,11 +2686,12 @@ class ObjectManager {
         group.add(innerCoreMesh);
 
         // 4. Vertical Victory Light Column / Heavenly Sky Beam (100m tall)
-        const beaconGeo = new THREE.CylinderGeometry(radius * 0.45, radius * 0.85, 100, 16, 1, true);
+        const beaconGeo = new THREE.CylinderGeometry(radius * 0.85, radius * 0.85, 100, 24, 1, true);
+        const beaconColor = (this.currentStageId === 'celestial_sanctuary') ? 0xfef08a : ((this.currentStageId === 'molten_ravine') ? 0xff5500 : ((this.currentStageId === 'chemical_plant') ? 0xf59e0b : 0x38bdf8));
         const beaconMat = new THREE.MeshBasicMaterial({
-            color: 0x38bdf8,
+            color: beaconColor,
             transparent: true,
-            opacity: 0.18,
+            opacity: (this.currentStageId === 'celestial_sanctuary') ? 0.4 : ((this.currentStageId === 'molten_ravine') ? 0.35 : 0.18),
             side: THREE.DoubleSide,
             blending: THREE.AdditiveBlending,
             depthWrite: false
@@ -1943,6 +2716,16 @@ class ObjectManager {
             pillarColor = 0x0f293d; // Lanka ocean stone
             rimColor = 0x38bdf8; // Radiant sea crystal cyan
             orbColor = 0x67e8f9; // Bioluminescent ocean pearl
+        } else if (this.currentStageId === 'molten_ravine') {
+            daisColor = 0x140406; // Volcanic Obsidian Basalt
+            pillarColor = 0x1f0808; // Magma stone
+            rimColor = 0xff4500; // Flaming Lava Orange
+            orbColor = 0xffd700; // Solar Flare Gold
+        } else if (this.currentStageId === 'celestial_sanctuary') {
+            daisColor = 0xf8fafc; // Pure Celestial White Marble
+            pillarColor = 0xffffff; // Polished Marble
+            rimColor = 0xfbbf24; // Divine Gold
+            orbColor = 0x38bdf8; // Azure Star Gem
         }
 
         const daisMat = new THREE.MeshStandardMaterial({
@@ -2246,14 +3029,17 @@ class ObjectManager {
             }
         });
 
-        // 6. Update Patrolling Asura Sentinels
+        // 6. Update Patrolling Asura Sentinels & Vanguards
         this.sentinels.forEach(s => {
             if (!s.alive) {
                 if (s.defeatTimer > 0) {
                     s.defeatTimer -= dt;
                     s.group.scale.multiplyScalar(0.90);
                     s.group.position.y += dt * 3.5;
+                    s.group.rotation.x += dt * 8.0;
+                    s.group.rotation.y += dt * 10.0;
                     if (s.defeatTimer <= 0) {
+                        if (s.mixer) s.mixer.stopAllAction();
                         this.scene.remove(s.group);
                     }
                 }
@@ -2262,23 +3048,55 @@ class ObjectManager {
 
             s.patrolTimer += dt * s.patrolSpeed;
             const offset = Math.sin(s.patrolTimer) * s.patrolRange;
-            s.currentX = s.startX + offset;
-            s.group.position.x = s.currentX;
 
-            const sampledY = this.getSafeGroundY(s.currentX, s.z, s.y);
-            const gy = (sampledY > -40) ? sampledY : s.y;
-            s.group.position.y = gy;
+            let currentX, currentZ;
+            if (s.patrolAxis === 'z') {
+                // Longitudinal patrol (along road Z-axis forward & backward)
+                currentX = s.startX;
+                currentZ = s.startZ + offset;
+                s.group.position.x = currentX;
+                s.group.position.z = currentZ;
 
-            const movingRight = Math.cos(s.patrolTimer) > 0;
-            s.charGroup.rotation.y = movingRight ? Math.PI * 0.45 : -Math.PI * 0.45;
+                const sampledY = this.getSafeGroundY(currentX, currentZ, s.y);
+                const gy = (sampledY > -40) ? sampledY : s.y;
+                s.group.position.y = gy;
+                s.currentX = currentX;
+                s.currentZ = currentZ;
 
-            const step = Math.sin(s.patrolTimer * 5);
-            s.leftLeg.rotation.x = step * 0.5;
-            s.rightLeg.rotation.x = -step * 0.5;
-            s.charGroup.position.y = Math.abs(step) * 0.12;
+                // When moving towards +Z (walking towards Hanuman): face 0 (towards camera)
+                // When moving towards -Z (walking away into distance): face Math.PI (away from camera)
+                const movingTowardsPlayer = Math.cos(s.patrolTimer) > 0;
+                s.charGroup.rotation.y = movingTowardsPlayer ? 0 : Math.PI;
+            } else {
+                // Lateral patrol (across road X-axis left & right)
+                currentX = s.startX + offset;
+                currentZ = s.startZ !== undefined ? s.startZ : s.z;
+                s.group.position.x = currentX;
+                s.group.position.z = currentZ;
+
+                const sampledY = this.getSafeGroundY(currentX, currentZ, s.y);
+                const gy = (sampledY > -40) ? sampledY : s.y;
+                s.group.position.y = gy;
+                s.currentX = currentX;
+                s.currentZ = currentZ;
+
+                const movingRight = Math.cos(s.patrolTimer) > 0;
+                s.charGroup.rotation.y = movingRight ? (Math.PI * 0.45) : (-Math.PI * 0.45);
+            }
+
+            if (s.has3DModel && s.mixer) {
+                // Update 3D walk cycle animation (calibrated for steady natural steps)
+                const animRate = (s.patrolAxis === 'z') ? 0.95 : (s.patrolSpeed / 1.8);
+                s.mixer.update(dt * animRate);
+            } else if (s.leftLeg && s.rightLeg) {
+                const step = Math.sin(s.patrolTimer * 5);
+                s.leftLeg.rotation.x = step * 0.5;
+                s.rightLeg.rotation.x = -step * 0.5;
+                s.charGroup.position.y = Math.abs(step) * 0.12;
+            }
 
             // Collision check with Hanuman
-            const dist = Math.hypot(sonic.position.x - s.currentX, sonic.position.z - s.z);
+            const dist = Math.hypot(sonic.position.x - currentX, sonic.position.z - currentZ);
             const vertDist = sonic.position.y - s.group.position.y;
 
             if (dist < 1.9 && vertDist > -0.6 && vertDist < 2.8) {
@@ -2286,7 +3104,7 @@ class ObjectManager {
                 const isBoostSmash = (sonic.isBoosting && sonic.boostEnergy > 1.0);
 
                 if (isStomp || isBoostSmash) {
-                    // DEFEAT ASURA SENTINEL!
+                    // DEFEAT ASURA SENTINEL / VANGUARD!
                     s.alive = false;
                     s.defeatTimer = 0.4;
                     if (isStomp) {
@@ -2294,13 +3112,15 @@ class ObjectManager {
                         sonic.isGrounded = false;
                         sonic.isJumping = true;
                     }
-                    this.spawnRingCollectFX(s.currentX, gy + 1.2, s.z);
+                    this.spawnRingCollectFX(currentX, s.group.position.y + 1.2, currentZ);
                     if (window.soundManager && window.soundManager.playEnemyDefeat) {
                         window.soundManager.playEnemyDefeat();
                     }
-                    // Reward with 3 bonus golden stars!
-                    for (let k = -1; k <= 1; k++) {
-                        this.createRing(s.currentX + k * 1.6, gy + 1.4, s.z + (Math.random() - 0.5) * 2);
+                    // Reward with bonus golden stars (5 stars for Vanguard, 3 for Sentinel)!
+                    const starCount = (s.variant === 'crimson') ? 5 : 3;
+                    for (let k = 0; k < starCount; k++) {
+                        const angle = (k / starCount) * Math.PI * 2;
+                        this.createRing(currentX + Math.cos(angle) * 1.8, s.group.position.y + 1.4, currentZ + Math.sin(angle) * 1.8);
                     }
                 } else if (!sonic.isInvulnerable && !sonic.isDead) {
                     const lost = sonic.takeDamage();
@@ -2314,51 +3134,233 @@ class ObjectManager {
         // 7. Update Naga Poison Geysers (Timing Hazard)
         this.geysers.forEach(g => {
             g.timer = (g.timer + dt) % g.cycleDuration;
+            const distToPlayer = Math.hypot(sonic.position.x - g.x, sonic.position.z - g.z);
 
-            // Phase 1: Dormant (0.0s to 2.0s)
+            // Phase 1: Dormant (0.0s to 2.0s - Resting Crater Maw)
             if (g.timer < 2.0) {
                 g.state = 'dormant';
+                g.hasWarnSoundPlayed = false;
+                g.hasEruptSoundPlayed = false;
                 g.columnMesh.visible = false;
                 g.coreMesh.visible = false;
                 g.warningMesh.visible = false;
+                if (g.blastMesh) g.blastMesh.visible = false;
+                if (g.smokePuffs) g.smokePuffs.forEach(smk => smk.visible = false);
+                if (g.toxicRings) g.toxicRings.forEach(tr => tr.visible = false);
+                if (g.droplets) g.droplets.forEach(d => { d.mesh.visible = false; d.active = false; });
+
+                // Acid pool: gentle pulsing breath
+                const breath = Math.sin(g.timer * 3.0) * 0.15;
+                if (g.poolMesh && g.poolMesh.material) {
+                    g.poolMesh.material.emissiveIntensity = 0.7 + breath;
+                }
+                if (g.poolMesh) g.poolMesh.scale.set(1.0 + breath * 0.05, 1.0 + breath * 0.05, 1.0);
+
+                // Runes: soft green mystical pulse
+                if (g.runes) {
+                    g.runes.forEach((r, idx) => {
+                        if (r.material) r.material.opacity = 0.55 + Math.sin(g.timer * 2.5 + idx) * 0.25;
+                    });
+                }
+
+                // Fangs: stationary
+                if (g.fangs) {
+                    g.fangs.forEach(f => { f.mesh.rotation.y = f.baseRotY; });
+                }
+
+                // Bubbles: gentle slow bubbling
+                if (g.bubbles) {
+                    g.bubbles.forEach(b => {
+                        b.phase += dt * b.speed;
+                        const bScale = Math.sin(b.phase);
+                        if (bScale > 0) {
+                            b.mesh.visible = true;
+                            const s = bScale * b.maxScale;
+                            b.mesh.scale.set(s, s * 0.8, s);
+                            b.mesh.position.y = 0.33 + bScale * 0.1;
+                        } else {
+                            b.mesh.visible = false;
+                            if (b.phase > Math.PI * 2) {
+                                b.phase -= Math.PI * 2;
+                                b.angle = Math.random() * Math.PI * 2;
+                                b.baseRadius = 0.2 + Math.random() * 0.75;
+                                b.mesh.position.x = Math.cos(b.angle) * b.baseRadius;
+                                b.mesh.position.z = Math.sin(b.angle) * b.baseRadius;
+                            }
+                        }
+                    });
+                }
             }
             // Phase 2: Warning Telegraph (2.0s to 2.8s - 0.8s advance notice)
             else if (g.timer < 2.8) {
                 g.state = 'warning';
+                if (!g.hasWarnSoundPlayed && distToPlayer < 35 && window.soundManager && window.soundManager.playGeyserHiss) {
+                    window.soundManager.playGeyserHiss(1.0 - distToPlayer / 35.0);
+                    g.hasWarnSoundPlayed = true;
+                }
+
                 g.warningMesh.visible = true;
                 const warnProgress = (g.timer - 2.0) / 0.8;
-                const pulse = Math.sin(warnProgress * Math.PI * 8) * 0.5 + 0.5;
-                g.warningMesh.scale.set(0.8 + pulse * 0.8, 0.4 + pulse * 0.6, 0.8 + pulse * 0.8);
-                g.warningMesh.material.opacity = 0.4 + pulse * 0.5;
+                const pulse = Math.sin(warnProgress * Math.PI * 10) * 0.5 + 0.5;
+                g.warningMesh.scale.set(0.85 + pulse * 0.9, 0.5 + pulse * 0.7, 0.85 + pulse * 0.9);
+                g.warningMesh.material.opacity = 0.45 + pulse * 0.5;
                 g.columnMesh.visible = false;
                 g.coreMesh.visible = false;
+                if (g.blastMesh) g.blastMesh.visible = false;
+                if (g.smokePuffs) g.smokePuffs.forEach(smk => smk.visible = false);
+                if (g.toxicRings) g.toxicRings.forEach(tr => tr.visible = false);
+                if (g.droplets) g.droplets.forEach(d => { d.mesh.visible = false; d.active = false; });
+
+                // Acid pool: boils rapidly!
+                if (g.poolMesh && g.poolMesh.material) {
+                    g.poolMesh.material.emissiveIntensity = 1.2 + pulse * 0.6;
+                }
+                const boil = 1.0 + pulse * 0.2;
+                if (g.poolMesh) g.poolMesh.scale.set(boil, boil, 1.0);
+
+                // Runes: bright warning flash
+                if (g.runes) {
+                    g.runes.forEach(r => { if (r.material) r.material.opacity = 0.7 + pulse * 0.3; });
+                }
+
+                // Fangs: shiver from volcanic ground pressure
+                const shiver = (Math.random() - 0.5) * 0.14 * pulse;
+                if (g.fangs) {
+                    g.fangs.forEach(f => { f.mesh.rotation.y = f.baseRotY + shiver; });
+                }
+
+                // Bubbles: boil furiously at 3.2x speed
+                if (g.bubbles) {
+                    g.bubbles.forEach(b => {
+                        b.phase += dt * b.speed * 3.2;
+                        const bScale = Math.sin(b.phase);
+                        if (bScale > 0) {
+                            b.mesh.visible = true;
+                            const s = bScale * b.maxScale * 1.2;
+                            b.mesh.scale.set(s, s, s);
+                            b.mesh.position.y = 0.33 + bScale * 0.16;
+                        } else {
+                            b.mesh.visible = false;
+                            if (b.phase > Math.PI * 2) {
+                                b.phase -= Math.PI * 2;
+                                b.angle = Math.random() * Math.PI * 2;
+                                b.baseRadius = 0.2 + Math.random() * 0.75;
+                                b.mesh.position.x = Math.cos(b.angle) * b.baseRadius;
+                                b.mesh.position.z = Math.sin(b.angle) * b.baseRadius;
+                            }
+                        }
+                    });
+                }
             }
-            // Phase 3: Eruption (2.8s to 4.0s - 1.2s surging pillar)
+            // Phase 3: Eruption (2.8s to 4.0s - 1.2s explosive volcanic pillar)
             else {
                 g.state = 'erupting';
+                if (!g.hasEruptSoundPlayed && distToPlayer < 45 && window.soundManager && window.soundManager.playGeyserErupt) {
+                    window.soundManager.playGeyserErupt(1.0 - distToPlayer / 45.0);
+                    g.hasEruptSoundPlayed = true;
+                }
+
                 g.warningMesh.visible = false;
                 g.columnMesh.visible = true;
                 g.coreMesh.visible = true;
 
                 const eruptTime = (g.timer - 2.8) / 1.2;
                 const surge = Math.sin(eruptTime * Math.PI);
-                const colH = 6.5 * Math.min(1.0, eruptTime * 4.0) * (1.0 - Math.pow(eruptTime, 3));
-                g.columnMesh.scale.set(1.0 + surge * 0.25, Math.max(0.01, colH / 6.5), 1.0 + surge * 0.25);
-                g.coreMesh.scale.set(0.7, Math.max(0.01, colH / 6.2), 0.7);
+                const colH = 7.5 * Math.min(1.0, eruptTime * 4.5) * (1.0 - Math.pow(eruptTime, 3));
 
-                g.columnMesh.rotation.y += dt * 3.5;
-                g.coreMesh.rotation.y -= dt * 4.5;
+                // Ground blast shockwave ring (first 0.32s of eruption)
+                if (g.blastMesh) {
+                    if (eruptTime < 0.32) {
+                        g.blastMesh.visible = true;
+                        const bProg = eruptTime / 0.32;
+                        const bScale = 1.0 + bProg * 2.4;
+                        g.blastMesh.scale.set(bScale, bScale, 1.0);
+                        if (g.blastMesh.material) g.blastMesh.material.opacity = Math.max(0, 0.85 * (1.0 - bProg));
+                    } else {
+                        g.blastMesh.visible = false;
+                    }
+                }
+
+                g.columnMesh.scale.set(1.0 + surge * 0.35, Math.max(0.01, colH / 7.5), 1.0 + surge * 0.35);
+                g.coreMesh.scale.set(0.72 + surge * 0.22, Math.max(0.01, colH / 7.2), 0.72 + surge * 0.22);
+
+                g.columnMesh.rotation.y += dt * 4.8;
+                g.coreMesh.rotation.y -= dt * 6.5;
+
+                // Animate Splattering Acid Droplets / Embers
+                if (g.droplets) {
+                    g.droplets.forEach(d => {
+                        if (!d.active) {
+                            d.active = true;
+                            d.x = (Math.random() - 0.5) * 0.8;
+                            d.y = 0.38;
+                            d.z = (Math.random() - 0.5) * 0.8;
+                            d.vy = 8.5 + Math.random() * 5.5;
+                            const spd = 2.2 + Math.random() * 3.2;
+                            const a = Math.random() * Math.PI * 2;
+                            d.vx = Math.cos(a) * spd;
+                            d.vz = Math.sin(a) * spd;
+                            d.mesh.visible = true;
+                        }
+                        d.vy -= 18.0 * dt;
+                        d.x += d.vx * dt;
+                        d.y += d.vy * dt;
+                        d.z += d.vz * dt;
+                        d.mesh.position.set(d.x, d.y, d.z);
+                        d.mesh.rotation.x += dt * 8.0;
+                        d.mesh.rotation.y += dt * 8.0;
+                        if (d.y < 0.2) {
+                            d.mesh.visible = false;
+                        }
+                    });
+                }
+
+                // Animate Billowing Toxic Smoke Clouds
+                if (g.smokePuffs) {
+                    g.smokePuffs.forEach(smk => {
+                        smk.visible = true;
+                        smk.position.y += dt * smk.userData.speedY * (1.0 + surge * 0.6);
+                        if (smk.position.y > smk.userData.maxHeight || smk.position.y < 0.2) {
+                            smk.position.y = 0.4 + Math.random() * 0.6;
+                        }
+                        const progress = smk.position.y / smk.userData.maxHeight;
+                        // Billow into a thick mushroom crown
+                        const cloudScale = smk.userData.baseScale * (1.0 + progress * 2.8);
+                        smk.scale.set(cloudScale, cloudScale * 1.15, cloudScale);
+                        smk.rotation.x += dt * smk.userData.rotSpeed;
+                        smk.rotation.y += dt * smk.userData.rotSpeed;
+                        smk.position.x = Math.cos(smk.userData.angle + progress * 3.5) * (smk.userData.radiusSpread + progress * 1.2);
+                        smk.position.z = Math.sin(smk.userData.angle + progress * 3.5) * (smk.userData.radiusSpread + progress * 1.2);
+                        if (smk.userData.mat) {
+                            smk.userData.mat.opacity = Math.sin(progress * Math.PI) * 0.85;
+                        }
+                    });
+                }
+
+                // Animate Surging Toxic Rings
+                if (g.toxicRings) {
+                    g.toxicRings.forEach(tr => {
+                        tr.visible = true;
+                        tr.userData.phase = (tr.userData.phase + dt * tr.userData.speed) % 1.0;
+                        const ringH = tr.userData.phase * colH;
+                        tr.position.y = ringH;
+                        const flare = 0.9 + (tr.userData.phase * 0.95);
+                        tr.scale.set(flare, flare, flare);
+                        tr.rotation.y += dt * 8.5;
+                    });
+                }
 
                 // Collision with player during eruption!
                 const dist = Math.hypot(sonic.position.x - g.x, sonic.position.z - g.z);
                 const playerY = sonic.position.y - g.y;
 
-                if (dist < g.radius && playerY >= 0 && playerY < colH + 0.5) {
+                if (dist < g.radius && playerY >= 0 && playerY < colH + 0.6) {
                     if (!sonic.isInvulnerable && !sonic.isDead && !(sonic.isBoosting && sonic.boostEnergy > 2.0)) {
                         const lost = sonic.takeDamage();
                         if (lost > 0) {
                             this.spawnScatteredRings(sonic.position.x, sonic.position.y, sonic.position.z, lost);
                         }
+                        this.spawnPoisonSplashFX(sonic.position.x, sonic.position.y + 1.0, sonic.position.z);
                     }
                 }
             }
@@ -2445,18 +3447,18 @@ class ObjectManager {
             const dz = sonic.position.z - this.goalRing.z;
             const dy = sonic.position.y - this.goalRing.groundY;
 
-            // 1. Horizontal span (inside the 17m gateway opening + safety margin)
-            const inHorizontal = Math.abs(dx) <= (this.goalRing.radius + 1.8);
+            // 1. Horizontal span (inside gateway opening + safety margin)
+            const inHorizontal = Math.abs(dx) <= (this.goalRing.radius + 3.0);
 
             // 2. Vertical span (from track floor up to above the top of the ring)
-            const inVertical = (dy >= -1.5 && dy <= (this.goalRing.radius * 2.0 + 4.0));
+            const inVertical = (dy >= -2.0 && dy <= (this.goalRing.radius * 2.0 + 8.0));
 
-            // 3. Depth span (crossing or close to the gate's Z plane)
-            const inDepth = Math.abs(dz) <= 4.5;
+            // 3. Depth span (crossing, close to gate's Z plane, or running past it)
+            const inDepth = (Math.abs(dz) <= 6.5) || (dz <= 1.0 && dz >= -16.0);
 
             // 4. Fallback 3D sphere from center
             const dist3D = sonic.position.distanceTo(this.goalRing.group.position);
-            const inSphere = dist3D <= (this.goalRing.radius + 3.5);
+            const inSphere = dist3D <= (this.goalRing.radius + 5.0);
 
             if ((inHorizontal && inVertical && inDepth) || inSphere) {
                 this.goalRing.reached = true;

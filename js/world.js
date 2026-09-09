@@ -692,6 +692,345 @@ class World {
         this.hydroCoralPinkMat = this.coralPinkMat;
         this.hydroCoralCyanMat = new THREE.MeshLambertMaterial({ color: 0x06b6d4 });
         this.hydroCoralGoldMat = this.coralGoldMat;
+
+        // ==========================================
+        // 4. LANKA MOLTEN RAVINE TEXTURES & MATERIALS (STAGE 4)
+        // ==========================================
+        // 1. Basalt Lava Track Surface (512x512)
+        const mrCanvas = document.createElement('canvas');
+        mrCanvas.width = 512;
+        mrCanvas.height = 512;
+        const mrCtx = mrCanvas.getContext('2d');
+        if (mrCtx) {
+            // Charcoal black volcanic basalt foundation
+            mrCtx.fillStyle = '#0f0c0e';
+            mrCtx.fillRect(0, 0, 512, 512);
+
+            // Dark textured stone pavers
+            const cols = 4, rows = 4;
+            const pw = 512 / cols, ph = 512 / rows;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    mrCtx.fillStyle = ((r + c) % 2 === 0) ? '#181216' : '#140f12';
+                    mrCtx.fillRect(c * pw + 4, r * ph + 4, pw - 8, ph - 8);
+                    mrCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                    mrCtx.lineWidth = 2;
+                    mrCtx.strokeRect(c * pw + 6, r * ph + 6, pw - 12, ph - 12);
+                }
+            }
+
+            // Glowing magma fissures & molten veins cutting through pavers
+            mrCtx.strokeStyle = '#ea580c';
+            mrCtx.lineWidth = 4;
+            mrCtx.shadowColor = '#f97316';
+            mrCtx.shadowBlur = 10;
+            const fissures = [
+                [[40, 10], [120, 90], [210, 160], [330, 180], [480, 240]],
+                [[20, 320], [110, 360], [220, 340], [310, 420], [420, 490]],
+                [[260, 20], [270, 140], [250, 270], [280, 390], [260, 500]]
+            ];
+            fissures.forEach(pts => {
+                mrCtx.beginPath();
+                mrCtx.moveTo(pts[0][0], pts[0][1]);
+                for (let i = 1; i < pts.length; i++) {
+                    mrCtx.lineTo(pts[i][0], pts[i][1]);
+                }
+                mrCtx.stroke();
+            });
+
+            // Bright molten core of fissures (Yellow-hot center)
+            mrCtx.strokeStyle = '#fef08a';
+            mrCtx.lineWidth = 1.8;
+            mrCtx.shadowBlur = 4;
+            fissures.forEach(pts => {
+                mrCtx.beginPath();
+                mrCtx.moveTo(pts[0][0], pts[0][1]);
+                for (let i = 1; i < pts.length; i++) {
+                    mrCtx.lineTo(pts[i][0], pts[i][1]);
+                }
+                mrCtx.stroke();
+            });
+            mrCtx.shadowBlur = 0;
+
+            // Obsidian border trims on track edges
+            mrCtx.fillStyle = '#b91c1c';
+            mrCtx.fillRect(0, 0, 16, 512);
+            mrCtx.fillRect(496, 0, 16, 512);
+            mrCtx.fillStyle = '#f59e0b';
+            mrCtx.fillRect(16, 0, 4, 512);
+            mrCtx.fillRect(492, 0, 4, 512);
+        }
+
+        this.moltenTrackTexture = new THREE.CanvasTexture(mrCanvas);
+        this.moltenTrackTexture.wrapS = THREE.RepeatWrapping;
+        this.moltenTrackTexture.wrapT = THREE.RepeatWrapping;
+
+        // 2. Volcanic Cliff / Side Material (Jagged Black Basalt with Magma Strata)
+        const msCanvas = document.createElement('canvas');
+        msCanvas.width = 256;
+        msCanvas.height = 256;
+        const msCtx = msCanvas.getContext('2d');
+        if (msCtx) {
+            msCtx.fillStyle = '#120a0d';
+            msCtx.fillRect(0, 0, 256, 256);
+
+            for (let y = 16; y < 256; y += 36) {
+                msCtx.fillStyle = '#1c1015';
+                msCtx.fillRect(0, y, 256, 22);
+
+                msCtx.strokeStyle = '#dc2626';
+                msCtx.lineWidth = 2.5;
+                msCtx.shadowColor = '#ea580c';
+                msCtx.shadowBlur = 6;
+                msCtx.beginPath();
+                msCtx.moveTo(0, y + 10);
+                for (let x = 0; x <= 256; x += 32) {
+                    msCtx.lineTo(x, y + 10 + (Math.sin(x * 0.1) * 6));
+                }
+                msCtx.stroke();
+            }
+            msCtx.shadowBlur = 0;
+        }
+
+        this.moltenSideTexture = new THREE.CanvasTexture(msCanvas);
+        this.moltenSideTexture.wrapS = THREE.RepeatWrapping;
+        this.moltenSideTexture.wrapT = THREE.RepeatWrapping;
+
+        // 3. Boiling Magma Sea Texture (Floor of the Abyss at y = -35)
+        const lavaCanvas = document.createElement('canvas');
+        lavaCanvas.width = 256;
+        lavaCanvas.height = 256;
+        const lavaCtx = lavaCanvas.getContext('2d');
+        if (lavaCtx) {
+            lavaCtx.fillStyle = '#7f1d1d';
+            lavaCtx.fillRect(0, 0, 256, 256);
+
+            for (let i = 0; i < 20; i++) {
+                const lx = (i * 37) % 256;
+                const ly = (i * 53) % 256;
+                const rad = 25 + (i % 5) * 12;
+                const grad = lavaCtx.createRadialGradient(lx, ly, 2, lx, ly, rad);
+                grad.addColorStop(0, '#fef08a');
+                grad.addColorStop(0.35, '#f97316');
+                grad.addColorStop(0.7, '#dc2626');
+                grad.addColorStop(1, '#450a0a');
+                lavaCtx.fillStyle = grad;
+                lavaCtx.beginPath();
+                lavaCtx.arc(lx, ly, rad, 0, Math.PI * 2);
+                lavaCtx.fill();
+            }
+        }
+        this.lavaSeaTexture = new THREE.CanvasTexture(lavaCanvas);
+        this.lavaSeaTexture.wrapS = THREE.RepeatWrapping;
+        this.lavaSeaTexture.wrapT = THREE.RepeatWrapping;
+        this.lavaSeaTexture.repeat.set(30, 30);
+
+        this.moltenTrackMat = new THREE.MeshStandardMaterial({
+            map: this.moltenTrackTexture,
+            roughness: 0.55,
+            metalness: 0.15
+        });
+        this.moltenSideMat = new THREE.MeshStandardMaterial({
+            map: this.moltenSideTexture,
+            roughness: 0.75,
+            metalness: 0.1
+        });
+        this.lavaSeaMat = new THREE.MeshBasicMaterial({
+            map: this.lavaSeaTexture,
+            transparent: true,
+            opacity: 0.95
+        });
+
+        // Volcanic rock architecture
+        this.obsidianPillarMat = new THREE.MeshStandardMaterial({
+            color: 0x181014,
+            roughness: 0.4,
+            metalness: 0.35
+        });
+        this.magmaGlowMat = new THREE.MeshBasicMaterial({
+            color: 0xff4400,
+            transparent: true,
+            opacity: 0.85
+        });
+        this.fireEmbersMat = new THREE.MeshBasicMaterial({
+            color: 0xffaa22,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+        });
+
+        // ==========================================
+        // 5. CELESTIAL CLOUD SANCTUARY (เขาไกรลาส - STAGE 5)
+        // ==========================================
+        // 1. Celestial White-Gold Marble Track (512x512)
+        const csCanvas = document.createElement('canvas');
+        csCanvas.width = 512;
+        csCanvas.height = 512;
+        const csCtx = csCanvas.getContext('2d');
+        if (csCtx) {
+            // Pure pearlescent marble base
+            csCtx.fillStyle = '#f8fafc';
+            csCtx.fillRect(0, 0, 512, 512);
+
+            // Subtle marble tile divisions
+            const cols = 4, rows = 4;
+            const tw = 512 / cols, th = 512 / rows;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    csCtx.fillStyle = ((r + c) % 2 === 0) ? '#ffffff' : '#f1f5f9';
+                    csCtx.fillRect(c * tw + 4, r * th + 4, tw - 8, th - 8);
+                    csCtx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+                    csCtx.lineWidth = 2;
+                    csCtx.strokeRect(c * tw + 4, r * th + 4, tw - 8, th - 8);
+
+                    // Central diamond lotus gem inlay
+                    csCtx.fillStyle = '#06b6d4';
+                    csCtx.beginPath();
+                    const cx = c * tw + tw * 0.5;
+                    const cy = r * th + th * 0.5;
+                    csCtx.moveTo(cx, cy - 8);
+                    csCtx.lineTo(cx + 8, cy);
+                    csCtx.lineTo(cx, cy + 8);
+                    csCtx.lineTo(cx - 8, cy);
+                    csCtx.closePath();
+                    csCtx.fill();
+
+                    csCtx.fillStyle = '#38bdf8';
+                    csCtx.beginPath();
+                    csCtx.arc(cx, cy, 3, 0, Math.PI * 2);
+                    csCtx.fill();
+                }
+            }
+
+            // Divine Golden Kranok Borders along edges
+            csCtx.fillStyle = '#d97706';
+            csCtx.fillRect(0, 0, 24, 512);
+            csCtx.fillRect(488, 0, 24, 512);
+            csCtx.fillStyle = '#fbbf24';
+            for (let y = 0; y < 512; y += 32) {
+                csCtx.beginPath();
+                csCtx.moveTo(2, y);
+                csCtx.lineTo(22, y + 16);
+                csCtx.lineTo(2, y + 32);
+                csCtx.fill();
+
+                csCtx.beginPath();
+                csCtx.moveTo(510, y);
+                csCtx.lineTo(490, y + 16);
+                csCtx.lineTo(510, y + 32);
+                csCtx.fill();
+            }
+
+            // Inner cyan celestial energy piping
+            csCtx.fillStyle = '#00f0ff';
+            csCtx.fillRect(24, 0, 3, 512);
+            csCtx.fillRect(485, 0, 3, 512);
+        }
+        this.celestialTrackTexture = new THREE.CanvasTexture(csCanvas);
+        this.celestialTrackTexture.wrapS = THREE.RepeatWrapping;
+        this.celestialTrackTexture.wrapT = THREE.RepeatWrapping;
+
+        // 2. Celestial Retaining Wall Side Texture (256x256)
+        const cSideCanvas = document.createElement('canvas');
+        cSideCanvas.width = 256;
+        cSideCanvas.height = 256;
+        const cSideCtx = cSideCanvas.getContext('2d');
+        if (cSideCtx) {
+            cSideCtx.fillStyle = '#e2e8f0';
+            cSideCtx.fillRect(0, 0, 256, 256);
+
+            // Carved blocks
+            cSideCtx.strokeStyle = 'rgba(203, 213, 225, 0.8)';
+            cSideCtx.lineWidth = 2.5;
+            for (let y = 0; y < 256; y += 64) {
+                cSideCtx.beginPath();
+                cSideCtx.moveTo(0, y);
+                cSideCtx.lineTo(256, y);
+                cSideCtx.stroke();
+                const offset = (y / 64) % 2 === 0 ? 0 : 64;
+                for (let x = offset; x < 256; x += 128) {
+                    cSideCtx.beginPath();
+                    cSideCtx.moveTo(x, y);
+                    cSideCtx.lineTo(x, y + 64);
+                    cSideCtx.stroke();
+                }
+            }
+
+            // Golden lotus relief carvings
+            cSideCtx.fillStyle = '#fbbf24';
+            for (let y = 16; y < 256; y += 64) {
+                for (let x = 32; x < 256; x += 64) {
+                    cSideCtx.beginPath();
+                    cSideCtx.arc(x, y, 6, 0, Math.PI * 2);
+                    cSideCtx.fill();
+                }
+            }
+        }
+        this.celestialSideTexture = new THREE.CanvasTexture(cSideCanvas);
+        this.celestialSideTexture.wrapS = THREE.RepeatWrapping;
+        this.celestialSideTexture.wrapT = THREE.RepeatWrapping;
+
+        // 3. Sea of Clouds Bottomless Abyss Texture (256x256)
+        const cloudCanvas = document.createElement('canvas');
+        cloudCanvas.width = 256;
+        cloudCanvas.height = 256;
+        const cloudCtx = cloudCanvas.getContext('2d');
+        if (cloudCtx) {
+            cloudCtx.fillStyle = '#e0f2fe';
+            cloudCtx.fillRect(0, 0, 256, 256);
+            for (let i = 0; i < 24; i++) {
+                const cx = (i * 47) % 256;
+                const cy = (i * 61) % 256;
+                const rad = 28 + (i % 5) * 14;
+                const grad = cloudCtx.createRadialGradient(cx, cy, 4, cx, cy, rad);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.5, '#bae6fd');
+                grad.addColorStop(1, 'rgba(186, 230, 253, 0)');
+                cloudCtx.fillStyle = grad;
+                cloudCtx.beginPath();
+                cloudCtx.arc(cx, cy, rad, 0, Math.PI * 2);
+                cloudCtx.fill();
+            }
+        }
+        this.cloudSeaTexture = new THREE.CanvasTexture(cloudCanvas);
+        this.cloudSeaTexture.wrapS = THREE.RepeatWrapping;
+        this.cloudSeaTexture.wrapT = THREE.RepeatWrapping;
+        this.cloudSeaTexture.repeat.set(24, 24);
+
+        this.celestialTrackMat = new THREE.MeshStandardMaterial({
+            map: this.celestialTrackTexture,
+            roughness: 0.25,
+            metalness: 0.15
+        });
+        this.celestialSideMat = new THREE.MeshStandardMaterial({
+            map: this.celestialSideTexture,
+            roughness: 0.45,
+            metalness: 0.1
+        });
+        this.cloudSeaMat = new THREE.MeshBasicMaterial({
+            map: this.cloudSeaTexture,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.88
+        });
+
+        // Sacred architecture materials
+        this.celestialMarbleMat = new THREE.MeshStandardMaterial({
+            color: 0xf8fafc,
+            roughness: 0.2,
+            metalness: 0.12
+        });
+        this.celestialGoldTrimMat = new THREE.MeshStandardMaterial({
+            color: 0xfbbf24,
+            roughness: 0.18,
+            metalness: 0.88,
+            emissive: 0x553500
+        });
+        this.celestialCrystalMat = new THREE.MeshBasicMaterial({
+            color: 0x38bdf8,
+            transparent: true,
+            opacity: 0.88
+        });
     }
 
     createSkyAndLighting() {
@@ -804,6 +1143,86 @@ class World {
 
             this.buildHydrocityCourse();
             this.buildHydrocityScenery();
+        } else if (stageId === 'molten_ravine') {
+            // Lanka Molten Ravine Atmosphere (Stage 4 - หุบเหวศิลาเพลิงลงกา)
+            this.scene.background = new THREE.Color(0x140406);   // Dark volcanic charcoal-crimson sky
+            this.scene.fog = new THREE.FogExp2(0x2e0a0d, 0.0017); // Ominous crimson sulfur ash haze
+
+            this.hemiLight.color.setHex(0xff7733);        // Fiery volcanic ash sky glow
+            this.hemiLight.groundColor.setHex(0x450a0a);   // Molten lava abyss floor bounce
+            this.dirLight.color.setHex(0xff5511);          // Blazing magma glare
+            this.dirLight.intensity = 1.5;
+
+            // 1. Bottomless Boiling Magma Sea Floor (ครอบคลุมตลอดเส้นทาง 4,600 เมตร ที่ความลึก y = -35)
+            const lavaGeo = new THREE.PlaneGeometry(1600, 5200);
+            const lavaMesh = new THREE.Mesh(lavaGeo, this.lavaSeaMat);
+            lavaMesh.rotation.x = -Math.PI / 2;
+            lavaMesh.position.set(0, -35.0, -2300);
+            this.scene.add(lavaMesh);
+            this.stageMeshes.push(lavaMesh);
+
+            // 2. Floating Firefly Embers & Volcanic Ash (สะเก็ดเถ้าถ่านไฟลอยละล่อง)
+            for (let i = 0; i < 65; i++) {
+                const ember = this.createVolcanicEmber();
+                ember.position.set(
+                    (Math.random() - 0.5) * 500,
+                    -15 + Math.random() * 45,
+                    -Math.random() * 4700 + 40
+                );
+                this.scene.add(ember);
+                this.stageMeshes.push(ember);
+                this.clouds.push(ember);
+            }
+
+            this.buildMoltenRavineCourse();
+            this.buildMoltenRavineScenery();
+        } else if (stageId === 'celestial_sanctuary') {
+            // Celestial Cloud Sanctuary Atmosphere (Stage 5 - วิมานลอยฟ้าบนสรวงสวรรค์ / เขาไกรลาส)
+            this.scene.background = new THREE.Color(0x181a3a);   // Celestial twilight with aurora aura
+            this.scene.fog = new THREE.FogExp2(0x272b5c, 0.0014); // Ethereal lavender-gold heavenly mist
+
+            this.hemiLight.color.setHex(0xfffae0);        // Pure warm celestial morning sun
+            this.hemiLight.groundColor.setHex(0x3b2d6a);   // Soft lavender/cyan cloud bounce
+            this.dirLight.color.setHex(0xfff2b2);          // Radiant divine rays
+            this.dirLight.intensity = 1.6;
+
+            // 1. Endless Rolling Sea of Clouds Floor (ครอบคลุมตลอดเส้นทาง 5,500 เมตร ที่ความลึก y = -35.0)
+            const cloudSeaGeo = new THREE.PlaneGeometry(1800, 5800);
+            const cloudSeaMesh = new THREE.Mesh(cloudSeaGeo, this.cloudSeaMat);
+            cloudSeaMesh.rotation.x = -Math.PI / 2;
+            cloudSeaMesh.position.set(0, -35.0, -2600);
+            this.scene.add(cloudSeaMesh);
+            this.stageMeshes.push(cloudSeaMesh);
+
+            // 2. Floating Golden Lotus Sparkles & Ethereal Stardust Particles
+            for (let i = 0; i < 70; i++) {
+                const spark = this.createCelestialSparkle();
+                spark.position.set(
+                    (Math.random() - 0.5) * 520,
+                    -10 + Math.random() * 50,
+                    -Math.random() * 5400 + 40
+                );
+                this.scene.add(spark);
+                this.stageMeshes.push(spark);
+                this.clouds.push(spark);
+            }
+
+            // 3. Floating Sacred Celestial Cumulus Clouds at varying altitudes
+            for (let i = 0; i < 48; i++) {
+                const cloudTint = (i % 2 === 0) ? 0xffffff : 0xfef08a;
+                const cloud = this.createCloud(cloudTint);
+                cloud.position.set(
+                    (Math.random() - 0.5) * 600,
+                    35 + Math.random() * 60,
+                    -Math.random() * 5300 + 60
+                );
+                this.scene.add(cloud);
+                this.stageMeshes.push(cloud);
+                this.clouds.push(cloud);
+            }
+
+            this.buildCelestialSanctuaryCourse();
+            this.buildCelestialSanctuaryScenery();
         } else {
             // Himavanta Mystic Forest Celestial Atmosphere
             this.scene.background = new THREE.Color(0x42b4e6);
@@ -865,6 +1284,24 @@ class World {
         return group;
     }
 
+    createVolcanicEmber() {
+        const group = new THREE.Group();
+        const rad = 0.35 + Math.random() * 0.55;
+        const emberGeo = new THREE.DodecahedronGeometry(rad, 0);
+        const ember = new THREE.Mesh(emberGeo, this.fireEmbersMat);
+        group.add(ember);
+        return group;
+    }
+
+    createCelestialSparkle() {
+        const group = new THREE.Group();
+        const rad = 0.45 + Math.random() * 0.55;
+        const sparkGeo = new THREE.OctahedronGeometry(rad, 0);
+        const spark = new THREE.Mesh(sparkGeo, (Math.random() > 0.5) ? this.celestialGoldTrimMat : this.celestialCrystalMat);
+        group.add(spark);
+        return group;
+    }
+
     // Material helpers
     getGroundMaterial(repeatX = 1, repeatZ = 1) {
         const tex = this.checkerTexture.clone();
@@ -908,9 +1345,39 @@ class World {
         return new THREE.MeshLambertMaterial({ map: tex, roughness: 0.45 });
     }
 
+    getMoltenTrackMaterial(repeatX = 1, repeatZ = 1) {
+        const tex = this.moltenTrackTexture.clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(repeatX, repeatZ);
+        return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, metalness: 0.15 });
+    }
+
+    getMoltenSideMaterial(repeatX = 1, repeatZ = 1) {
+        const tex = this.moltenSideTexture.clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(repeatX, repeatZ);
+        return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.75, metalness: 0.1 });
+    }
+
+    getCelestialTrackMaterial(repeatX = 1, repeatZ = 1) {
+        const tex = this.celestialTrackTexture.clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(repeatX, repeatZ);
+        return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.25, metalness: 0.15 });
+    }
+
+    getCelestialSideMaterial(repeatX = 1, repeatZ = 1) {
+        const tex = this.celestialSideTexture.clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(repeatX, repeatZ);
+        return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45, metalness: 0.1 });
+    }
+
     addRoadSegment(x, y, z, width, length, rollAngle = 0, customTopMat = null, customSideMat = null) {
         const isHydro = (this.currentStageId === 'hydrocity');
-        const boxH = isHydro ? 24 : 10;
+        const isMolten = (this.currentStageId === 'molten_ravine');
+        const isCelestial = (this.currentStageId === 'celestial_sanctuary');
+        const boxH = isHydro ? 24 : ((isMolten || isCelestial) ? 20 : 10);
         const boxGeo = new THREE.BoxGeometry(width, boxH, length);
         let topMat, sideMat, frontBackMat;
 
@@ -921,6 +1388,14 @@ class World {
         } else if (this.currentStageId === 'hydrocity') {
             topMat = customTopMat || this.getHydroTrackMaterial(width / 6, length / 6);
             sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 4);
+            frontBackMat = sideMat;
+        } else if (this.currentStageId === 'molten_ravine') {
+            topMat = customTopMat || this.getMoltenTrackMaterial(width / 6, length / 6);
+            sideMat = customSideMat || this.getMoltenSideMaterial(length / 6, 4);
+            frontBackMat = sideMat;
+        } else if (this.currentStageId === 'celestial_sanctuary') {
+            topMat = customTopMat || this.getCelestialTrackMaterial(width / 6, length / 6);
+            sideMat = customSideMat || this.getCelestialSideMaterial(length / 6, 4);
             frontBackMat = sideMat;
         } else {
             topMat = customTopMat || this.getGrassTopMaterial(width / 4, length / 4);
@@ -949,7 +1424,9 @@ class World {
 
     addSlopedRoad(x, startY, startZ, width, length, heightDelta, customTopMat = null, customSideMat = null) {
         const isHydro = (this.currentStageId === 'hydrocity');
-        const boxH = isHydro ? 24 : 8;
+        const isMolten = (this.currentStageId === 'molten_ravine');
+        const isCelestial = (this.currentStageId === 'celestial_sanctuary');
+        const boxH = isHydro ? 24 : ((isMolten || isCelestial) ? 20 : 8);
         const boxGeo = new THREE.BoxGeometry(width, boxH, length);
         let topMat, sideMat;
 
@@ -959,6 +1436,12 @@ class World {
         } else if (this.currentStageId === 'hydrocity') {
             topMat = customTopMat || this.getHydroTrackMaterial(width / 6, length / 6);
             sideMat = customSideMat || this.getHydroSideMaterial(length / 6, 4);
+        } else if (this.currentStageId === 'molten_ravine') {
+            topMat = customTopMat || this.getMoltenTrackMaterial(width / 6, length / 6);
+            sideMat = customSideMat || this.getMoltenSideMaterial(length / 6, 4);
+        } else if (this.currentStageId === 'celestial_sanctuary') {
+            topMat = customTopMat || this.getCelestialTrackMaterial(width / 6, length / 6);
+            sideMat = customSideMat || this.getCelestialSideMaterial(length / 6, 4);
         } else {
             topMat = customTopMat || this.getGrassTopMaterial(width / 4, length / 4);
             sideMat = customSideMat || this.getGroundMaterial(length / 4, 2);
@@ -1056,11 +1539,13 @@ class World {
 
         const isChem = (this.currentStageId === 'chemical_plant');
         const isHydro = (this.currentStageId === 'hydrocity');
+        const isMolten = (this.currentStageId === 'molten_ravine');
+        const isCelestial = (this.currentStageId === 'celestial_sanctuary');
         const trackWidth = 18;
         const geo = this.buildLoopTrackBand(radius, trackWidth);
 
         // Track running surface
-        const topMat = isChem ? this.getChemTrackMaterial(4, 16) : (isHydro ? this.getHydroTrackMaterial(4, 16) : this.getGrassTopMaterial(4, 16));
+        const topMat = isChem ? this.getChemTrackMaterial(4, 16) : (isHydro ? this.getHydroTrackMaterial(4, 16) : (isMolten ? this.getMoltenTrackMaterial(4, 16) : (isCelestial ? this.getCelestialTrackMaterial(4, 16) : this.getGrassTopMaterial(4, 16))));
         topMat.side = THREE.DoubleSide;
         const trackMesh = new THREE.Mesh(geo, topMat);
         trackMesh.castShadow = true;
@@ -1068,7 +1553,7 @@ class World {
         loopGroup.add(trackMesh);
 
         // Under-ribbon casing
-        const underMat = isChem ? this.getChemSideMaterial(4, 16) : (isHydro ? this.getHydroSideMaterial(4, 16) : this.getGroundMaterial(4, 16));
+        const underMat = isChem ? this.getChemSideMaterial(4, 16) : (isHydro ? this.getHydroSideMaterial(4, 16) : (isMolten ? this.getMoltenSideMaterial(4, 16) : (isCelestial ? this.getCelestialSideMaterial(4, 16) : this.getGroundMaterial(4, 16))));
         underMat.side = THREE.DoubleSide;
         const underGeo = this.buildLoopTrackBand(radius + 0.45, trackWidth + 0.8);
         const underMesh = new THREE.Mesh(underGeo, underMat);
@@ -1077,7 +1562,7 @@ class World {
         // Side Guardrail Trusses
         [-trackWidth/2 - 0.4, trackWidth/2 + 0.4].forEach(edgeX => {
             const rimGeo = new THREE.TorusGeometry(radius, 0.45, 8, 48);
-            const rimMat = isChem ? this.neonYellowMat : (isHydro ? this.hydroGoldTrimMat : (this.pillarGoldTrimMat || new THREE.MeshLambertMaterial({ color: 0xf59e0b })));
+            const rimMat = isChem ? this.neonYellowMat : (isHydro ? this.hydroGoldTrimMat : (isMolten ? this.magmaGlowMat : (isCelestial ? this.celestialGoldTrimMat : (this.pillarGoldTrimMat || new THREE.MeshLambertMaterial({ color: 0xf59e0b })))));
             const rim = new THREE.Mesh(rimGeo, rimMat);
             rim.position.set(edgeX, radius, 0);
             rim.rotation.y = Math.PI / 2;
@@ -1086,7 +1571,7 @@ class World {
 
         // Glowing Chevron Entry Runway Lights on the floor
         const arrowGeo = new THREE.ConeGeometry(0.9, 1.8, 3);
-        const arrowMat = isChem ? (this.sacredFireGlowMat || this.vanaraGoldMat) : (isHydro ? this.hydroWaterMat : (this.himavantaFruitMat || this.neonYellowMat));
+        const arrowMat = isChem ? (this.sacredFireGlowMat || this.vanaraGoldMat) : (isHydro ? this.hydroWaterMat : (isMolten ? this.magmaGlowMat : (isCelestial ? this.celestialCrystalMat : (this.himavantaFruitMat || this.neonYellowMat))));
         [14, 10, 6].forEach(offsetZ => {
             const arrow = new THREE.Mesh(arrowGeo, arrowMat);
             arrow.rotation.x = Math.PI / 2;
@@ -2063,6 +2548,446 @@ class World {
     }
 
     // ============================================================
+    // STAGE 4: LANKA MOLTEN RAVINE COURSE DEFINITION (4,550m)
+    // ============================================================
+    buildMoltenRavineCourse() {
+        // 1. Starting Volcanic Causeway (z: 40 to -300, y: 0, length: 340, center: -130)
+        this.addRoadSegment(0, 0, -130, 36, 340, 0);
+
+        // 2. Chasm 1: The First Fissure (Warmup Leap - Adjusted to 30m Standard Challenge)
+        // Takeoff ramp leading up to cliff edge: z: -300 to -325, y: 0 -> 3.5, length: 25
+        this.addSlopedRoad(0, 0, -300, 32, 25, 3.5);
+        // >>> GAP / CHASM 1: z: -325 to -355 (30m chasm - ท้าทายกำลังดี โดดพ้นสวยงาม) <<<
+        // Landing road: z: -355 to -550, y: 3.5, length: 195, center: -452.5
+        this.addRoadSegment(0, 3.5, -452.5, 34, 195, 0);
+
+        // 3. Slope descending back to base: z: -550 to -630, y: 3.5 -> 0, length: 80
+        this.addSlopedRoad(0, 3.5, -550, 34, 80, -3.5);
+
+        // 4. Molten Highway Straightaway: z: -630 to -780, y: 0, length: 150, center: -705
+        this.addRoadSegment(0, 0, -705, 34, 150, 0);
+
+        // 5. Chasm 2: Double Ravine with Floating Basalt Island (28m + 28m)
+        // Cliff edge at z: -780
+        // >>> GAP 1: z: -780 to -808 (28m chasm) <<<
+        // Floating Stepping Island: z: -808 to -848, y: 0, length: 40, width: 30, center: -828
+        this.addRoadSegment(0, 0, -828, 30, 40, 0);
+        // >>> GAP 2: z: -848 to -876 (28m chasm) <<<
+        // Landing road: z: -876 to -1450, y: 0, length: 574, center: -1163
+        this.addRoadSegment(0, 0, -1163, 34, 574, 0);
+
+        // 6. Chasm 3: The Molten Cataract Leap (Adjusted to 32m + Lotus Spring)
+        // Cliff edge at z: -1450. Lotus spring at z: -1445 available or manual jump!
+        // >>> GAP: z: -1450 to -1482 (32m chasm - ท้าทายกำลังดี) <<<
+        // Landing road: z: -1482 to -2020, y: 2.0, length: 538, center: -1751
+        this.addRoadSegment(0, 2.0, -1751, 36, 538, 0);
+
+        // 7. 3D Loop-the-Loop suspended over Boiling Magma:
+        // Approach road into loop: z: -2020 to -2090, y: 2.0, length: 70, center: -2055
+        this.addRoadSegment(0, 2.0, -2055, 36, 70, 0);
+        // Loop at z: -2150
+        this.buildLoopSection(0, 2.0, -2150, 24);
+        // Exit road from loop: z: -2210 to -2780, y: 2.0, length: 570, center: -2495
+        this.addRoadSegment(0, 2.0, -2495, 34, 570, 0);
+
+        // 8. Chasm 4: Triple Stepping Stone Islands across Boiling Magma Sea (25m gaps)
+        // Cliff edge at z: -2780
+        // >>> GAP to Island 1: z: -2780 to -2805 (25m) <<<
+        // Island 1 (Left flank): x: -5, z: -2805 to -2830, y: 2.0, length: 25, width: 20, center: -2817.5
+        this.addRoadSegment(-5, 2.0, -2817.5, 20, 25, 0);
+        // >>> GAP to Island 2: z: -2830 to -2855 (25m) <<<
+        // Island 2 (Right flank): x: 5, z: -2855 to -2880, y: 3.5, length: 25, width: 20, center: -2867.5
+        this.addRoadSegment(5, 3.5, -2867.5, 20, 25, 0);
+        // >>> GAP to Island 3: z: -2880 to -2905 (25m) <<<
+        // Island 3 (Center lane): x: 0, z: -2905 to -2930, y: 2.0, length: 25, width: 22, center: -2917.5
+        this.addRoadSegment(0, 2.0, -2917.5, 22, 25, 0);
+        // >>> GAP to Mainland: z: -2930 to -2955 (25m) <<<
+        // Landing road: z: -2955 to -3450, y: 2.0, length: 495, center: -3202.5
+        this.addRoadSegment(0, 2.0, -3202.5, 34, 495, 0);
+
+        // 9. Chasm 5: Supersonic Vayu Gale Launch (Adjusted to 32m)
+        // Cliff edge at z: -3450. Dash Pad at z: -3435
+        // >>> GAP: z: -3450 to -3482 (32m chasm - ท้าทายกำลังดี) <<<
+        // Landing road: z: -3482 to -4100, y: 4.0, length: 618, center: -3791
+        this.addRoadSegment(0, 4.0, -3791, 34, 618, 0);
+
+        // 10. Chasm 6: Final Ski-Jump Ramp & Ravana's Obsidian Fortress Arena (Adjusted to 30m)
+        // Takeoff ramp: z: -4100 to -4160, y: 4.0 -> 10.0, length: 60
+        this.addSlopedRoad(0, 4.0, -4100, 34, 60, 6.0);
+        // >>> FINAL CHASM: z: -4160 to -4190 (30m ski leap!) <<<
+        // Ravana's Obsidian Fortress Arena: z: -4190 to -4550, y: 6.0, length: 360, width: 76, center: -4370
+        this.addRoadSegment(0, 6.0, -4370, 76, 360, 0);
+        this.buildRavanaFortressArena(0, 6.0, -4450, 76);
+    }
+
+    buildRavanaFortressArena(x, y, z, radius = 76) {
+        const group = new THREE.Group();
+
+        // 1. Massive Basalt Obsidian Arena Plinth (placed at y - 6 so top surface is perfectly flush with road at y = 6.0)
+        const baseGeo = new THREE.CylinderGeometry(radius, radius * 1.05, 12, 32);
+        const baseMesh = new THREE.Mesh(baseGeo, this.obsidianPillarMat);
+        baseMesh.position.set(x, y - 6, z);
+        baseMesh.receiveShadow = true;
+        group.add(baseMesh);
+
+        // Glowing Magma Fissure Rim around Arena Edge
+        const rimGeo = new THREE.TorusGeometry(radius + 0.5, 1.2, 8, 32);
+        const rimMesh = new THREE.Mesh(rimGeo, this.magmaGlowMat);
+        rimMesh.rotation.x = Math.PI / 2;
+        rimMesh.position.set(x, y + 0.1, z);
+        group.add(rimMesh);
+
+        // 2. 8 Demonic Obsidian Obelisks around perimeter (leaving center corridor at x = 0 completely wide open!)
+        for (let i = 0; i < 8; i++) {
+            const angle = (i / 8) * Math.PI * 2 + Math.PI / 8; // Offset 22.5 deg to keep x = 0 corridor completely free
+            const px = x + Math.cos(angle) * (radius - 8);
+            const pz = z + Math.sin(angle) * (radius - 8);
+
+            // Spire Pillar
+            const spireGeo = new THREE.CylinderGeometry(2.2, 3.5, 34, 6);
+            const spire = new THREE.Mesh(spireGeo, this.obsidianPillarMat);
+            spire.position.set(px, y + 17, pz);
+            spire.castShadow = true;
+            group.add(spire);
+
+            // Glowing Magma Crystal Spike atop pillar
+            const crystalGeo = new THREE.OctahedronGeometry(2.4, 0);
+            const crystal = new THREE.Mesh(crystalGeo, this.magmaGlowMat);
+            crystal.position.set(px, y + 36, pz);
+            group.add(crystal);
+        }
+
+        // 3. Grand Finish Entrance Archway (Colossal Ravana Fortress Gate at approach)
+        const archL = new THREE.Mesh(new THREE.BoxGeometry(5.0, 32, 5.0), this.obsidianPillarMat);
+        archL.position.set(x - 22, y + 16, z + 60);
+        group.add(archL);
+
+        const archR = new THREE.Mesh(new THREE.BoxGeometry(5.0, 32, 5.0), this.obsidianPillarMat);
+        archR.position.set(x + 22, y + 16, z + 60);
+        group.add(archR);
+
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(52, 4.5, 5.5), this.obsidianPillarMat);
+        lintel.position.set(x, y + 32, z + 60);
+        group.add(lintel);
+
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(3.5, 8.0, 6), this.magmaGlowMat);
+        crown.position.set(x, y + 38, z + 60);
+        group.add(crown);
+
+        this.scene.add(group);
+        this.stageMeshes.push(group);
+        return group;
+    }
+
+    buildMoltenRavineScenery() {
+        // 1. Towering Obsidian Spires & Sharp Basalt Peaks flanking the chasms
+        const totalSpires = 56;
+        for (let i = 0; i < totalSpires; i++) {
+            const side = (i % 2 === 0) ? 1 : -1;
+            const progress = i / totalSpires;
+            const z = 30 - progress * 4550;
+            const groundY = this.getGroundHeight(0, z);
+            const safeY = (groundY > -40) ? groundY : 0.0;
+            const dist = 24 + (i % 4) * 8;
+            const spireH = 30 + (i % 5) * 14;
+            const spire = this.createObsidianSpire(spireH, 3.5);
+            spire.position.set(side * dist, safeY - 5.0, z);
+            this.scene.add(spire);
+            this.stageMeshes.push(spire);
+            this.sceneryObjects.push(spire);
+        }
+
+        // 2. Menacing Ravana Demonic Archways at key milestone locations
+        const archZ = [-260, -680, -1400, -1980, -2700, -3380, -4050];
+        archZ.forEach(az => {
+            const groundY = this.getGroundHeight(0, az);
+            const safeY = (groundY > -40) ? groundY : 0.0;
+            const arch = this.createRavanaArchway(48, 28);
+            arch.position.set(0, safeY, az);
+            this.scene.add(arch);
+            this.stageMeshes.push(arch);
+            this.sceneryObjects.push(arch);
+        });
+    }
+
+    createObsidianSpire(height = 36, radius = 4.0) {
+        const group = new THREE.Group();
+        const coneGeo = new THREE.ConeGeometry(radius, height, 6);
+        coneGeo.translate(0, height * 0.5, 0);
+        const coneMesh = new THREE.Mesh(coneGeo, this.obsidianPillarMat);
+        coneMesh.castShadow = true;
+        coneMesh.receiveShadow = true;
+        group.add(coneMesh);
+
+        // Glowing magma fissure ribbon cutting up the spire
+        const ribbonGeo = new THREE.CylinderGeometry(radius * 0.45, radius * 0.65, height * 0.6, 4);
+        ribbonGeo.translate(0, height * 0.35, 0);
+        const ribbonMesh = new THREE.Mesh(ribbonGeo, this.magmaGlowMat);
+        group.add(ribbonMesh);
+        return group;
+    }
+
+    createRavanaArchway(width = 46, height = 26) {
+        const group = new THREE.Group();
+        // Left & Right Colossal Obsidian Pillars
+        const pillarGeo = new THREE.BoxGeometry(4.5, height, 4.5);
+        pillarGeo.translate(0, height * 0.5, 0);
+        const leftPillar = new THREE.Mesh(pillarGeo, this.obsidianPillarMat);
+        leftPillar.position.x = -width * 0.5;
+        group.add(leftPillar);
+
+        const rightPillar = new THREE.Mesh(pillarGeo, this.obsidianPillarMat);
+        rightPillar.position.x = width * 0.5;
+        group.add(rightPillar);
+
+        // Overhead Jagged Lintel
+        const lintelGeo = new THREE.BoxGeometry(width + 8, 4.0, 5.5);
+        const lintelMesh = new THREE.Mesh(lintelGeo, this.obsidianPillarMat);
+        lintelMesh.position.y = height + 1.5;
+        group.add(lintelMesh);
+
+        // Glowing Demonic Crown / Eye
+        const eyeGeo = new THREE.OctahedronGeometry(2.2, 0);
+        const eyeMesh = new THREE.Mesh(eyeGeo, this.magmaGlowMat);
+        eyeMesh.position.y = height + 4.5;
+        group.add(eyeMesh);
+
+        return group;
+    }
+
+    // ============================================================
+    // STAGE 5: CELESTIAL CLOUD SANCTUARY COURSE DEFINITION (5,200m)
+    // ============================================================
+    buildCelestialSanctuaryCourse() {
+        // 1. Starting Heavenly Terrace (z: 40 to -310, y: 0, length: 350, center: -135)
+        this.addRoadSegment(0, 0, -135, 36, 350, 0);
+
+        // 2. Chasm 1: "ทัณฑเมฆาแรก (First Cloud Rift)" (28m gap - graceful warm-up leap over Sea of Clouds)
+        // Takeoff ramp: z: -310 to -335, y: 0 -> 3.5, length: 25
+        this.addSlopedRoad(0, 0, -310, 34, 25, 3.5);
+        // >>> GAP / CHASM 1: z: -335 to -363 (28m chasm over Sea of Clouds!) <<<
+        // Landing road: z: -363 to -580, y: 3.5, length: 217, center: -471.5
+        this.addRoadSegment(0, 3.5, -471.5, 34, 217, 0);
+
+        // 3. Slope descending back to base: z: -580 to -660, y: 3.5 -> 0, length: 80
+        this.addSlopedRoad(0, 3.5, -580, 34, 80, -3.5);
+
+        // 4. Celestial Highway Straightaway: z: -660 to -810, y: 0, length: 150, center: -735
+        this.addRoadSegment(0, 0, -735, 34, 150, 0);
+
+        // 5. Chasm 2: "เกาะลอยฟ้าผลึกมณีแฝด (Twin Crystal Stepping Islets)" (26m + 26m)
+        // Cliff edge at z: -810
+        // >>> GAP 1: z: -810 to -836 (26m chasm) <<<
+        // Floating Stepping Island: z: -836 to -876, y: 0, length: 40, width: 30, center: -856
+        this.addRoadSegment(0, 0, -856, 30, 40, 0);
+        // >>> GAP 2: z: -876 to -902 (26m chasm) <<<
+        // Landing road: z: -902 to -1450, y: 0, length: 548, center: -1176
+        this.addRoadSegment(0, 0, -1176, 34, 548, 0);
+
+        // 6. Chasm 3: "เวหาเหินดอกบัวทิพย์ (Celestial Lotus Leap)" (30m chasm + Lotus Spring)
+        // Cliff edge at z: -1450
+        // >>> GAP: z: -1450 to -1480 (30m chasm) <<<
+        // Landing road: z: -1480 to -2020, y: 2.0, length: 540, center: -1750
+        this.addRoadSegment(0, 2.0, -1750, 36, 540, 0);
+
+        // 7. 3D Celestial Loop-the-Loop suspended over Sea of Clouds:
+        // Approach road: z: -2020 to -2090, y: 2.0, length: 70, center: -2055
+        this.addRoadSegment(0, 2.0, -2055, 36, 70, 0);
+        // Loop at z: -2150
+        this.buildLoopSection(0, 2.0, -2150, 24);
+        // Exit road: z: -2210 to -2780, y: 2.0, length: 570, center: -2495
+        this.addRoadSegment(0, 2.0, -2495, 34, 570, 0);
+
+        // 8. Chasm 4: "มหาเกาะลอยฟ้าตรัยจักร (Triple Floating Sanctuaries)" (25m gaps)
+        // Cliff edge at z: -2780
+        // >>> GAP to Island 1: z: -2780 to -2805 (25m) <<<
+        // Island 1 (Left flank): x: -5, z: -2805 to -2830, y: 2.0, length: 25, width: 22, center: -2817.5
+        this.addRoadSegment(-5, 2.0, -2817.5, 22, 25, 0);
+        // >>> GAP to Island 2: z: -2830 to -2855 (25m) <<<
+        // Island 2 (Right flank): x: 5, z: -2855 to -2880, y: 3.5, length: 25, width: 22, center: -2867.5
+        this.addRoadSegment(5, 3.5, -2867.5, 22, 25, 0);
+        // >>> GAP to Island 3: z: -2880 to -2905 (25m) <<<
+        // Island 3 (Center lane): x: 0, z: -2905 to -2930, y: 2.0, length: 25, width: 24, center: -2917.5
+        this.addRoadSegment(0, 2.0, -2917.5, 24, 25, 0);
+        // >>> GAP to Mainland: z: -2930 to -2955 (25m) <<<
+        // Landing road: z: -2955 to -3450, y: 2.0, length: 495, center: -3202.5
+        this.addRoadSegment(0, 2.0, -3202.5, 34, 495, 0);
+
+        // 9. Chasm 5: "เวหาพายุวายุบุตรทะยานเมฆ (Supersonic Cloud Catapult)" (30m chasm)
+        // Cliff edge at z: -3450
+        // >>> GAP: z: -3450 to -3480 (30m chasm) <<<
+        // Landing road: z: -3480 to -4120, y: 4.0, length: 640, center: -3800
+        this.addRoadSegment(0, 4.0, -3800, 34, 640, 0);
+
+        // 10. Chasm 6: "ผาทะยานฟ้าสู่ยอดเขาไกรลาส (Kailash Summit Ski-Jump)" (30m ski leap)
+        // Takeoff ramp: z: -4120 to -4180, y: 4.0 -> 10.0, length: 60
+        this.addSlopedRoad(0, 4.0, -4120, 34, 60, 6.0);
+        // >>> FINAL CELESTIAL CHASM: z: -4180 to -4210 (30m ski leap!) <<<
+        // Grand Kailash Palace Summit Arena: z: -4210 to -5200, y: 6.0, length: 990, width: 76, center: -4705
+        this.addRoadSegment(0, 6.0, -4705, 76, 990, 0);
+        this.buildKailashPalaceArena(0, 6.0, -5100, 76);
+    }
+
+    buildKailashPalaceArena(x, y, z, radius = 76) {
+        const group = new THREE.Group();
+
+        // 1. Massive White Marble Celestial Plinth (flush with road surface at y = 6.0)
+        const baseGeo = new THREE.CylinderGeometry(radius, radius * 1.05, 12, 36);
+        const baseMesh = new THREE.Mesh(baseGeo, this.celestialMarbleMat);
+        baseMesh.position.set(x, y - 6, z);
+        baseMesh.receiveShadow = true;
+        group.add(baseMesh);
+
+        // Shimmering Golden Lotus Rim around Arena Edge
+        const rimGeo = new THREE.TorusGeometry(radius + 0.5, 1.4, 8, 36);
+        const rimMesh = new THREE.Mesh(rimGeo, this.celestialGoldTrimMat);
+        rimMesh.rotation.x = Math.PI / 2;
+        rimMesh.position.set(x, y + 0.1, z);
+        group.add(rimMesh);
+
+        // 2. 12 Celestial Spires around perimeter (offset by 15 deg to keep x = 0 corridor wide open!)
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2 + Math.PI / 12;
+            const px = x + Math.cos(angle) * (radius - 8);
+            const pz = z + Math.sin(angle) * (radius - 8);
+
+            // White marble pillar shaft
+            const spireGeo = new THREE.CylinderGeometry(2.0, 3.2, 38, 8);
+            const spire = new THREE.Mesh(spireGeo, this.celestialMarbleMat);
+            spire.position.set(px, y + 19, pz);
+            spire.castShadow = true;
+            group.add(spire);
+
+            // Golden lotus capitol
+            const capGeo = new THREE.CylinderGeometry(3.6, 2.0, 3.2, 8);
+            const cap = new THREE.Mesh(capGeo, this.celestialGoldTrimMat);
+            cap.position.set(px, y + 39, pz);
+            group.add(cap);
+
+            // Radiant Cyan Diamond Crystal atop each pillar
+            const crystalGeo = new THREE.OctahedronGeometry(2.2, 0);
+            const crystal = new THREE.Mesh(crystalGeo, this.celestialCrystalMat);
+            crystal.position.set(px, y + 42, pz);
+            group.add(crystal);
+        }
+
+        // 3. Grand Kailash Celestial Entrance Torana Gate (at z + 70 approach)
+        const archL = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 3.4, 34, 8), this.celestialMarbleMat);
+        archL.position.set(x - 22, y + 17, z + 70);
+        group.add(archL);
+
+        const archR = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 3.4, 34, 8), this.celestialMarbleMat);
+        archR.position.set(x + 22, y + 17, z + 70);
+        group.add(archR);
+
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(52, 4.5, 5.5), this.celestialGoldTrimMat);
+        lintel.position.set(x, y + 33, z + 70);
+        group.add(lintel);
+
+        // Thai Prasat Crown Spire atop Gate
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(3.2, 10.0, 8), this.celestialGoldTrimMat);
+        crown.position.set(x, y + 40, z + 70);
+        group.add(crown);
+
+        // Sacred Radiant Crystal Crest
+        const crest = new THREE.Mesh(new THREE.SphereGeometry(1.8, 14, 14), this.celestialCrystalMat);
+        crest.position.set(x, y + 34, z + 70);
+        group.add(crest);
+
+        this.scene.add(group);
+        this.stageMeshes.push(group);
+        return group;
+    }
+
+    buildCelestialSanctuaryScenery() {
+        // 1. Towering White-Gold Celestial Spires flanking the chasms
+        const totalSpires = 60;
+        for (let i = 0; i < totalSpires; i++) {
+            const side = (i % 2 === 0) ? 1 : -1;
+            const progress = i / totalSpires;
+            const z = 30 - progress * 5150;
+            const groundY = this.getGroundHeight(0, z);
+            const safeY = (groundY > -40) ? groundY : 0.0;
+            const dist = 24 + (i % 4) * 8;
+            const spireH = 32 + (i % 5) * 14;
+            const spire = this.createCelestialPillar(spireH, 3.2);
+            spire.position.set(side * dist, safeY - 5.0, z);
+            this.scene.add(spire);
+            this.stageMeshes.push(spire);
+            this.sceneryObjects.push(spire);
+        }
+
+        // 2. Grand Celestial Torana Archways at key milestone locations
+        const archZ = [-280, -700, -1420, -2000, -2740, -3420, -4080];
+        archZ.forEach(az => {
+            const groundY = this.getGroundHeight(0, az);
+            const safeY = (groundY > -40) ? groundY : 0.0;
+            const arch = this.createCelestialArchway(48, 28);
+            arch.position.set(0, safeY, az);
+            this.scene.add(arch);
+            this.stageMeshes.push(arch);
+            this.sceneryObjects.push(arch);
+        });
+    }
+
+    createCelestialPillar(height = 36, radius = 3.6) {
+        const group = new THREE.Group();
+        // White marble column
+        const colGeo = new THREE.CylinderGeometry(radius * 0.75, radius, height, 8);
+        colGeo.translate(0, height * 0.5, 0);
+        const colMesh = new THREE.Mesh(colGeo, this.celestialMarbleMat);
+        colMesh.castShadow = true;
+        colMesh.receiveShadow = true;
+        group.add(colMesh);
+
+        // Golden Lotus Capitol
+        const capGeo = new THREE.CylinderGeometry(radius * 1.3, radius * 0.75, 4.0, 8);
+        capGeo.translate(0, height + 2.0, 0);
+        const capMesh = new THREE.Mesh(capGeo, this.celestialGoldTrimMat);
+        group.add(capMesh);
+
+        // Cyan Glowing Jewel
+        const gemGeo = new THREE.OctahedronGeometry(radius * 0.8, 0);
+        gemGeo.translate(0, height + 5.5, 0);
+        const gemMesh = new THREE.Mesh(gemGeo, this.celestialCrystalMat);
+        group.add(gemMesh);
+
+        return group;
+    }
+
+    createCelestialArchway(width = 46, height = 26) {
+        const group = new THREE.Group();
+        // Left & Right Pillars
+        const pillarGeo = new THREE.CylinderGeometry(2.4, 3.2, height, 8);
+        pillarGeo.translate(0, height * 0.5, 0);
+        const leftPillar = new THREE.Mesh(pillarGeo, this.celestialMarbleMat);
+        leftPillar.position.x = -width * 0.5;
+        group.add(leftPillar);
+
+        const rightPillar = new THREE.Mesh(pillarGeo, this.celestialMarbleMat);
+        rightPillar.position.x = width * 0.5;
+        group.add(rightPillar);
+
+        // Overhead Lintel
+        const lintelGeo = new THREE.BoxGeometry(width + 8, 4.0, 5.0);
+        const lintelMesh = new THREE.Mesh(lintelGeo, this.celestialGoldTrimMat);
+        lintelMesh.position.y = height + 1.5;
+        group.add(lintelMesh);
+
+        // Thai Prasat Crown Spire atop Arch
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(2.8, 8.5, 8), this.celestialGoldTrimMat);
+        crown.position.y = height + 7.0;
+        group.add(crown);
+
+        // Glowing Blue Star Medallion
+        const star = new THREE.Mesh(new THREE.SphereGeometry(1.6, 12, 12), this.celestialCrystalMat);
+        star.position.y = height + 2.5;
+        group.add(star);
+
+        return group;
+    }
+
+    // ============================================================
     // STAGE 1: GREEN HILL COURSE & SCENERY
     // ============================================================
     buildStageCourse() {
@@ -2702,6 +3627,36 @@ class World {
                 this.hydroWaterTexture.offset.x = (this.hydroWaterTexture.offset.x + dt * 0.05) % 1;
                 this.hydroWaterTexture.offset.y = (this.hydroWaterTexture.offset.y + dt * 0.08) % 1;
             }
+        }
+
+        // Animate Molten Lava flow and floating firefly embers in Molten Ravine
+        if (this.currentStageId === 'molten_ravine') {
+            if (this.lavaSeaTexture) {
+                this.lavaSeaTexture.offset.y = (this.lavaSeaTexture.offset.y + dt * 0.035) % 1;
+                this.lavaSeaTexture.offset.x = (this.lavaSeaTexture.offset.x + dt * 0.015) % 1;
+            }
+            this.clouds.forEach(ember => {
+                ember.position.y += dt * 3.5;
+                ember.position.x += Math.sin(ember.position.y * 0.5) * dt * 2.0;
+                if (ember.position.y > 35) {
+                    ember.position.y = -25;
+                }
+            });
+        }
+
+        // Animate Celestial Sea of Clouds and floating celestial sparkles in Stage 5
+        if (this.currentStageId === 'celestial_sanctuary') {
+            if (this.cloudSeaTexture) {
+                this.cloudSeaTexture.offset.y = (this.cloudSeaTexture.offset.y + dt * 0.02) % 1;
+                this.cloudSeaTexture.offset.x = (this.cloudSeaTexture.offset.x + dt * 0.01) % 1;
+            }
+            this.clouds.forEach(spark => {
+                spark.position.y += dt * 2.5;
+                spark.position.x += Math.sin(spark.position.y * 0.4) * dt * 1.5;
+                if (spark.position.y > 50) {
+                    spark.position.y = -5;
+                }
+            });
         }
     }
 }

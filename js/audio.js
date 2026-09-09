@@ -14,7 +14,7 @@ class SoundManager {
         this.bgmTimer = null;
         this.currentBgmType = null; // 'intro', 'stage', or null
 
-        const ASSET_BASE = (typeof window !== 'undefined' && window.GAME_ASSETS_URL) || 'https://cdn.1thaiai.com/gameprompt/006Sonic3d/';
+        const ASSET_BASE = (typeof window !== 'undefined' && window.GAME_ASSETS_URL) || 'https://cdn.1thaiai.com/gameprompt/007Hanuman/';
 
         // Real MP3 Soundtracks (Cloudflare R2 CDN with local fallback)
         this.introBgm = new Audio(ASSET_BASE + 'Neon%20Highway%20Run.mp3');
@@ -83,7 +83,7 @@ class SoundManager {
             if (!this.isMuted) {
                 if (this.currentBgmType === 'intro' && this.introBgm && this.introBgm.paused) {
                     this.introBgm.play().catch(() => {});
-                } else if (this.currentBgmType === 'stage' && this.stageBgm && this.stageBgm.paused) {
+                } else if ((this.currentBgmType === 'stage' || this.currentBgmType === 'molten_ravine' || this.currentBgmType === 'celestial_sanctuary') && this.stageBgm && this.stageBgm.paused) {
                     this.stageBgm.play().catch(() => {});
                 } else if (this.currentBgmType === 'hydrocity' && this.hydrocityBgm && this.hydrocityBgm.paused) {
                     this.hydrocityBgm.play().catch(() => {});
@@ -549,6 +549,101 @@ class SoundManager {
             osc.stop(t + 0.25);
             delay += 0.045 + (i * 0.01);
         });
+    }
+
+    // Naga Poison Geyser Eruption Sound: Pressurized geothermal steam roar and volcanic bass thump
+    playGeyserErupt(proximity = 1.0) {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const effectiveVol = Math.max(0.01, Math.min(0.42, 0.42 * proximity * (this.sfxVolume || 0.8)));
+        if (effectiveVol < 0.02) return;
+
+        const t = this.ctx.currentTime;
+        const duration = 0.55;
+        const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(320, t);
+        filter.frequency.exponentialRampToValueAtTime(1400, t + 0.1);
+        filter.frequency.exponentialRampToValueAtTime(260, t + duration);
+        filter.Q.value = 2.5;
+
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(95, t);
+        osc.frequency.exponentialRampToValueAtTime(45, t + 0.35);
+
+        oscGain.gain.setValueAtTime(effectiveVol * 0.5, t);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(effectiveVol * 0.1, t);
+        gain.gain.linearRampToValueAtTime(effectiveVol, t + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxMasterGain || this.ctx.destination);
+
+        osc.connect(oscGain);
+        oscGain.connect(this.sfxMasterGain || this.ctx.destination);
+
+        noise.start(t);
+        noise.stop(t + duration);
+        osc.start(t);
+        osc.stop(t + 0.36);
+    }
+
+    // Naga Poison Geyser Warning Hiss: Sizzling bubbling acid steam
+    playGeyserHiss(proximity = 1.0) {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const effectiveVol = Math.max(0.01, Math.min(0.25, 0.25 * proximity * (this.sfxVolume || 0.8)));
+        if (effectiveVol < 0.02) return;
+
+        const t = this.ctx.currentTime;
+        const duration = 0.28;
+        const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(2200, t);
+        filter.frequency.exponentialRampToValueAtTime(3600, t + duration);
+        filter.Q.value = 4.0;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(effectiveVol * 0.2, t);
+        gain.gain.linearRampToValueAtTime(effectiveVol, t + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxMasterGain || this.ctx.destination);
+
+        noise.start(t);
+        noise.stop(t + duration);
     }
 
     // Character Death Sound: Plays charactordie.mp3
@@ -1175,10 +1270,14 @@ class SoundManager {
         osc.stop(t + 0.15);
     }
 
-    // In-Game Stage Gameplay BGM (Turbo Speed Dash for Green Hill, Neon Highway Run for Chemical Plant, Loop-de-Loop Dash for Hydrocity)
+    // In-Game Stage Gameplay BGM (Turbo Speed Dash for Green Hill & Molten Ravine, Neon Highway Run for Chemical Plant, Loop-de-Loop Dash for Hydrocity)
     playStageBGM(stageId = 'green_hill') {
         let track = null;
-        if (stageId === 'hydrocity') {
+        if (stageId === 'celestial_sanctuary') {
+            track = this.stageBgm;
+        } else if (stageId === 'molten_ravine') {
+            track = this.stageBgm;
+        } else if (stageId === 'hydrocity') {
             track = this.hydrocityBgm;
         } else if (stageId === 'chemical_plant') {
             track = this.introBgm;
@@ -1254,7 +1353,7 @@ class SoundManager {
                 if (this.introBgm) this.introBgm.play().catch(() => {});
             } else if (this.currentBgmType === 'hydrocity') {
                 if (this.hydrocityBgm) this.hydrocityBgm.play().catch(() => {});
-            } else if (this.currentBgmType === 'stage' || this.currentBgmType === 'green_hill') {
+            } else if (this.currentBgmType === 'stage' || this.currentBgmType === 'green_hill' || this.currentBgmType === 'molten_ravine' || this.currentBgmType === 'celestial_sanctuary') {
                 if (this.stageBgm) this.stageBgm.play().catch(() => {});
             }
         }
