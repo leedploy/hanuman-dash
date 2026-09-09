@@ -79,7 +79,7 @@ Your mission is to construct, initialize, and deploy the high-performance, produ
    - 3D Enemy Mesh: `enemy001.glb` (Asura Lanka Sentinel with patrol and strike animations)
    - High-fidelity zone soundtracks: `Neon Highway Run.mp3`, `Turbo Speed Dash.mp3`, `Loop-de-Loop Dash.mp3`
    - High-impact audio SFX: `getcoin.mp3`, `skillboost.mp3`, `charactordie.mp3`, `gameover.mp3`
-   - Cinematic attract video background: `sonicvideo.mp4`
+   - Cinematic attract video background: `sonicvideo1.mp4`
    - Origin CDN: `https://cdn.1thaiai.com/gameprompt/007Hanuman/`
 
 ---
